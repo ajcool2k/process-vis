@@ -25,6 +25,9 @@ module.exports = {
       '@': resolve('src')
     }
   },
+  watchOptions: {
+    ignored: /node_modules/
+  },
   module: {
     rules: [
       {
