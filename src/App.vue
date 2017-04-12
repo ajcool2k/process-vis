@@ -1,39 +1,67 @@
 <template>
   <div id="app">
-    <div id="item_1" class="item" style="left: 25%">Input 1</div>
-    <div id="item_2" class="item" style="left: 50%">Input 2</div>
-    <div id="item_3" class="item" style="left: 75%">Input 3</div>
+    <div v-for="(item, index) in route.path" :id="item.id" class="item" :style="'top: ' + index * 200 + 'px'">{{item.id}}</div>
   </div>
 </template>
 
 <script>
+
+import plumb from 'jsplumb';
+import Graph from 'digraphe';
+
+import { Conf } from './classes/Conf';
+
+import { Project } from './classes/Project';
 import { Process } from './classes/Process';
 import { Participant } from './classes/Participant';
 
-import plumb from 'jsplumb';
+
+
 
 export default {
   name: 'app',
   data: function() {
-      return {}
+      return {
+        graph: null,
+        route: null,
+        counter: 0
+      }
   },
 
   created: function() {
-    let p = new Process('main-process');
+    console.log("created");
+    
+    let graph = new Graph();
+    Conf.digrapheDebugmode(graph);
 
-    let c1 = new Process('Input1');
-    let c2 = new Process('Input2');
+    let p1 = new Process('p1', 4 * 24);
+    graph.addNode('p1', p1);
+    let p2 = new Process('p2', 2 * 24);
+    graph.addNode('p2', p2);
+    let p3 = new Process('p3', 5 * 24);
+    graph.addNode('p3', p3);
+    let p4 = new Process('p4', 3 * 24);
+    graph.addNode('p4', p4);
+    
+    graph.addEdge('head', 'p1');
+    graph.addEdge('p1', 'p2', { weight: p1.getDuration() });
+    graph.addEdge('p2', 'p3', { weight: p2.getDuration() });
+    graph.addEdge('p3', 'p4', { weight: p3.getDuration() });
+    graph.addEdge('p4', 'tail', { weight: p4.getDuration() });
 
-    p.addChild(c1);
-    p.addChild(c2);
-    Process.connect(c1, c2);
-    console.log(p);
-    Process.disconnect(c1, c2);
+    this.graph = graph;
+    this.route = graph.routes({ from: 'head', to: 'tail' })[0];
+
+    console.log("Dauer in Tagen: " + this.route.weight / 24);
+
 
   },
 
   mounted: function() {
     console.log("mounted");
+
+    let route = this.route;
+    console.log(route);
 
     var jsInstance = plumb.jsPlumb.getInstance({
         Connector: "Flowchart",
@@ -47,17 +75,19 @@ export default {
     jsInstance.ready(function () {
       console.log("jsInstance ready");
 
-      jsInstance.connect({source: "item_1", target: "item_2" });
-      jsInstance.connect({source: "item_3", target: "item_2" });
-
-      jsInstance.draggable("item_1");
-      jsInstance.draggable("item_2");
-      jsInstance.draggable("item_3");
+      // connect route visually
+      for (let i=0; i < route.path.length - 1; i++) {
+        jsInstance.draggable(route.path[i].id);
+        jsInstance.connect({source: route.path[i].id, target: route.path[i+1].id });
+      }
 
       jsInstance.on(window, "resize", jsInstance.repaintEverything);
 
     });
-  }
+
+  },
+
+  methods: {}
 }
 
 </script>
