@@ -6,7 +6,7 @@ export class Object {
     constructor(name) {
         this.id = ++gloablId;
         this.name = name;
-        console.log("object");
+        console.log("object with id " + this.id + " created.");
     }
 
     // set name(name) { this.name = name }
