@@ -80,15 +80,21 @@ export default {
 
     jsInstance.ready(function () {
       console.log("jsInstance ready ");
-      
+
+      // start batch mode
+      jsInstance.setSuspendDrawing(true);
+
       // connect route visually
       for (let i=0; i < route.path.length - 1; i++) {
         jsInstance.draggable(route.path[i].id);
         jsInstance.connect({source: route.path[i].id, target: route.path[i+1].id });
       }
-      jsInstance.draggable(route.path[route.path.length - 1].id);
 
+      jsInstance.draggable(route.path[route.path.length - 1].id);
       jsInstance.on(window, "resize", jsInstance.repaintEverything);
+
+      // end batch mode and redraw
+      jsInstance.setSuspendDrawing(false, true);
 
     });
   },
@@ -103,6 +109,7 @@ export default {
 </script>
 
 <style>
+
   .item {
     background-color: white;
     border: 3px solid #346789;
