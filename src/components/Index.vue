@@ -1,5 +1,8 @@
 <template>
     <div id="index">
+        <div class="logo">
+            <img src="../assets/logo.png" draggable="true">
+        </div>    
         <router-link to="/draw">
             <button>Route zeichnen</button>
         </router-link>
@@ -19,6 +22,11 @@
     }
 </script>
 
-<style>
-
+<style scoped>
+    .logo img {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -80%);
+    }
 </style>
