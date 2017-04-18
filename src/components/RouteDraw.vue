@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="RouteDraw">
     <div id="plumbContainer">
       <div v-for="(item, index) in route.path" :id="item.id" class="item" :style="'top: ' + index * 200 + 'px'">{{item.id}}</div>
    </div>

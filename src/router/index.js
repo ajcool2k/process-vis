@@ -5,6 +5,7 @@ import Router from 'vue-router'
 import Index from '@/components/Index'
 import Hello from '@/components/Hello'
 import RouteDraw from '@/components/RouteDraw'
+import CyDemo from '@/components/CyDemo'
 
 Vue.use(Router)
 
@@ -13,6 +14,8 @@ export default new Router({
   routes: [
     { name: 'Index', path: '/', component:  Index },
     { name: 'Hello Vue', path: '/hello', component:  Hello },
-    { name: 'Route zeichnen', path: '/draw', component: RouteDraw } 
+    { name: 'Route zeichnen', path: '/draw', component: RouteDraw }, 
+    { name: 'CyDemo', path: '/draw2', component: CyDemo } 
+
   ]
 })

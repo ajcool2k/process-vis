@@ -6,6 +6,11 @@
         <router-link to="/draw">
             <button>Route zeichnen</button>
         </router-link>
+
+        <router-link to="/draw2">
+            <button>CyDemo</button>
+        </router-link>
+
         <router-link to="/hello">
             <button>Hello Vue</button>
         </router-link>
