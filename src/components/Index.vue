@@ -1,8 +1,6 @@
 <template>
     <div id="index">
-        <div class="logo">
-            <img src="../assets/logo.png" draggable="true">
-        </div>    
+
         <router-link to="/draw">
             <button>Route zeichnen</button>
         </router-link>
@@ -11,9 +9,23 @@
             <button>CyDemo</button>
         </router-link>
 
-        <router-link to="/hello">
-            <button>Hello Vue</button>
+        <router-link to="/draw3">
+            <button>D3demo</button>
         </router-link>
+
+        <router-link to="/flexbox">
+            <button>Flexbox</button>
+        </router-link>
+
+        <router-link to="/material">
+            <button>VueMaterial</button>
+        </router-link>
+
+
+        <div class="logo">
+            <img src="../assets/logo.png" draggable="true">
+        </div>    
+
     </div>
 </template>
 

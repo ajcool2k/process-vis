@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "cytoscape": "^3.0.0",
+    "d3": "^4.8.0",
     "digraphe": "^1.0.1",
     "event-emitter": "^0.3.5",
     "jsplumb": "^2.3.2",
     "lodash": "^4.17.4",
     "underscore": "^1.8.3",
     "vue": "^2.2.2",
+    "vue-material": "^0.7.1",
     "vue-router": "^2.2.0"
   },
   "devDependencies": {

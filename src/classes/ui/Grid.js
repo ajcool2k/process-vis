@@ -90,7 +90,7 @@ export class Grid {
         let alpha = zoom < 1.0 ? 1.0 * zoom : 1.0;
 
         ctx.strokeStyle = 'rgba(150, 150, 150, ' + alpha + ')';
-        ctx.lineWidth = this.options.lineWidth ; //* zoom;
+        ctx.lineWidth = this.options.lineWidth * alpha; //* zoom;
         ctx.setLineDash( this.options.lineDash );
 
         var canvasWidth = this.canvas.getBoundingClientRect().width;
