@@ -9,6 +9,7 @@ import CyDemo from '@/components/CyDemo'
 import D3demo from '@/components/D3demo'
 import Flexbox from '@/components/Flexbox'
 import VueMaterial from '@/components/VueMaterial'
+import InteractJs from '@/components/InteractJs'
 
 
 Vue.use(Router)
@@ -23,6 +24,6 @@ export default new Router({
     { name: 'D3demo', path: '/draw3', component: D3demo },
     { name: 'Flexbox', path: '/flexbox', component: Flexbox }, 
     { name: 'VueMaterial', path: '/material', component: VueMaterial }, 
-
+    { name: 'InteractJs', path: '/interact', component: InteractJs }, 
   ]
 })

@@ -21,6 +21,10 @@
             <button>VueMaterial</button>
         </router-link>
 
+        <router-link to="/interact">
+            <button>InteractJs</button>
+        </router-link>
+
 
         <div class="logo">
             <img src="../assets/logo.png" draggable="true">
