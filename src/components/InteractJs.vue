@@ -2,7 +2,10 @@
   <div id="InteractJs">
     <h1>InteractJs</h1>
     <div id="container">
-      <div id="snappyShape"></div>
+
+      <div class="snappyShape ss1"></div>
+      <div class="snappyShape ss2"></div>
+
     </div>
   </div>
 </template>
@@ -30,10 +33,10 @@ export default {
   mounted: function() {
     console.log("mounted");
 
-    var element = document.getElementById('snappyShape');
     var x = 0, y = 0;
+    var containerNode = document.getElementById("container");
 
-    interact(element)
+    interact('.snappyShape')
       .draggable({
         snap: {
           targets: [
@@ -44,13 +47,17 @@ export default {
         },
         inertia: true,
         restrict: {
-          restriction: element.parentNode,
+          restriction: containerNode,
           elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
           endOnly: true
         }
       })
       .on('dragmove', function (event) {
         console.log('dragmove');
+
+        x = (parseFloat(event.target.getAttribute('data-x')) || 0);
+        y = (parseFloat(event.target.getAttribute('data-y')) || 0);
+
         x += event.dx;
         y += event.dy;
 
@@ -70,6 +77,8 @@ export default {
       })
       .on('resizemove', function (event) {
         console.log('resizemove');
+        
+        console.log(event.target);
 
         x = (parseFloat(event.target.getAttribute('data-x')) || 0);
         y = (parseFloat(event.target.getAttribute('data-y')) || 0);
@@ -113,7 +122,12 @@ export default {
   height: 100vh;
 }
 
-#snappyShape {
+.snappyShape {
+
+  position: absolute;
+  left: 0;
+  top: 0;
+
   height: 200px;
   width: 100px;
   background-color: #29e;
