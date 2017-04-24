@@ -3,8 +3,10 @@
     <h1>InteractJs</h1>
     <div id="container">
 
-      <div class="snappyShape ss1" data-id="1"></div>
-      <div class="snappyShape ss2" data-id="2"></div>
+      <template v-for="(item, index) in shapes">
+        <div class="snappyShape" :data-id="item.id">{{item.name}}</div>
+      </template>
+
       <svg>
         <marker id="triangle"
           viewBox="0 0 10 10" refX="0" refY="5" 
@@ -12,11 +14,12 @@
           markerWidth="4" markerHeight="3"
           orient="auto">
           <path d="M 0 0 L 10 5 L 0 10 z" />
-        </marker>      
-        <line class="connection" data-id="1" />
+        </marker>
+
+        <template v-for="(item, index) in edges">
+          <polyline class="connection" :data-id="item.id" points="" />
+        </template>
       </svg>
-
-
     </div>
   </div>
 </template>
@@ -29,11 +32,15 @@ import { Process } from '@/classes/Process';
 import { Participant } from '@/classes/Participant';
 
 import { interact } from 'interactjs';
+import { _ } from 'underscore';
 
 export default {
   name: 'InteractJs',
   data: function() {
       return {
+        shapes: [],
+        edges: [],
+        counter: 0
       }
   },
 
@@ -48,6 +55,12 @@ export default {
     var containerNode = document.getElementById("container");
     var that = this;
 
+    this.addData();
+    // this.addRandomData(10,5);
+
+    // remove existing event handlers
+    interact('.snappyShape').unset();
+    // add new event handlers
     interact('.snappyShape')
       .draggable({
         snap: {
@@ -82,7 +95,8 @@ export default {
         event.target.setAttribute('data-x', x);
         event.target.setAttribute('data-y', y);
 
-        that.updateConnection();
+        // update connections of the shape
+        that.redrawConnection(event.target.getAttribute("data-id"))
       })
       .resizable({
         preserveAspectRatio: false,
@@ -113,7 +127,8 @@ export default {
         // output position
         event.target.textContent = Math.round(event.rect.width) + '×' + Math.round(event.rect.height);
 
-        that.updateConnection();
+        // update connections of the shape
+        that.redrawConnection(event.target.getAttribute("data-id"))
       });      
 
   },
@@ -123,23 +138,128 @@ export default {
   },
 
   methods: {
-    updateConnection() {
+    addData() {
+      var shape1 = { id: this.counter++, name: "p" + this.counter }
+      var shape2 = { id: this.counter++, name: "p" + this.counter }
+      var shape3 = { id: this.counter++, name: "p" + this.counter }
+      var shape4 = { id: this.counter++, name: "p" + this.counter }
+
+      this.shapes.push(shape1);
+      this.shapes.push(shape2);
+      this.shapes.push(shape3);
+      this.shapes.push(shape4);
+
+      this.addConnection(shape1.id, shape2.id);
+      this.addConnection(shape3.id, shape2.id);
+      this.addConnection(shape3.id, shape4.id);
+    },
+
+    addRandomData(shapeCount, edgeCount) {
+      
+      function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+      }
+
+      for (let i=0; i < shapeCount; i++) {
+        this.shapes.push({ id: i, name: "p" + i });
+      }
+
+      for (let i=0; i < edgeCount; i++) {
+        let rand1 = getRandomInt(0,shapeCount-1);
+        let rand2 = getRandomInt(0,shapeCount-1);
+
+        // avoid connection betwen the same element
+        if (rand2 === rand1) {
+          if (rand2 + 1 < shapeCount) rand2++
+          else if (rand2 - 1 > 0) rand2--
+        }
+ 
+        this.addConnection(this.shapes[rand1].id, this.shapes[rand2].id);
+      }
+      
+    },
+
+    addConnection(sourceId, targetId) {
+
+      // add to model
+     var edge = {
+        id: this.counter++,
+        source: sourceId,
+        target: targetId
+      };
+      this.edges.push(edge);
+
+    },
+
+    redrawConnection(shapeId) {
+      shapeId = parseInt(shapeId);
+      
+      var conSources = _.where(this.edges, {source: shapeId});
+      var conTargets = _.where(this.edges, {target: shapeId});
+      
+      var cons = _.union(conSources, conTargets);
+      console.log("redraw: " + cons.length + " connection(s)");
+      
+      var that = this;
+      
+      cons.forEach(function(edge){
+        that.updateConnection(edge);
+      });
+    },
+
+    updateConnection(edge) {
       var containerNode = document.getElementById("container");
 
-      var line = document.querySelectorAll('.connection[data-id="1"]')[0];
+      var line = document.querySelectorAll('.connection[data-id="'+ edge.id +'"]')[0];
 
-      var source = document.querySelectorAll('.snappyShape[data-id="1"]')[0];
-      var target = document.querySelectorAll('.snappyShape[data-id="2"]')[0];
+      var source = document.querySelectorAll('.snappyShape[data-id="'+ edge.source +'"]')[0];
+      var target = document.querySelectorAll('.snappyShape[data-id="'+ edge.target +'"]')[0];
 
       let sourceRect = source.getBoundingClientRect();
       let targetRect = target.getBoundingClientRect();
       let containerOffset = containerNode.getBoundingClientRect();
-      let markerOffset = 2;
-      line.setAttribute('x1',-containerOffset.left + sourceRect.left + sourceRect.width / 2);
-      line.setAttribute('y1',-containerOffset.top + sourceRect.bottom);
-      line.setAttribute('x2',-containerOffset.left + targetRect.left + targetRect.width / 2);
-      line.setAttribute('y2',-containerOffset.top - markerOffset + targetRect.top);
 
+      let markerOffset = 2;
+      let anchorOffset = 20;
+
+      let sourcePoint = {
+        x: Math.round(-containerOffset.left + sourceRect.left + sourceRect.width / 2),
+        y: Math.round(-containerOffset.top + sourceRect.bottom)
+      }
+
+      let targetPoint = {
+        x: Math.round(-containerOffset.left + targetRect.left + targetRect.width / 2),
+        y: Math.round(-containerOffset.top - markerOffset + targetRect.top)
+      }
+
+      let sourceAnchor = {
+        x: sourcePoint.x,
+        y: sourcePoint.y + Math.max( Math.round((targetPoint.y - sourcePoint.y) / 2), anchorOffset )
+      }
+
+      let targetAnchor = {
+        x: targetPoint.x, 
+        y: targetPoint.y - Math.max( Math.round((targetPoint.y - sourcePoint.y) / 2), anchorOffset )
+      }
+      
+      let middlePoint1 = {
+        x: sourcePoint.x + Math.round((targetPoint.x - sourcePoint.x) / 2),
+        y: sourceAnchor.y
+      }
+
+      let middlePoint2 = {
+        x: targetPoint.x - Math.round((targetPoint.x - sourcePoint.x) / 2),
+        y: targetAnchor.y
+      }
+
+      line.setAttribute("points", 
+         sourcePoint.x + "," + sourcePoint.y + " " +
+        sourceAnchor.x + "," + sourceAnchor.y + " " + 
+        middlePoint1.x + "," + middlePoint1.y + " " + 
+        middlePoint2.x + "," + middlePoint2.y + " " + 
+        targetAnchor.x + "," + targetAnchor.y + " " + 
+         targetPoint.x + "," + targetPoint.y
+        );
     }
   }
 }
@@ -162,6 +282,7 @@ svg {
 
 
 .connection {
+  fill: none;
   stroke: #888;
   stroke-width: 2;
   stroke-dasharray: 5,5;
@@ -192,6 +313,7 @@ marker path {
   padding: 2%;
   margin: 5%;
   z-index: 2;
+  opacity: 0.5
 }
 
 </style>
