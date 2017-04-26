@@ -1,13 +1,15 @@
 <template>
   <div id="InteractJs">
-    <h1>InteractJs</h1>
-    <div id="container">
+    <div id="container" @click="resetActions" @mousemove="trackMousePosition">
 
       <template v-for="(item, index) in shapes">
-        <div class="snappyShape" :data-id="item.id">{{item.name}}</div>
+        <div class="snappyShape" :data-id="item.id" @click="useProcess">
+          <div class="content" :data-id="item.id">{{item.name}}</div>
+          <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect" ></div>
+      </div>
       </template>
 
-      <svg>
+      <svg class="svgContainer">
         <marker id="triangle"
           viewBox="0 0 10 10" refX="0" refY="5" 
           markerUnits="strokeWidth"
@@ -19,6 +21,7 @@
         <template v-for="(item, index) in edges">
           <polyline class="connection" :data-id="item.id" points="" />
         </template>
+        <polyline class="tmpConnection" points="" />
       </svg>
     </div>
   </div>
@@ -40,7 +43,21 @@ export default {
       return {
         shapes: [],
         edges: [],
-        counter: 0
+        counter: 0,
+
+        containerNode: null,
+        containerOffset: null,
+        svgContainer: null,
+
+        tmpLine: null,
+
+        actions: {
+          anchorClicked: false,
+        },
+
+        actionPosition: { x: 0, y: 0 },
+        mousePosition: {x: 0, y:0},
+        
       }
   },
 
@@ -52,7 +69,13 @@ export default {
     console.log("mounted");
 
     var x = 0, y = 0;
-    var containerNode = document.getElementById("container");
+
+    // cache DOM
+    this.containerNode = document.getElementById("container");
+    this.containerOffset = this.containerNode.getBoundingClientRect();
+    this.svgContainer = document.querySelectorAll('svg.svgContainer')[0];
+    this.tmpLine = document.querySelectorAll('svg.svgContainer .tmpConnection')[0];
+
     var that = this;
 
     this.addData();
@@ -61,18 +84,19 @@ export default {
     // remove existing event handlers
     interact('.snappyShape').unset();
     // add new event handlers
+    
     interact('.snappyShape')
       .draggable({
         snap: {
           targets: [
-            interact.createSnapGrid({ x: 30, y: 30 })
+            interact.createSnapGrid({ x: 20, y: 20 })
           ],
           range: Infinity,
           relativePoints: [ { x: 0, y: 0 } ]
         },
         inertia: true,
         restrict: {
-          restriction: containerNode,
+          restriction: this.containerNode,
           elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
           endOnly: true
         }
@@ -125,7 +149,7 @@ export default {
         event.target.setAttribute('data-y', y);
 
         // output position
-        event.target.textContent = Math.round(event.rect.width) + '×' + Math.round(event.rect.height);
+        // event.target.textContent = Math.round(event.rect.width) + '×' + Math.round(event.rect.height);
 
         // update connections of the shape
         that.redrawConnection(event.target.getAttribute("data-id"))
@@ -135,6 +159,7 @@ export default {
 
   updated: function() {
     console.log("updated");
+    this.redraw();
   },
 
   methods: {
@@ -148,10 +173,11 @@ export default {
       this.shapes.push(shape2);
       this.shapes.push(shape3);
       this.shapes.push(shape4);
-
+      /*
       this.addConnection(shape1.id, shape2.id);
       this.addConnection(shape3.id, shape2.id);
       this.addConnection(shape3.id, shape4.id);
+      */
     },
 
     addRandomData(shapeCount, edgeCount) {
@@ -181,13 +207,26 @@ export default {
 
     addConnection(sourceId, targetId) {
 
+      // accept strings as well
+      sourceId = Number.isInteger(sourceId) ? sourceId : Number.parseInt(sourceId);
+      targetId = Number.isInteger(targetId) ? targetId : Number.parseInt(targetId);
+
       // add to model
      var edge = {
         id: this.counter++,
         source: sourceId,
         target: targetId
       };
+
       this.edges.push(edge);
+    },
+
+    redraw() {
+      var that = this;
+      
+      this.shapes.forEach(function(shape){
+        that.redrawConnection(shape.id);
+      });
 
     },
 
@@ -208,7 +247,6 @@ export default {
     },
 
     updateConnection(edge) {
-      var containerNode = document.getElementById("container");
 
       var line = document.querySelectorAll('.connection[data-id="'+ edge.id +'"]')[0];
 
@@ -217,19 +255,18 @@ export default {
 
       let sourceRect = source.getBoundingClientRect();
       let targetRect = target.getBoundingClientRect();
-      let containerOffset = containerNode.getBoundingClientRect();
 
       let markerOffset = 2;
       let anchorOffset = 20;
 
       let sourcePoint = {
-        x: Math.round(-containerOffset.left + sourceRect.left + sourceRect.width / 2),
-        y: Math.round(-containerOffset.top + sourceRect.bottom)
+        x: Math.round(-this.containerOffset.left + sourceRect.left + sourceRect.width / 2),
+        y: Math.round(-this.containerOffset.top + sourceRect.bottom)
       }
 
       let targetPoint = {
-        x: Math.round(-containerOffset.left + targetRect.left + targetRect.width / 2),
-        y: Math.round(-containerOffset.top - markerOffset + targetRect.top)
+        x: Math.round(-this.containerOffset.left + targetRect.left + targetRect.width / 2),
+        y: Math.round(-this.containerOffset.top - markerOffset + targetRect.top)
       }
 
       let sourceAnchor = {
@@ -260,13 +297,70 @@ export default {
         targetAnchor.x + "," + targetAnchor.y + " " + 
          targetPoint.x + "," + targetPoint.y
         );
+    },
+
+    activateEdgeConnect(event) {
+      console.log("activateEdgeConnect");
+      let source = event.target;
+      let sourceRect = source.getBoundingClientRect();
+
+      let sourcePoint = { 
+        x: Math.round(-this.containerOffset.left + sourceRect.left + (sourceRect.width / 2)),
+        y: Math.round(-this.containerOffset.top + sourceRect.top + (sourceRect.height / 2))
+      }
+      
+      console.log("Source: " + JSON.stringify(sourcePoint));
+      this.actions.anchorClicked = true;
+      this.actionPosition = sourcePoint;
+      this.tmpLine.setAttribute("data-id", event.target.getAttribute('data-id'));
+    },
+
+    useProcess(event) {
+      console.log("useProcess");
+
+      if (this.actions.anchorClicked === true) {
+        let source = this.tmpLine;
+        let sourceId = source.getAttribute("data-id");
+        let target = event.target;
+        let targetId = target.getAttribute("data-id");
+        console.log(target);
+        // add to model
+        this.addConnection(sourceId, targetId);
+        return;
+      }
+    },
+
+    trackMousePosition(event) {
+      this.mousePosition.x = event.pageX;
+      this.mousePosition.y = event.pageY;
+
+      if (this.actions.anchorClicked) {
+        console.log("connecto from: x=" + this.actionPosition.x + ", y=" + this.actionPosition.y);
+        console.log("connecto from: x=" + this.mousePosition.x + ", y=" + this.mousePosition.y);
+        console.log(this.tmpLine);
+        this.tmpLine.setAttribute("points", 
+         this.actionPosition.x + "," + this.actionPosition.y + " " +
+         this.mousePosition.x + "," + this.mousePosition.y
+        );
+      }
+    },
+
+    resetActions() {
+      for (const key of Object.keys(this.actions)) {
+          this.actions[key] = false;
+      }
+
+      if (this.tmpLine) this.tmpLine.setAttribute("points","");
     }
   }
 }
 
 </script>
 
-<style>
+<style lang="scss" scoped>
+
+$test: #888;
+
 
 #container {
   width: 100vw;
@@ -280,8 +374,7 @@ svg {
   z-index: 1;
 }
 
-
-.connection {
+.connection, .tmpConnection {
   fill: none;
   stroke: #888;
   stroke-width: 2;
@@ -295,13 +388,9 @@ marker {
   stroke: #888;
 }
 
-marker path {
-  
-}
-
 .snappyShape {
-
   position: absolute;
+  display: flex;  
   left: 0;
   top: 0;
   height: 200px;
@@ -310,10 +399,27 @@ marker path {
   color: #fff;
   font-size: 1.2em;
   border-radius: 4px;
-  padding: 2%;
-  margin: 5%;
+  flex-direction: column;
+  justify-content: flex-end;
+
   z-index: 2;
   opacity: 0.5
+}
+
+.content {
+  flex-grow: 1;
+  align-self: center;
+}
+
+$anchorSize: 20px;
+.anchor {
+  width: $anchorSize;
+  height: $anchorSize;
+  -webkit-border-radius: $anchorSize / 2;
+  -moz-border-radius: $anchorSize / 2;
+  border-radius: $anchorSize / 2;
+  background: white;
+  align-self: center;
 }
 
 </style>
