@@ -3,6 +3,47 @@ import { Process } from '@/classes/Process';
 
 export class Utils {
 
+    /**
+     * Ausbremsen von CPU intensiven Funktionen, zum Beispiel für Eventhandler
+     * @param {function} fn Funktion der ausgeführt werden soll
+     * @param {Number} wait Zeit in ms
+     * @param {Number} lastRun letzte Ausführungszeit durch Date.now()
+     */
+    static throttle(fn, wait, lastRun, detect) {
+      if ((lastRun + wait - Date.now()) < 0) {
+        fn(event);
+        if (detect) Utils.detectFireRate(100);
+        lastRun = Date.now();
+      }
+      return lastRun;     
+    }
+
+    static START = 0;
+    static COUNTER = 0;
+    /**
+     * Methode dient zum Erfassen wie oft ein Event vom Client ausgeführt wird.
+     * @param {Number} maxIterations  Maximale Anzahl der Iterationen
+     */
+    static detectFireRate(maxIterations) {
+        if (Utils.COUNTER == 0) {
+            Utils.START = Date.now();
+            console.warn("detectFireRate started");
+        }
+        if (++Utils.COUNTER == maxIterations) {
+            let delta = Date.now() - Utils.START;
+            let deltaSec = delta / 1000.0;
+            console.warn("detectFireRate finished!");
+            console.warn("Time passed (s): " + deltaSec);
+            let eventsPerSec = maxIterations / deltaSec;
+            console.warn("Events per sec: " + eventsPerSec);
+
+            // reset
+            Utils.START = Utils.COUNTER = 0;
+            return;
+        }
+        return;
+    }
+
     static generateData() {
 
         var nodes = Array();
