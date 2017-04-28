@@ -8,11 +8,11 @@
         <router-link to="/draw2">
             <button>CyDemo</button>
         </router-link>
-
+        <!--
         <router-link to="/draw3">
             <button>D3demo</button>
         </router-link>
-
+        -->
         <router-link to="/flexbox">
             <button>Flexbox</button>
         </router-link>
@@ -24,8 +24,11 @@
         <router-link to="/interact">
             <button>InteractJs</button>
         </router-link>
-
-
+        <!--
+        <router-link to="/gantt">
+            <button>D3Gantt</button>
+        </router-link>
+        -->
         <div class="logo">
             <img src="../assets/logo.png" draggable="true">
         </div>    

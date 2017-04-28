@@ -1,6 +1,6 @@
 <template>
   <div id="InteractJs">
-    <div id="container" @click="resetActions" @mousemove="trackMousePosition">
+    <div id="container" @click="resetActions" @mousemove="throttle(trackMousePosition, 50, true)">
 
       <template v-for="(item, index) in shapes">
         <div class="snappyShape" :data-id="item.id" @click="useProcess">
@@ -36,6 +36,7 @@ import { Participant } from '@/classes/Participant';
 
 import { interact } from 'interactjs';
 import { _ } from 'underscore';
+import { Utils } from '@/classes/Utils';
 
 export default {
   name: 'InteractJs',
@@ -57,6 +58,8 @@ export default {
 
         actionPosition: { x: 0, y: 0 },
         mousePosition: {x: 0, y:0},
+        time: Date.now(),
+        fireCounter: 0,
         
       }
   },
@@ -331,8 +334,10 @@ export default {
     },
 
     trackMousePosition(event) {
+      console.log("trackMousePosition");
       this.mousePosition.x = event.pageX;
       this.mousePosition.y = event.pageY;
+      console.log(this.mousePosition.x + ":" + this.mousePosition.y);
 
       if (this.actions.anchorClicked) {
         console.log("connecto from: x=" + this.actionPosition.x + ", y=" + this.actionPosition.y);
@@ -343,6 +348,14 @@ export default {
          this.mousePosition.x + "," + this.mousePosition.y
         );
       }
+    },
+    
+    throttle(fn, wait, detect) {
+      this.time = Utils.throttle(fn, wait, this.time, detect);
+    },
+
+    detectFireRate() {
+      Utils.detectFireRate(1000);
     },
 
     resetActions() {

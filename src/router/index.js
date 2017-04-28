@@ -7,6 +7,7 @@ import Hello from '@/components/Hello'
 import RouteDraw from '@/components/RouteDraw'
 import CyDemo from '@/components/CyDemo'
 import D3demo from '@/components/D3demo'
+import D3Gantt from '@/components/D3Gantt'
 import Flexbox from '@/components/Flexbox'
 import VueMaterial from '@/components/VueMaterial'
 import InteractJs from '@/components/InteractJs'
@@ -22,6 +23,7 @@ export default new Router({
     { name: 'Route zeichnen', path: '/draw', component: RouteDraw }, 
     { name: 'CyDemo', path: '/draw2', component: CyDemo }, 
     { name: 'D3demo', path: '/draw3', component: D3demo },
+    { name: 'D3Gantt', path: '/gantt', component: D3Gantt },
     { name: 'Flexbox', path: '/flexbox', component: Flexbox }, 
     { name: 'VueMaterial', path: '/material', component: VueMaterial }, 
     { name: 'InteractJs', path: '/interact', component: InteractJs }, 
