@@ -1,6 +1,6 @@
 <template>
   <div id="InteractJs">
-    <div id="container" @click="resetActions" @mousemove="throttle(trackMousePosition, 50, true)">
+    <div id="container" @click="resetActions" @mousemove="throttle(trackMousePosition, 50)">
 
       <template v-for="(item, index) in shapes">
         <div class="snappyShape" :data-id="item.id" @click="useProcess">
@@ -60,7 +60,7 @@ export default {
         mousePosition: {x: 0, y:0},
         time: Date.now(),
         fireCounter: 0,
-        
+
       }
   },
 
@@ -76,13 +76,11 @@ export default {
     // cache DOM
     this.containerNode = document.getElementById("container");
     this.containerOffset = this.containerNode.getBoundingClientRect();
-    this.svgContainer = document.querySelectorAll('svg.svgContainer')[0];
-    this.tmpLine = document.querySelectorAll('svg.svgContainer .tmpConnection')[0];
+    this.svgContainer = document.querySelector('svg.svgContainer');
+    this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
 
     var that = this;
 
-    this.addData();
-    // this.addRandomData(10,5);
 
     // remove existing event handlers
     interact('.snappyShape').unset();
@@ -158,6 +156,10 @@ export default {
         that.redrawConnection(event.target.getAttribute("data-id"))
       });      
 
+
+    this.addData();
+    // this.addRandomData(10,5);
+    
   },
 
   updated: function() {
@@ -251,13 +253,16 @@ export default {
 
     updateConnection(edge) {
 
-      var line = document.querySelectorAll('.connection[data-id="'+ edge.id +'"]')[0];
+      var line = document.querySelector('.connection[data-id="'+ edge.id +'"]');
 
-      var source = document.querySelectorAll('.snappyShape[data-id="'+ edge.source +'"]')[0];
-      var target = document.querySelectorAll('.snappyShape[data-id="'+ edge.target +'"]')[0];
+      // ----------------------------------------------
+      // source könnte ausgelagert werden, aber nicht performance kritisch
+      var source = document.querySelector('.snappyShape[data-id="'+ edge.source +'"]');
+      var target = document.querySelector('.snappyShape[data-id="'+ edge.target +'"]');
 
       let sourceRect = source.getBoundingClientRect();
       let targetRect = target.getBoundingClientRect();
+      // ----------------------------------------------
 
       let markerOffset = 2;
       let anchorOffset = 20;
@@ -334,24 +339,31 @@ export default {
     },
 
     trackMousePosition(event) {
-      console.log("trackMousePosition");
       this.mousePosition.x = event.pageX;
       this.mousePosition.y = event.pageY;
-      console.log(this.mousePosition.x + ":" + this.mousePosition.y);
+      // console.log(this.mousePosition.x + ":" + this.mousePosition.y);
 
       if (this.actions.anchorClicked) {
-        console.log("connecto from: x=" + this.actionPosition.x + ", y=" + this.actionPosition.y);
-        console.log("connecto from: x=" + this.mousePosition.x + ", y=" + this.mousePosition.y);
-        console.log(this.tmpLine);
-        this.tmpLine.setAttribute("points", 
-         this.actionPosition.x + "," + this.actionPosition.y + " " +
-         this.mousePosition.x + "," + this.mousePosition.y
-        );
+        Utils.debounce(this.drawLine, "drawLine");
       }
     },
-    
-    throttle(fn, wait, detect) {
-      this.time = Utils.throttle(fn, wait, this.time, detect);
+
+    drawLine() {
+      /*
+      console.log("connecto from: x=" + this.actionPosition.x + ", y=" + this.actionPosition.y);
+      console.log("connecto from: x=" + this.mousePosition.x + ", y=" + this.mousePosition.y);
+      console.log(this.tmpline);
+      */
+      this.tmpLine.setAttribute("points", 
+          this.actionPosition.x + "," + this.actionPosition.y + " " +
+          this.mousePosition.x + "," + this.mousePosition.y
+        );
+      // console.log("works!!");
+      Utils.scheduledAnimationFrame["drawLine"] = false;
+    },
+
+    throttle(fn, wait) {
+      this.time = Utils.throttle(fn, wait, this.time);
     },
 
     detectFireRate() {
