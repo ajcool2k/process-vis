@@ -48,6 +48,7 @@ export default {
 
         containerNode: null,
         containerOffset: null,
+        containerTranslation: { x: 0, y: 0 },
         svgContainer: null,
 
         tmpLine: null,
@@ -71,21 +72,45 @@ export default {
   mounted: function() {
     console.log("mounted");
 
-    var x = 0, y = 0;
-
     // cache DOM
     this.containerNode = document.getElementById("container");
     this.containerOffset = this.containerNode.getBoundingClientRect();
+    this.containerTranslation = {
+      x: this.containerOffset.left,
+      y: this.containerOffset.top
+    }
+    
     this.svgContainer = document.querySelector('svg.svgContainer');
     this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
 
     var that = this;
-
+    
 
     // remove existing event handlers
+    interact('#container').unset();
     interact('.snappyShape').unset();
+
     // add new event handlers
-    
+    interact('#container')
+      .draggable({}).on('dragmove', function (event) {
+      
+        let x = that.containerTranslation.x;
+        let y = that.containerTranslation.y;
+
+        x += event.dx;
+        y += event.dy;
+
+        event.target.style.webkitTransform =
+        event.target.style.transform =
+            'translate(' + x + 'px, ' + y + 'px)';
+        
+        // store position
+
+        that.containerTranslation.x = x;
+        that.containerTranslation.y = y;
+      });
+
+
     interact('.snappyShape')
       .draggable({
         snap: {
@@ -105,13 +130,12 @@ export default {
       .on('dragmove', function (event) {
         // console.log('dragmove');
 
-        x = (parseFloat(event.target.getAttribute('data-x')) || 0);
-        y = (parseFloat(event.target.getAttribute('data-y')) || 0);
+        let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
+        let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
 
         x += event.dx;
         y += event.dy;
 
-        // translate object
         event.target.style.webkitTransform =
         event.target.style.transform =
             'translate(' + x + 'px, ' + y + 'px)';
@@ -130,8 +154,8 @@ export default {
       .on('resizemove', function (event) {
         // console.log('resizemove');
         
-        x = (parseFloat(event.target.getAttribute('data-x')) || 0);
-        y = (parseFloat(event.target.getAttribute('data-y')) || 0);
+        let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
+        let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
 
         // update the element's style
         event.target.style.width  = event.rect.width + 'px';
@@ -268,13 +292,13 @@ export default {
       let anchorOffset = 20;
 
       let sourcePoint = {
-        x: Math.round(-this.containerOffset.left + sourceRect.left + sourceRect.width / 2),
-        y: Math.round(-this.containerOffset.top + sourceRect.bottom)
+        x: Math.round(-this.containerTranslation.x + sourceRect.left + sourceRect.width / 2),
+        y: Math.round(-this.containerTranslation.y + sourceRect.bottom)
       }
 
       let targetPoint = {
-        x: Math.round(-this.containerOffset.left + targetRect.left + targetRect.width / 2),
-        y: Math.round(-this.containerOffset.top - markerOffset + targetRect.top)
+        x: Math.round(-this.containerTranslation.x + targetRect.left + targetRect.width / 2),
+        y: Math.round(-this.containerTranslation.y - markerOffset + targetRect.top)
       }
 
       let sourceAnchor = {
@@ -313,8 +337,8 @@ export default {
       let sourceRect = source.getBoundingClientRect();
 
       let sourcePoint = { 
-        x: Math.round(-this.containerOffset.left + sourceRect.left + (sourceRect.width / 2)),
-        y: Math.round(-this.containerOffset.top + sourceRect.top + (sourceRect.height / 2))
+        x: Math.round(-this.containerTranslation.x + sourceRect.left + (sourceRect.width / 2)),
+        y: Math.round(-this.containerTranslation.y + sourceRect.top + (sourceRect.height / 2))
       }
       
       console.log("Source: " + JSON.stringify(sourcePoint));
@@ -339,8 +363,8 @@ export default {
     },
 
     trackMousePosition(event) {
-      this.mousePosition.x = event.pageX;
-      this.mousePosition.y = event.pageY;
+      this.mousePosition.x = event.pageX - this.containerTranslation.x;
+      this.mousePosition.y = event.pageY - this.containerTranslation.y;
       // console.log(this.mousePosition.x + ":" + this.mousePosition.y);
 
       if (this.actions.anchorClicked) {
@@ -386,10 +410,14 @@ export default {
 
 $test: #888;
 
+#InteractJs {
+    overflow: hidden;
+} 
 
 #container {
   width: 100vw;
   height: 100vh;
+  border: 1px solid #ccc;
 }
 
 svg { 
