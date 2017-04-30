@@ -74,7 +74,7 @@ export default {
 
     // cache DOM
     this.containerNode = document.getElementById("container");
-    this.containerOffset = this.containerNode.getBoundingClientRect();
+    this.containerOffset = this.containerNode.getBoundingClientRect(); // forces reflow
     this.containerTranslation = {
       x: this.containerOffset.left,
       y: this.containerOffset.top
@@ -93,21 +93,22 @@ export default {
     // add new event handlers
     interact('#container')
       .draggable({}).on('dragmove', function (event) {
-      
+        
+        // read position from model
         let x = that.containerTranslation.x;
         let y = that.containerTranslation.y;
 
         x += event.dx;
         y += event.dy;
 
+        // update position in model
+        that.containerTranslation.x = x;
+        that.containerTranslation.y = y;
+
+        // update view by model
         event.target.style.webkitTransform =
         event.target.style.transform =
             'translate(' + x + 'px, ' + y + 'px)';
-        
-        // store position
-
-        that.containerTranslation.x = x;
-        that.containerTranslation.y = y;
       });
 
 
@@ -130,22 +131,23 @@ export default {
       .on('dragmove', function (event) {
         // console.log('dragmove');
 
+        let shapeId = event.target.getAttribute("data-id");
         let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
         let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
 
+        // update model
         x += event.dx;
         y += event.dy;
+        event.target.setAttribute('data-x', x);
+        event.target.setAttribute('data-y', y);
 
+        // update view
         event.target.style.webkitTransform =
         event.target.style.transform =
             'translate(' + x + 'px, ' + y + 'px)';
         
-        // store position
-        event.target.setAttribute('data-x', x);
-        event.target.setAttribute('data-y', y);
-
         // update connections of the shape
-        that.redrawConnection(event.target.getAttribute("data-id"))
+        that.redrawConnection(shapeId)
       })
       .resizable({
         preserveAspectRatio: false,
@@ -153,31 +155,36 @@ export default {
       })
       .on('resizemove', function (event) {
         // console.log('resizemove');
-        
+
+        // read from model
+        let shapeId = event.target.getAttribute("data-id");
         let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
         let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
 
-        // update the element's style
-        event.target.style.width  = event.rect.width + 'px';
-        event.target.style.height = event.rect.height + 'px';
-
-        // translate when resizing from top or left edges
+        // update model
+          // translate when resizing from top or left edges
         x += event.deltaRect.left;
         y += event.deltaRect.top;
-
-        event.target.style.webkitTransform =
-        event.target.style.transform =
-            'translate(' + x + 'px,' + y + 'px)';
-        
-        // store position
+          // store position
         event.target.setAttribute('data-x', x);
         event.target.setAttribute('data-y', y);
 
-        // output position
-        // event.target.textContent = Math.round(event.rect.width) + '×' + Math.round(event.rect.height);
+        // update view
+        let displayValue = event.target.style.display;
+        event.target.style.display = 'none';  // avoid reflows by multiple style changes
+
+          // update the element's style
+        event.target.style.width  = event.rect.width + 'px';
+        event.target.style.height = event.rect.height + 'px';
+          // translate when resizing from top or left edges
+        event.target.style.webkitTransform =
+        event.target.style.transform =
+            'translate(' + x + 'px,' + y + 'px)';
+
+        event.target.style.display = displayValue;
 
         // update connections of the shape
-        that.redrawConnection(event.target.getAttribute("data-id"))
+        that.redrawConnection(shapeId)
       });      
 
 
@@ -284,8 +291,8 @@ export default {
       var source = document.querySelector('.snappyShape[data-id="'+ edge.source +'"]');
       var target = document.querySelector('.snappyShape[data-id="'+ edge.target +'"]');
 
-      let sourceRect = source.getBoundingClientRect();
-      let targetRect = target.getBoundingClientRect();
+      let sourceRect = source.getBoundingClientRect();  // forces reflow
+      let targetRect = target.getBoundingClientRect();  // forces reflow
       // ----------------------------------------------
 
       let markerOffset = 2;
@@ -334,7 +341,7 @@ export default {
     activateEdgeConnect(event) {
       console.log("activateEdgeConnect");
       let source = event.target;
-      let sourceRect = source.getBoundingClientRect();
+      let sourceRect = source.getBoundingClientRect(); // forces reflow
 
       let sourcePoint = { 
         x: Math.round(-this.containerTranslation.x + sourceRect.left + (sourceRect.width / 2)),
