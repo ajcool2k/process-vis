@@ -94,21 +94,19 @@ export default {
     interact('#container')
       .draggable({}).on('dragmove', function (event) {
         
-        // read position from model
-        let x = that.containerTranslation.x;
-        let y = that.containerTranslation.y;
-
-        x += event.dx;
-        y += event.dy;
-
         // update position in model
-        that.containerTranslation.x = x;
-        that.containerTranslation.y = y;
+        that.containerTranslation.x += event.dx;
+        that.containerTranslation.y += event.dy;
 
         // update view by model
-        event.target.style.webkitTransform =
-        event.target.style.transform =
-            'translate(' + x + 'px, ' + y + 'px)';
+        var containerPan = function() {
+          that.containerNode.style.webkitTransform =
+          that.containerNode.style.transform =
+              'translate(' + that.containerTranslation.x + 'px, ' + that.containerTranslation.y + 'px)';
+          Utils.scheduledAnimationFrame["containerPan"] = false;
+        }
+        Utils.debounce(containerPan, "containerPan");
+
       });
 
 
@@ -362,7 +360,7 @@ export default {
         let sourceId = source.getAttribute("data-id");
         let target = event.target;
         let targetId = target.getAttribute("data-id");
-        console.log(target);
+
         // add to model
         this.addConnection(sourceId, targetId);
         return;

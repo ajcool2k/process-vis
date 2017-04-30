@@ -24,15 +24,18 @@ export class Utils {
      * @param {String} fname Name zur Verwaltung der Funktion im scheduledAnimationFrame 
      */
     static debounce(fn, fname) {
+
       // Check if Setting is enabled
       if (!Utils.debounceFunctions) {
+        if (Utils.benchmarkFireRate) Utils.detectFireRate();
         return fn(); 
       }
       // Prevent multiple rAF callbacks.
       if (Utils.scheduledAnimationFrame[fname]) return;
 
       Utils.scheduledAnimationFrame[fname] = true;
-      requestAnimationFrame(fn);      
+      requestAnimationFrame(fn);
+      if (Utils.benchmarkFireRate) Utils.detectFireRate();
     }
 
     /**
@@ -44,12 +47,13 @@ export class Utils {
     static throttle(fn, wait, lastRun) {
       // Check if Setting is enabled    
       if (!Utils.throttleFunctions || wait < 1) {
+        // if (Utils.benchmarkFireRate) Utils.detectFireRate();
         return fn(event);
       }
 
       if ((lastRun + wait - Date.now()) < 0) {
         fn(event);
-        if (Utils.benchmarkFireRate) Utils.detectFireRate();
+        // if (Utils.benchmarkFireRate) Utils.detectFireRate();
         lastRun = Date.now();
       }
       return lastRun;     
