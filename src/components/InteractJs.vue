@@ -1,33 +1,49 @@
 <template>
   <div id="InteractJs">
-    <div id="toolbar">
-      <button v-on:click="zoomIn">zoomIn</button>
-      <button v-on:click="zoomOut">zoomOut</button>
-    </div>
-    <div id="container" @click="resetActions" @mousemove="throttle(trackMousePosition, 50)">
 
-      <template v-for="(item, index) in shapes">
-        <div class="snappyShape" :data-id="item.id" @click="useProcess">
-          <div class="content" :data-id="item.id">{{item.name}}</div>
-          <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect" ></div>
-      </div>
-      </template>
+    <md-toolbar>
+      <h2 class="md-title" style="flex: 1">Prozess-Visualisierung</h2>
+      <md-button @click.native="zoomIn">zoomIn</md-button>
+      <md-button @click.native="zoomOut">zoomOut</md-button>
+    </md-toolbar>
 
-      <svg class="svgContainer">
-        <marker id="triangle"
-          viewBox="0 0 10 10" refX="0" refY="5" 
-          markerUnits="strokeWidth"
-          markerWidth="4" markerHeight="3"
-          orient="auto">
-          <path d="M 0 0 L 10 5 L 0 10 z" />
-        </marker>
+    <div class="main-content">
 
-        <template v-for="(item, index) in edges">
-          <polyline class="connection" :data-id="item.id" points="" />
+      <md-dialog-confirm
+        :md-title="removeEdgeDialog.title"
+        :md-content-html="removeEdgeDialog.contentHtml"
+        :md-ok-text="removeEdgeDialog.ok"
+        :md-cancel-text="removeEdgeDialog.cancel"
+        @open="onOpen"
+        @close="onClose"
+        ref="removeEdgeDialog">
+      </md-dialog-confirm>
+
+      <div id="container" @click="resetActions" @mousemove="throttle(trackMousePosition, 50)">
+
+        <template v-for="(item, index) in shapes">
+          <div class="snappyShape" :data-id="item.id" @click="useProcess">
+            <div class="content" :data-id="item.id">{{item.name}}</div>
+            <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect" ></div>
+        </div>
         </template>
-        <polyline class="tmpConnection" points="" />
-      </svg>
-    </div>
+
+        <svg class="svgContainer">
+          <marker id="triangle"
+            viewBox="0 0 10 10" refX="0" refY="5" 
+            markerUnits="strokeWidth"
+            markerWidth="4" markerHeight="3"
+            orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" />
+          </marker>
+
+          <template v-for="(item, index) in edges">
+            <polyline v-on:click="openRemoveConnectionDialog" class="connection" :data-id="item.id" points="" />
+          </template>
+          <polyline class="tmpConnection" points="" />
+        </svg>
+      </div>
+    </div>    
   </div>
 </template>
 
@@ -41,6 +57,12 @@ import { Participant } from '@/classes/Participant';
 import { interact } from 'interactjs';
 import { _ } from 'underscore';
 import { Utils } from '@/classes/Utils';
+
+import Vue from 'vue'
+import VueMaterial from 'vue-material'
+import 'vue-material/dist/vue-material.css'
+
+Vue.use(VueMaterial)
 
 export default {
   name: 'InteractJs',
@@ -64,8 +86,13 @@ export default {
 
         actionPosition: { x: 0, y: 0 },
         mousePosition: {x: 0, y:0},
+        actionId: null,
+
         time: Date.now(),
         fireCounter: 0,
+
+        // Dialogs
+        removeEdgeDialog: { title: 'Aktion', ok: 'Ja', cancel: 'Nein', contentHtml: 'Soll die Verbindung entfernt werden?', value: '' }        
 
       }
   },
@@ -80,10 +107,6 @@ export default {
     // cache DOM
     this.containerNode = document.getElementById("container");
     this.containerOffset = this.containerNode.getBoundingClientRect(); // forces reflow
-    this.containerTranslation = {
-      x: this.containerOffset.left,
-      y: this.containerOffset.top
-    }
     
     this.svgContainer = document.querySelector('svg.svgContainer');
     this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
@@ -263,6 +286,15 @@ export default {
       this.edges.push(edge);
     },
 
+    removeConnection(edgeId) {
+      console.log("remove Edge: " + edgeId);
+      this.edges = _.reject(this.edges, function(edge) {
+        console.log(edge.id + " : " + edgeId); 
+        console.log(edge.id == edgeId);
+        return edge.id == edgeId; 
+      });
+    },
+
     redraw() {
       var that = this;
       
@@ -305,13 +337,13 @@ export default {
       let anchorOffset = 20;
 
       let sourcePoint = {
-        x: Math.round((-this.containerTranslation.x + sourceRect.left + sourceRect.width / 2) / this.containerScale.x),
-        y: Math.round((-this.containerTranslation.y + sourceRect.bottom) / this.containerScale.y)
+        x: Math.round((-this.containerTranslation.x - this.containerOffset.left + sourceRect.left + sourceRect.width / 2) / this.containerScale.x),
+        y: Math.round((-this.containerTranslation.y - this.containerOffset.top + sourceRect.bottom) / this.containerScale.y)
       }
 
       let targetPoint = {
-        x: Math.round((-this.containerTranslation.x + targetRect.left + targetRect.width / 2) / this.containerScale.x),
-        y: Math.round((-this.containerTranslation.y - markerOffset + targetRect.top) / this.containerScale.y)
+        x: Math.round((-this.containerTranslation.x - this.containerOffset.left + targetRect.left + targetRect.width / 2) / this.containerScale.x),
+        y: Math.round((-this.containerTranslation.y - this.containerOffset.top - markerOffset + targetRect.top) / this.containerScale.y)
       }
 
       let Offset = 0; // (sourcePoint.x < targetPoint.x) ? -20 : 0;
@@ -352,8 +384,8 @@ export default {
       let sourceRect = source.getBoundingClientRect(); // forces reflow
 
       let sourcePoint = { 
-        x: Math.round((-this.containerTranslation.x + sourceRect.left + (sourceRect.width / 2)) / this.containerScale.x),
-        y: Math.round((-this.containerTranslation.y + sourceRect.top + (sourceRect.height / 2)) / this.containerScale.y)
+        x: Math.round((-this.containerTranslation.x + sourceRect.left + (sourceRect.width / 2) - this.containerOffset.left) / this.containerScale.x),
+        y: Math.round((-this.containerTranslation.y + sourceRect.top + (sourceRect.height / 2) - this.containerOffset.top) / this.containerScale.y)
       }
       
       console.log("Source: " + JSON.stringify(sourcePoint));
@@ -378,8 +410,8 @@ export default {
     },
 
     trackMousePosition(event) {
-      this.mousePosition.x = Math.round((event.pageX - this.containerTranslation.x) / this.containerScale.x);
-      this.mousePosition.y = Math.round((event.pageY - this.containerTranslation.y) / this.containerScale.y);
+      this.mousePosition.x = Math.round((event.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x);
+      this.mousePosition.y = Math.round((event.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y);
       // console.log(this.mousePosition.x + ":" + this.mousePosition.y);
 
       if (this.actions.anchorClicked) {
@@ -416,6 +448,7 @@ export default {
 
       if (this.tmpLine) this.tmpLine.setAttribute("points","");
     },
+
     applyTransform() {
         let transformTranslate =  "translate(" + this.containerTranslation.x + "px, " + this.containerTranslation.y + "px)";
         let transformScale =  "scale(" + this.containerScale.x + "," + this.containerScale.y + ")";
@@ -456,10 +489,32 @@ export default {
       this.scale(10/8.0, 10/8.0);
       this.applyTransform();
     },
+    
     zoomOut() {
       this.scale(0.8, 0.8);
       this.applyTransform();
+    },
+
+    openRemoveConnectionDialog(event) {
+      this.actionId = event.target.getAttribute('data-id');
+      this.$refs['removeEdgeDialog'].open();
+    },
+
+    closeDialog(ref) {
+      this.$refs[ref].close();
+    },
+
+    onOpen() {
+      console.log('Opened');
+    },
+
+    onClose(type) {
+      console.log('Closed', type);
+      if (type === 'cancel') return;
+      this.removeConnection(this.actionId);
     }
+
+
   }
 }
 
@@ -473,15 +528,17 @@ $test: #888;
   overflow: hidden;
 } 
 
-#toolbar {
-  position: absolute;
-  z-index: 10;
-}
+.main-content {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+},
 
 #container {
   position: absolute;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   border: 1px solid #ccc;
   transform-origin: 0 0;
 }
