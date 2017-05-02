@@ -499,6 +499,11 @@ svg {
   stroke-width: 2;
   stroke-dasharray: 5,5;
   marker-end: url(#triangle);
+  pointer-events:all;
+}
+
+.connection:hover {
+  stroke: #29e;
 }
 
 marker {
