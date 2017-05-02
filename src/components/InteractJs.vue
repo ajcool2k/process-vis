@@ -1,5 +1,9 @@
 <template>
   <div id="InteractJs">
+    <div id="toolbar">
+      <button v-on:click="zoomIn">zoomIn</button>
+      <button v-on:click="zoomOut">zoomOut</button>
+    </div>
     <div id="container" @click="resetActions" @mousemove="throttle(trackMousePosition, 50)">
 
       <template v-for="(item, index) in shapes">
@@ -49,6 +53,7 @@ export default {
         containerNode: null,
         containerOffset: null,
         containerTranslation: { x: 0, y: 0 },
+        containerScale: { x: 1.0, y: 1.0 },
         svgContainer: null,
 
         tmpLine: null,
@@ -95,14 +100,11 @@ export default {
       .draggable({}).on('dragmove', function (event) {
         
         // update position in model
-        that.containerTranslation.x += event.dx;
-        that.containerTranslation.y += event.dy;
+        that.translate(event.dx, event.dy);
 
         // update view by model
         var containerPan = function() {
-          that.containerNode.style.webkitTransform =
-          that.containerNode.style.transform =
-              'translate(' + that.containerTranslation.x + 'px, ' + that.containerTranslation.y + 'px)';
+          that.applyTransform();
           Utils.scheduledAnimationFrame["containerPan"] = false;
         }
         Utils.debounce(containerPan, "containerPan");
@@ -114,7 +116,7 @@ export default {
       .draggable({
         snap: {
           targets: [
-            interact.createSnapGrid({ x: 20, y: 20 })
+            // interact.createSnapGrid({ x: 20, y: 20 })
           ],
           range: Infinity,
           relativePoints: [ { x: 0, y: 0 } ]
@@ -134,8 +136,8 @@ export default {
         let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
 
         // update model
-        x += event.dx;
-        y += event.dy;
+        x += event.dx / that.containerScale.x;
+        y += event.dy / that.containerScale.y;
         event.target.setAttribute('data-x', x);
         event.target.setAttribute('data-y', y);
 
@@ -297,13 +299,13 @@ export default {
       let anchorOffset = 20;
 
       let sourcePoint = {
-        x: Math.round(-this.containerTranslation.x + sourceRect.left + sourceRect.width / 2),
-        y: Math.round(-this.containerTranslation.y + sourceRect.bottom)
+        x: Math.round((-this.containerTranslation.x + sourceRect.left + sourceRect.width / 2) / this.containerScale.x),
+        y: Math.round((-this.containerTranslation.y + sourceRect.bottom) / this.containerScale.y)
       }
 
       let targetPoint = {
-        x: Math.round(-this.containerTranslation.x + targetRect.left + targetRect.width / 2),
-        y: Math.round(-this.containerTranslation.y - markerOffset + targetRect.top)
+        x: Math.round((-this.containerTranslation.x + targetRect.left + targetRect.width / 2) / this.containerScale.x),
+        y: Math.round((-this.containerTranslation.y - markerOffset + targetRect.top) / this.containerScale.y)
       }
 
       let sourceAnchor = {
@@ -342,8 +344,8 @@ export default {
       let sourceRect = source.getBoundingClientRect(); // forces reflow
 
       let sourcePoint = { 
-        x: Math.round(-this.containerTranslation.x + sourceRect.left + (sourceRect.width / 2)),
-        y: Math.round(-this.containerTranslation.y + sourceRect.top + (sourceRect.height / 2))
+        x: Math.round((-this.containerTranslation.x + sourceRect.left + (sourceRect.width / 2)) / this.containerScale.x),
+        y: Math.round((-this.containerTranslation.y + sourceRect.top + (sourceRect.height / 2)) / this.containerScale.y)
       }
       
       console.log("Source: " + JSON.stringify(sourcePoint));
@@ -368,8 +370,8 @@ export default {
     },
 
     trackMousePosition(event) {
-      this.mousePosition.x = event.pageX - this.containerTranslation.x;
-      this.mousePosition.y = event.pageY - this.containerTranslation.y;
+      this.mousePosition.x = Math.round((event.pageX - this.containerTranslation.x) / this.containerScale.x);
+      this.mousePosition.y = Math.round((event.pageY - this.containerTranslation.y) / this.containerScale.y);
       // console.log(this.mousePosition.x + ":" + this.mousePosition.y);
 
       if (this.actions.anchorClicked) {
@@ -381,7 +383,7 @@ export default {
       /*
       console.log("connecto from: x=" + this.actionPosition.x + ", y=" + this.actionPosition.y);
       console.log("connecto from: x=" + this.mousePosition.x + ", y=" + this.mousePosition.y);
-      console.log(this.tmpline);
+      console.log(this.tmpLine);
       */
       this.tmpLine.setAttribute("points", 
           this.actionPosition.x + "," + this.actionPosition.y + " " +
@@ -405,6 +407,50 @@ export default {
       }
 
       if (this.tmpLine) this.tmpLine.setAttribute("points","");
+    },
+    applyTransform() {
+        let transformTranslate =  "translate(" + this.containerTranslation.x + "px, " + this.containerTranslation.y + "px)";
+        let transformScale =  "scale(" + this.containerScale.x + "," + this.containerScale.y + ")";
+        this.containerNode.style.webkitTransform =
+        this.containerNode.style.transform = transformTranslate + " " + transformScale;
+    },
+
+    translate(dx, dy) {
+      this.containerTranslation = {x: this.containerTranslation.x + dx, y: this.containerTranslation.y + dy};
+    },
+
+    scale(multX, multY) {
+      if (multX == 0 || multY == 0) {
+        console.warn("scalefactor 0 not allowed");
+        return; 
+      }
+
+      this.containerScale = {x: this.containerScale.x * multX, y: this.containerScale.y * multY};
+    },
+
+    untransformedOffset(el) {
+      let offsetHeight = el.offsetHeight;
+      let offsetWidth = el.offsetWidth;
+
+      let offsetLeft = 0;
+      let offsetTop  = 0;
+
+      do {
+        offsetLeft += el.offsetLeft;
+        offsetTop  += el.offsetTop;
+        el = el.offsetParent;
+      } while( el );
+
+      return {left: offsetLeft, top: offsetTop, height: offsetHeight, width: offsetWidth }; 
+    },
+
+    zoomIn() {
+      this.scale(10/8.0, 10/8.0);
+      this.applyTransform();
+    },
+    zoomOut() {
+      this.scale(0.8, 0.8);
+      this.applyTransform();
     }
   }
 }
@@ -416,13 +462,20 @@ export default {
 $test: #888;
 
 #InteractJs {
-    overflow: hidden;
+  overflow: hidden;
 } 
 
+#toolbar {
+  position: absolute;
+  z-index: 10;
+}
+
 #container {
+  position: absolute;
   width: 100vw;
   height: 100vh;
   border: 1px solid #ccc;
+  transform-origin: 0 0;
 }
 
 svg { 
