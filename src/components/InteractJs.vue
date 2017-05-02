@@ -246,9 +246,15 @@ export default {
       // accept strings as well
       sourceId = Number.isInteger(sourceId) ? sourceId : Number.parseInt(sourceId);
       targetId = Number.isInteger(targetId) ? targetId : Number.parseInt(targetId);
+      
+      // avoid duplicate connections
+      if (_.findWhere(this.edges, {source: sourceId, target: targetId})) {
+        console.warn("skipped new connection, it is already present");
+        return;
+      }
 
       // add to model
-     var edge = {
+      let edge = {
         id: this.counter++,
         source: sourceId,
         target: targetId
@@ -308,6 +314,8 @@ export default {
         y: Math.round((-this.containerTranslation.y - markerOffset + targetRect.top) / this.containerScale.y)
       }
 
+      let Offset = 0; // (sourcePoint.x < targetPoint.x) ? -20 : 0;
+
       let sourceAnchor = {
         x: sourcePoint.x,
         y: sourcePoint.y + Math.max( Math.round((targetPoint.y - sourcePoint.y) / 2), anchorOffset )
@@ -315,16 +323,16 @@ export default {
 
       let targetAnchor = {
         x: targetPoint.x, 
-        y: targetPoint.y - Math.max( Math.round((targetPoint.y - sourcePoint.y) / 2), anchorOffset )
+        y: targetPoint.y - Math.max( Math.round((targetPoint.y - sourcePoint.y) / 2), anchorOffset ) + Offset
       }
-      
+
       let middlePoint1 = {
-        x: sourcePoint.x + Math.round((targetPoint.x - sourcePoint.x) / 2),
+        x: sourcePoint.x + (Math.round((targetPoint.x - sourcePoint.x) / 2) + Offset),
         y: sourceAnchor.y
       }
 
       let middlePoint2 = {
-        x: targetPoint.x - Math.round((targetPoint.x - sourcePoint.x) / 2),
+        x: targetPoint.x - (Math.round((targetPoint.x - sourcePoint.x) / 2) - Offset),
         y: targetAnchor.y
       }
 
