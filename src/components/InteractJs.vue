@@ -19,6 +19,12 @@
         ref="removeEdgeDialog">
       </md-dialog-confirm>
 
+      <md-dialog-alert
+        :md-content-html="showNodeDialog.content"
+        :md-ok-text="showNodeDialog.ok"
+        ref="showNodeDialog">
+      </md-dialog-alert>
+
       <div id="container" @click="resetActions" @mousemove="throttle(trackMousePosition, 50)">
 
         <template v-for="(item, index) in shapes">
@@ -82,6 +88,7 @@ export default {
 
         actions: {
           anchorClicked: false,
+          shapeDragged: false
         },
 
         actionPosition: { x: 0, y: 0 },
@@ -93,6 +100,7 @@ export default {
 
         // Dialogs
         removeEdgeDialog: { title: 'Aktion', ok: 'Ja', cancel: 'Nein', contentHtml: 'Soll die Verbindung entfernt werden?', value: '' },
+        showNodeDialog: { content: 'content', ok: 'Ausblenden' },
 
         // Interval
         zoomInt: 0
@@ -176,6 +184,7 @@ export default {
         let shapeId = event.target.getAttribute("data-id");
         let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
         let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
+        that.actions.shapeDragged = true;
 
         // update model
         x += Math.round(event.dx / that.containerScale.x);
@@ -189,7 +198,7 @@ export default {
             'translate(' + x + 'px, ' + y + 'px)';
         
         // update connections of the shape
-        that.redrawConnection(shapeId)
+        that.redrawConnection(shapeId);
       })
       .resizable({
         preserveAspectRatio: false,
@@ -401,6 +410,37 @@ export default {
         this.addConnection(sourceId, targetId);
         return;
       }
+
+      // avoid dragged clicks
+      if (this.actions.shapeDragged === true) {
+        this.actions.shapeDragged = false;
+        return;
+      }
+
+      // open dialog
+      this.actionId = event.target.getAttribute('data-id');
+      let p = _.findWhere(this.shapes, { id: parseInt(this.actionId) });
+      console.log(p);
+
+      this.showNodeDialog.content = 
+      `
+        <md-card>
+          <md-card-media>
+            <img src="https://image.flaticon.com/icons/svg/364/364172.svg" alt="processImage">
+          </md-card-media>
+
+          <md-card-header>
+            <div class="md-title">Prozess</div>
+            <div class="md-subhead">Inhalt</div>
+          </md-card-header>
+
+          <md-card-content>
+            id: ${p.id} <br>
+            name: ${p.name}
+          </md-card-content>
+        </md-card>
+      `;
+      this.$refs['showNodeDialog'].open();
     },
 
     trackMousePosition(event) {
@@ -560,24 +600,25 @@ export default {
 $test: #888;
 
 #InteractJs {
-  overflow: hidden;
+  overflow-x: hidden;
 } 
 
 .main-content {
   position: relative;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
   background: #eee;
 },
 
 #container {
   position: absolute;
   width: 1000px;
-  height: 1000px;
+  height: 600px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
 }
 
 svg { 
