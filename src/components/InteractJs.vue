@@ -135,7 +135,24 @@ export default {
         }
         Utils.debounce(containerPan, "containerPan");
 
-    });
+      })
+      .resizable({
+        preserveAspectRatio: false,
+        edges: { left: true, right: true, bottom: true, top: true }
+      })
+      .on('resizemove', function (event) {
+
+        // update position in model
+        that.resizeElement(event);
+
+        // update view by model
+        var containerResize = function() {
+          that.applyTransform();
+          Utils.scheduledAnimationFrame["containerResize"] = false;
+        }
+        Utils.debounce(containerResize, "containerResize");       
+
+      });
 
     interact('.snappyShape')
       .draggable({
@@ -179,34 +196,9 @@ export default {
         edges: { left: true, right: true, bottom: true, top: true }
       })
       .on('resizemove', function (event) {
-        // console.log('resizemove');
+        that.resizeElement(event);
 
-        // read from model
         let shapeId = event.target.getAttribute("data-id");
-        let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
-        let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
-
-        // update model
-          // translate when resizing from top or left edges
-        x += event.deltaRect.left;
-        y += event.deltaRect.top;
-          // store position
-        event.target.setAttribute('data-x', x);
-        event.target.setAttribute('data-y', y);
-
-        // update view
-        let displayValue = event.target.style.display;
-        event.target.style.display = 'none';  // avoid reflows by multiple style changes
-
-          // update the element's style
-        event.target.style.width  = Math.round(event.rect.width / that.containerScale.x) + 'px';
-        event.target.style.height = Math.round(event.rect.height / that.containerScale.y) + 'px';
-          // translate when resizing from top or left edges
-        event.target.style.webkitTransform =
-        event.target.style.transform =
-            'translate(' + x + 'px,' + y + 'px)';
-
-        event.target.style.display = displayValue;
 
         // update connections of the shape
         that.redrawConnection(shapeId)
@@ -526,6 +518,35 @@ export default {
       console.log('Closed', type);
       if (type === 'cancel') return;
       this.removeConnection(this.actionId);
+    },
+
+    resizeElement(event) {
+
+        // read from model
+        let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
+        let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
+
+        // update model
+          // translate when resizing from top or left edges
+        x += event.deltaRect.left;
+        y += event.deltaRect.top;
+          // store position
+        event.target.setAttribute('data-x', x);
+        event.target.setAttribute('data-y', y);
+
+        // update view
+        let displayValue = event.target.style.display;
+        event.target.style.display = 'none';  // avoid reflows by multiple style changes
+
+          // update the element's style
+        event.target.style.width  = Math.round(event.rect.width / this.containerScale.x) + 'px';
+        event.target.style.height = Math.round(event.rect.height / this.containerScale.y) + 'px';
+          // translate when resizing from top or left edges
+        event.target.style.webkitTransform =
+        event.target.style.transform =
+            'translate(' + x + 'px,' + y + 'px)';
+
+        event.target.style.display = displayValue;
     }
 
 
@@ -547,14 +568,16 @@ $test: #888;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  background: #eee;
 },
 
 #container {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 1000px;
+  height: 1000px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
+  background-color:rgba(255, 255, 255, 0.8);
 }
 
 svg { 
@@ -575,6 +598,7 @@ svg {
 
 .connection:hover {
   stroke: #29e;
+  stroke-width: 3;
 }
 
 marker {
