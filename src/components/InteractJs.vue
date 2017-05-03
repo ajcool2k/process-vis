@@ -3,8 +3,8 @@
 
     <md-toolbar>
       <h2 class="md-title" style="flex: 1">Prozess-Visualisierung</h2>
-      <md-button @click.native="zoomIn">zoomIn</md-button>
-      <md-button @click.native="zoomOut">zoomOut</md-button>
+      <md-button @mousedown.native="zoomIn" @mouseup.native="zoomStop">zoomIn</md-button>
+      <md-button @mousedown.native="zoomOut" @mouseup.native="zoomStop">zoomOut</md-button>
     </md-toolbar>
 
     <div class="main-content">
@@ -92,8 +92,11 @@ export default {
         fireCounter: 0,
 
         // Dialogs
-        removeEdgeDialog: { title: 'Aktion', ok: 'Ja', cancel: 'Nein', contentHtml: 'Soll die Verbindung entfernt werden?', value: '' }        
+        removeEdgeDialog: { title: 'Aktion', ok: 'Ja', cancel: 'Nein', contentHtml: 'Soll die Verbindung entfernt werden?', value: '' },
 
+        // Interval
+        zoomInt: 0
+        
       }
   },
 
@@ -132,8 +135,7 @@ export default {
         }
         Utils.debounce(containerPan, "containerPan");
 
-      });
-
+    });
 
     interact('.snappyShape')
       .draggable({
@@ -485,14 +487,26 @@ export default {
       return {left: offsetLeft, top: offsetTop, height: offsetHeight, width: offsetWidth }; 
     },
 
+    zoom(scaleX, scaleY) {
+      this.zoomStop();
+      let that = this;
+
+      this.zoomInt = setInterval(function() {
+        that.scale(scaleX, scaleY);
+        that.applyTransform();
+      }, 50);  
+    },
+
     zoomIn() {
-      this.scale(10/8.0, 10/8.0);
-      this.applyTransform();
+      this.zoom(10/9.0, 10/9.0);
     },
     
     zoomOut() {
-      this.scale(0.8, 0.8);
-      this.applyTransform();
+      this.zoom(0.9, 0.9);
+    },
+
+    zoomStop() {
+      clearInterval(this.zoomInt);
     },
 
     openRemoveConnectionDialog(event) {
