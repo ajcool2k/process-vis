@@ -159,8 +159,8 @@ export default {
         let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
 
         // update model
-        x += event.dx / that.containerScale.x;
-        y += event.dy / that.containerScale.y;
+        x += Math.round(event.dx / that.containerScale.x);
+        y += Math.round(event.dy / that.containerScale.y);
         event.target.setAttribute('data-x', x);
         event.target.setAttribute('data-y', y);
 
@@ -197,8 +197,8 @@ export default {
         event.target.style.display = 'none';  // avoid reflows by multiple style changes
 
           // update the element's style
-        event.target.style.width  = event.rect.width + 'px';
-        event.target.style.height = event.rect.height + 'px';
+        event.target.style.width  = Math.round(event.rect.width / that.containerScale.x) + 'px';
+        event.target.style.height = Math.round(event.rect.height / that.containerScale.y) + 'px';
           // translate when resizing from top or left edges
         event.target.style.webkitTransform =
         event.target.style.transform =
