@@ -599,13 +599,7 @@ export default {
 
     onScroll(event) {
       console.log("onScroll");
-
-      var that = this;
-      var scrollFn = function() {
-        that.containerOffset = Utils.absolutePosition(that.containerNode); // forces reflow
-        Utils.scheduledAnimationFrame["scrollFn"] = false;
-      }
-      Utils.debounce(scrollFn, "scrollFn");
+      this.containerOffset = Utils.absolutePosition(this.containerNode); // forces reflow
     }
   }
 }
