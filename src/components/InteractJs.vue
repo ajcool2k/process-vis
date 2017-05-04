@@ -88,7 +88,8 @@ export default {
 
         actions: {
           anchorClicked: false,
-          shapeDragged: false
+          shapeDragged: false,
+          shapeResized: false,
         },
 
         actionPosition: { x: 0, y: 0 },
@@ -206,7 +207,7 @@ export default {
       })
       .on('resizemove', function (event) {
         that.resizeElement(event);
-
+        that.actions.shapeResized = true;
         let shapeId = event.target.getAttribute("data-id");
 
         // update connections of the shape
@@ -408,12 +409,13 @@ export default {
 
         // add to model
         this.addConnection(sourceId, targetId);
+        this.resetActions();
         return;
       }
 
-      // avoid dragged clicks
-      if (this.actions.shapeDragged === true) {
-        this.actions.shapeDragged = false;
+      // avoid dragged or resized clicks
+      if (this.actions.shapeDragged === true || this.actions.shapeResized === true) {
+        this.resetActions();
         return;
       }
 
