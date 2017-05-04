@@ -111,6 +111,12 @@ export default {
 
   created: function() {
     console.log("created");
+    window.addEventListener('scroll', this.onScroll, true);
+  },
+
+  destroyed: function() {
+    console.log("destroyed");
+    window.removeEventListener('scroll', this.onScroll);
   },
 
   mounted: function() {
@@ -118,8 +124,8 @@ export default {
 
     // cache DOM
     this.containerNode = document.getElementById("container");
-    this.containerOffset = this.containerNode.getBoundingClientRect(); // forces reflow
-    
+    this.containerOffset = Utils.absolutePosition(this.containerNode); // forces reflow
+
     this.svgContainer = document.querySelector('svg.svgContainer');
     this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
 
@@ -333,8 +339,8 @@ export default {
       var source = document.querySelector('.snappyShape[data-id="'+ edge.source +'"]');
       var target = document.querySelector('.snappyShape[data-id="'+ edge.target +'"]');
 
-      let sourceRect = source.getBoundingClientRect();  // forces reflow
-      let targetRect = target.getBoundingClientRect();  // forces reflow
+      let sourceRect = Utils.absolutePosition(source);  // forces reflow
+      let targetRect = Utils.absolutePosition(target);  // forces reflow
       // ----------------------------------------------
 
       let markerOffset = 2;
@@ -385,7 +391,7 @@ export default {
     activateEdgeConnect(event) {
       console.log("activateEdgeConnect");
       let source = event.target;
-      let sourceRect = source.getBoundingClientRect(); // forces reflow
+      let sourceRect = Utils.absolutePosition(source); // forces reflow
 
       let sourcePoint = { 
         x: Math.round((-this.containerTranslation.x + sourceRect.left + (sourceRect.width / 2) - this.containerOffset.left) / this.containerScale.x),
@@ -589,9 +595,18 @@ export default {
             'translate(' + x + 'px,' + y + 'px)';
 
         event.target.style.display = displayValue;
+    },
+
+    onScroll(event) {
+      console.log("onScroll");
+
+      var that = this;
+      var scrollFn = function() {
+        that.containerOffset = Utils.absolutePosition(that.containerNode); // forces reflow
+        Utils.scheduledAnimationFrame["scrollFn"] = false;
+      }
+      Utils.debounce(scrollFn, "scrollFn");
     }
-
-
   }
 }
 
@@ -682,6 +697,7 @@ $anchorSize: 20px;
   border-radius: $anchorSize / 2;
   background: white;
   align-self: center;
+  cursor: crosshair;
 }
 
 </style>
