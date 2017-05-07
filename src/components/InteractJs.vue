@@ -3,14 +3,8 @@
 
     <md-toolbar>
       <h2 class="md-title" style="flex: 1">Prozess-Visualisierung</h2>
-      <template v-if="hasTouchSupport">
-        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop">zoomIn</md-button>
-        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop">zoomOut</md-button>
-      </template>
-      <template v-else>
-        <md-button @mousedown.native="zoomIn" @mouseup.native="zoomStop">zoomIn</md-button>
-        <md-button @mousedown.native="zoomOut" @mouseup.native="zoomStop">zoomOut</md-button>
-      </template>
+        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">zoomIn</md-button>
+        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">zoomOut</md-button>
     </md-toolbar>
 
     <div class="main-content">
@@ -31,12 +25,12 @@
         ref="showNodeDialog">
       </md-dialog-alert>
 
-      <div id="container" @click="resetActions" @mousemove="throttle(trackMousePosition, 50)">
+      <div id="container" @click="resetActions" @touchmove="trackTouchPosition" @mousemove="throttle(trackMousePosition, 50)">
 
         <template v-for="(item, index) in shapes">
-          <div class="snappyShape" :data-id="item.id" @click="useProcess">
+          <div class="snappyShape" :data-id="item.id" @click.stop="useProcess">
             <div class="content" :data-id="item.id">{{item.name}}</div>
-            <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect" ></div>
+            <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
         </div>
         </template>
 
@@ -50,7 +44,7 @@
           </marker>
 
           <template v-for="(item, index) in edges">
-            <polyline v-on:click="openRemoveConnectionDialog" class="connection" :data-id="item.id" points="" />
+            <polyline @click.stop="openRemoveConnectionDialog" class="connection" :data-id="item.id" points="" />
           </template>
           <polyline class="tmpConnection" points="" />
         </svg>
@@ -95,9 +89,10 @@ export default {
         tmpLine: null,
 
         actions: {
-          anchorClicked: false,
-          shapeDragged: false,
-          shapeResized: false,
+          changes: false,
+          drawingMode: false,
+          shapeDragMode: false,
+          shapeResizeMode: false,
         },
 
         actionPosition: { x: 0, y: 0 },
@@ -126,6 +121,7 @@ export default {
     // check support
     this.hasTouchSupport = TouchSupport.hasSupport();
     if (this.hasTouchSupport) TouchSupport.init();
+    
     console.info("touch support: " + this.hasTouchSupport);
 
     window.addEventListener('scroll', this.onScroll, true);
@@ -155,7 +151,8 @@ export default {
 
     // add new event handlers
     interact('#container')
-      .draggable({}).on('dragmove', function (event) {
+      .draggable({})
+      .on('dragmove', function (event) {
         
         // update position in model
         that.translate(event.dx, event.dy);
@@ -202,13 +199,17 @@ export default {
           endOnly: true
         }
       })
-      .on('dragmove', function (event) {
-        // console.log('dragmove');
+      .on('dragstart', function (event) {
+        event.preventDefault();
 
+        that.actions.shapeDragMode = true;
+      })      
+      .on('dragmove', function (event) {
+        event.preventDefault();
+        
         let shapeId = event.target.getAttribute("data-id");
         let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
         let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
-        that.actions.shapeDragged = true;
 
         // update model
         x += Math.round(event.dx / that.containerScale.x);
@@ -224,18 +225,33 @@ export default {
         // update connections of the shape
         that.redrawConnection(shapeId);
       })
+      .on('dragend', function (event) {
+        event.preventDefault();
+        that.actions.shapeDragMode = false;
+        that.actions.changes = true;        
+      })
       .resizable({
         preserveAspectRatio: false,
         edges: { left: true, right: true, bottom: true, top: true }
       })
+      .on('resizestart', function (event) {
+        event.preventDefault();
+        that.actions.shapeResizeMode = true;
+      })      
       .on('resizemove', function (event) {
+        event.preventDefault();
         that.resizeElement(event);
-        that.actions.shapeResized = true;
         let shapeId = event.target.getAttribute("data-id");
 
         // update connections of the shape
         that.redrawConnection(shapeId)
-      });      
+      })
+      .on('resizeend', function (event) {
+        event.preventDefault();
+        that.actions.shapeResizeMode = false;
+        that.actions.changes = true;
+      })          
+      ;      
 
 
     this.addData();
@@ -406,7 +422,9 @@ export default {
     },
 
     activateEdgeConnect(event) {
-      console.log("activateEdgeConnect");
+      event.preventDefault();
+      console.log("activateEdgeConnect: " + event.type);
+
       let source = event.target;
       let sourceRect = Utils.absolutePosition(source); // forces reflow
 
@@ -415,16 +433,24 @@ export default {
         y: Math.round((-this.containerTranslation.y + sourceRect.top + (sourceRect.height / 2) - this.containerOffset.top) / this.containerScale.y)
       }
       
-      console.log("Source: " + JSON.stringify(sourcePoint));
-      this.actions.anchorClicked = true;
       this.actionPosition = sourcePoint;
       this.tmpLine.setAttribute("data-id", event.target.getAttribute('data-id'));
+
+      this.actions.drawingMode = true;      
     },
 
     useProcess(event) {
       console.log("useProcess");
+      console.log(event.type);
+      console.log(JSON.stringify(this.actions));
+      event.preventDefault();
 
-      if (this.actions.anchorClicked === true) {
+
+      let caller = event.srcElement ? event.srcElement : "unknown";
+      let eventType = event ? event.type : "unknown";
+      
+      if (this.actions.drawingMode === true) {
+        console.log("--> add connection " + caller + " " + eventType);
         let source = this.tmpLine;
         let sourceId = source.getAttribute("data-id");
         let target = event.target;
@@ -436,11 +462,27 @@ export default {
         return;
       }
 
-      // avoid dragged or resized clicks
-      if (this.actions.shapeDragged === true || this.actions.shapeResized === true) {
-        this.resetActions();
+      // avoid dragged clicks
+      if (this.actions.shapeDragMode === true) {
+        console.log("--> avoid dragged " + caller + " " + eventType);
+        this.actions.shapeDragMode = false;
         return;
       }
+
+      // avoid resized clicks
+      if (this.actions.shapeResizeMode === true) {
+        console.log("--> avoid resized " + caller + " " + eventType);
+        this.actions.shapeResizeMode = false;
+        return;
+      }
+      
+
+      if (this.actions.changes === true) {
+        console.log("--> changes done " + caller + " " + eventType);
+        this.actions.changes = false;
+        return
+      }
+
 
       // open dialog
       this.actionId = event.target.getAttribute('data-id');
@@ -466,24 +508,47 @@ export default {
         </md-card>
       `;
       this.$refs['showNodeDialog'].open();
+
     },
 
     trackMousePosition(event) {
+      event.preventDefault();
+
       this.mousePosition.x = Math.round((event.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x);
       this.mousePosition.y = Math.round((event.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y);
       // console.log(this.mousePosition.x + ":" + this.mousePosition.y);
 
-      if (this.actions.anchorClicked) {
+      if (this.actions.drawingMode === true) {
+        console.log("drawingMode 1");
         Utils.debounce(this.drawLine, "drawLine");
       }
     },
 
+    trackTouchPosition(event) {
+      event.preventDefault();
+
+      let touch = event.touches[0];
+
+      this.mousePosition.x = Math.round((touch.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x);
+      this.mousePosition.y = Math.round((touch.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y);
+      // console.log(this.mousePosition.x + ":" + this.mousePosition.y);
+
+      if (this.actions.drawingMode === true) {
+        // console.log("drawingMode 2");
+        Utils.debounce(this.drawLine, "drawLine");
+      }
+
+    },
+
     drawLine() {
+      if (this.actions.drawingMode === false) return; // escape if mode got disabled meanwhile
+
       /*
       console.log("connecto from: x=" + this.actionPosition.x + ", y=" + this.actionPosition.y);
       console.log("connecto from: x=" + this.mousePosition.x + ", y=" + this.mousePosition.y);
       console.log(this.tmpLine);
       */
+      
       this.tmpLine.setAttribute("points", 
           this.actionPosition.x + "," + this.actionPosition.y + " " +
           this.mousePosition.x + "," + this.mousePosition.y
@@ -505,7 +570,13 @@ export default {
           this.actions[key] = false;
       }
 
-      if (this.tmpLine) this.tmpLine.setAttribute("points","");
+      let caller = event.srcElement ? event.srcElement : "unknown";
+      let eventType = event ? event.type : "unknown";
+      
+      if (this.tmpLine) {
+        console.log("resetActions -> " + caller + " " + eventType);
+        this.tmpLine.removeAttribute("points");
+      }
     },
 
     applyTransform() {
@@ -554,15 +625,18 @@ export default {
       }, 50);  
     },
 
-    zoomIn() {
+    zoomIn(event) {
+      if (event) event.preventDefault();
       this.zoom(10/9.0, 10/9.0);
     },
     
-    zoomOut() {
+    zoomOut(event) {
+      if (event) event.preventDefault();
       this.zoom(0.9, 0.9);
     },
 
-    zoomStop() {
+    zoomStop(event) {
+      if (event) event.preventDefault();
       clearInterval(this.zoomInt);
     },
 

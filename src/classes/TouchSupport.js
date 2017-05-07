@@ -1,9 +1,30 @@
 export class TouchSupport {
 
+    static USER_TOUCHED = false;
+    static DEVICE_SUPPORTS_TOUCH = false;
+
+
     static hasSupport() {
-        return ('ontouchstart' in window);
+        TouchSupport.DEVICE_SUPPORTS_TOUCH = ('ontouchstart' in window);
+        return TouchSupport.DEVICE_SUPPORTS_TOUCH;
     }
 
+    static detectUsage() {
+
+        window.addEventListener('touchstart', function onFirstTouch() {
+        
+            // we could use a class
+            document.body.classList.add('TouchSupport');
+
+            // or set some global variable
+            TouchSupport.USER_TOUCHED = true;
+
+            // we only need to know once that a human touched the screen, so we can stop listening now
+            window.removeEventListener('touchstart', onFirstTouch, false);
+        }, false);
+
+    }
+    
     static init() {
 
         // disable long press context menu
