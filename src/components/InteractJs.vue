@@ -3,8 +3,14 @@
 
     <md-toolbar>
       <h2 class="md-title" style="flex: 1">Prozess-Visualisierung</h2>
-      <md-button @mousedown.native="zoomIn" @mouseup.native="zoomStop">zoomIn</md-button>
-      <md-button @mousedown.native="zoomOut" @mouseup.native="zoomStop">zoomOut</md-button>
+      <template v-if="hasTouchSupport">
+        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop">zoomIn</md-button>
+        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop">zoomOut</md-button>
+      </template>
+      <template v-else>
+        <md-button @mousedown.native="zoomIn" @mouseup.native="zoomStop">zoomIn</md-button>
+        <md-button @mousedown.native="zoomOut" @mouseup.native="zoomStop">zoomOut</md-button>
+      </template>
     </md-toolbar>
 
     <div class="main-content">
@@ -62,7 +68,9 @@ import { Participant } from '@/classes/Participant';
 
 import { interact } from 'interactjs';
 import { _ } from 'underscore';
+
 import { Utils } from '@/classes/Utils';
+import { TouchSupport } from '@/classes/TouchSupport';
 
 import Vue from 'vue'
 import VueMaterial from 'vue-material'
@@ -103,6 +111,9 @@ export default {
         removeEdgeDialog: { title: 'Aktion', ok: 'Ja', cancel: 'Nein', contentHtml: 'Soll die Verbindung entfernt werden?', value: '' },
         showNodeDialog: { content: 'content', ok: 'Ausblenden' },
 
+        // Support
+        hasTouchSupport: false,
+
         // Interval
         zoomInt: 0
         
@@ -111,6 +122,12 @@ export default {
 
   created: function() {
     console.log("created");
+
+    // check support
+    this.hasTouchSupport = TouchSupport.hasSupport();
+    if (this.hasTouchSupport) TouchSupport.init();
+    console.info("touch support: " + this.hasTouchSupport);
+
     window.addEventListener('scroll', this.onScroll, true);
   },
 
