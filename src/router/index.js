@@ -22,10 +22,10 @@ export default new Router({
     { name: 'Hello Vue', path: '/hello', component:  Hello },
     { name: 'Route zeichnen', path: '/draw', component: RouteDraw }, 
     { name: 'CyDemo', path: '/draw2', component: CyDemo }, 
-    { name: 'D3demo', path: '/draw3', component: D3demo },
     { name: 'D3Gantt', path: '/gantt', component: D3Gantt },
     { name: 'Flexbox', path: '/flexbox', component: Flexbox }, 
     { name: 'VueMaterial', path: '/material', component: VueMaterial }, 
+    { name: 'D3demo', path: '/draw3', component: D3demo },
     { name: 'InteractJs', path: '/interact', component: InteractJs }, 
   ]
 })

@@ -7,14 +7,14 @@
 
 <script>
 
-import * as d3 from "d3";
-//import {scaleLinear} from "d3-scale";
+//import * as d3 from "d3";
 
+import {select} from "d3-selection";
+import {scaleLinear} from "d3-scale";
+import {axisTop} from "d3-axis";
+import {axisLeft} from "d3-axis";
 
-import { Project } from '@/classes/Project';
-import { Process } from '@/classes/Process';
-import { Participant } from '@/classes/Participant';
-
+var d3 = { select, scaleLinear, axisTop, axisLeft };
 
 export default {
   name: 'D3demo',
@@ -35,14 +35,13 @@ export default {
     console.log(gridData);   
 
     var grid = d3.select("#grid")
-      .append("svg")
-      .attr("class","grid")
-      .attr("width","404")
-      .attr("height","510")
-      .attr("viewBox","0 0 404 510")
-      .attr("preserveAspectRatio","xMidYMid meet")
-      ;
-
+        .append("svg")
+        .attr("class","grid")
+        .attr("width","800")
+        .attr("height","600")
+        .attr("viewBox","0 0 800 600")
+        .attr("preserveAspectRatio","xMidYMid meet");
+    
     var row = grid.selectAll(".row")
         .data(gridData)
         .enter().append("g")
@@ -59,6 +58,32 @@ export default {
         .style("fill", "#fff")
         .style("stroke", "#ccc");
 
+    //Create the Scale we will use for the Axis
+    var xScale = d3.scaleLinear()
+        .domain([0, 80])
+        .range([0, 800]);
+
+    var yScale = d3.scaleLinear()
+        .domain([0, 60])
+        .range([0, 600])
+        ;        
+
+    //Create the Axis
+    var xAxis = d3.axisTop()
+        .scale(xScale)
+        .ticks(8);
+    
+    var yAxis = d3.axisLeft()
+        .scale(yScale)
+        .ticks(6);
+
+    //Create an SVG group Element for the Axis elements and call the xAxis function
+    var xAxisGroup = grid.append("g")
+        .call(xAxis);
+
+    var yAxisGroup = grid.append("g")
+        .call(yAxis);        
+
   },
 
   updated: function() {
@@ -72,14 +97,14 @@ export default {
       var xpos = 1; //starting xpos and ypos at 1 so the stroke will show when we make the grid below
       var ypos = 1;
       var width = 100;
-      var height = 50;
+      var height = 100;
 
       // iterate for rows 
-      for (var row = 0; row < 10; row++) {
+      for (var row = 0; row < 6; row++) {
           data.push( new Array() );
 
           // iterate for cells/columns inside rows
-          for (var column = 0; column < 4; column++) {
+          for (var column = 0; column < 8; column++) {
               data[row].push({
                   x: xpos,
                   y: ypos,
@@ -106,5 +131,6 @@ export default {
   .grid {
     display: block;
     margin: auto;
+    padding: 50px;
   }
 </style>
