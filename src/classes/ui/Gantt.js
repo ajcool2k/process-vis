@@ -1,64 +1,48 @@
 
 /**
- * @author Dimitry Kudrayvtsev
- * @modified Jens Auerswald
- * @version 2.1
+ * @author Jens Auerswald
+ * @version 1.0
  */
 
 export function ganttExt(d3lib) {
-	// store d3 lib
-	var d3 = d3lib;
-	console.log("lib");
-	console.log(d3);
 
+	var d3 = d3lib;					// store d3 lib
+	var container = "body";			// container for svg
+	var svg;
+
+	// layout
+    var margin = { top : 20, right : 40, bottom : 20, left : 80 };
+    var height = document.body.clientHeight - margin.top - margin.bottom-5;
+    var width = document.body.clientWidth - margin.right - margin.left-5;	
+
+	// flex option
     var FIT_TIME_DOMAIN_MODE = "fit";
     var FIXED_TIME_DOMAIN_MODE = "fixed";
-    
-    var margin = {
-		top : 20,
-		right : 40,
-		bottom : 20,
-		left : 80
-    };
 
-	var container = "body";
-    var timeDomainStart = d3.timeDay.offset(new Date(),-3);
-    var timeDomainEnd = d3.timeHour.offset(new Date(),+3);
-    var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
+	// axis
+    var xScale;
+    var yScale;    
+    var xAxis;
+    var yAxis;
+
+	// domain
+	var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
+    var timeDomainStart;
+    var timeDomainEnd;
+    var tickFormat = "%H:%M";
+
+	// data
     var taskTypes = [];
     var taskStatus = [];
-    var height = document.body.clientHeight - margin.top - margin.bottom-5;
-    var width = document.body.clientWidth - margin.right - margin.left-5;
 
-    var tickFormat = "%H:%M";
 
     var keyFunction = function(d) {
 		return d.startDate + d.taskName + d.endDate;
     };
 
     var rectTransform = function(d) {
-		return "translate(" + x(d.startDate) + "," + y(d.taskName) + ")";
+		return "translate(" + xScale(d.startDate) + "," + yScale(d.taskName) + ")";
     };
-
-    var x = d3.scaleTime()
-				.domain([ timeDomainStart, timeDomainEnd ])
-				.range([ 0, width ])
-				.clamp(true);
-
-    var y = d3.scaleBand()
-				.domain(taskTypes)
-				.range([ 0, height - margin.top - margin.bottom ])
-				.round(.1);
-    
-    var xAxis = d3.axisBottom()
-				.scale(x)
-				.tickFormat(d3.timeFormat(tickFormat))
-				.tickSize(8)
-				.tickPadding(8);
-
-    var yAxis = d3.axisLeft()
-				.scale(y)
-				.tickSize(0);
 
     var initTimeDomain = function(tasks) {
 	
@@ -84,40 +68,41 @@ export function ganttExt(d3lib) {
     };
 
     var initAxis = function() {
-		x = d3.scaleTime()
+		xScale = d3.scaleTime()
 				.domain([ timeDomainStart, timeDomainEnd ])
 				.range([ 0, width ])
 				.clamp(true);
 
-		y = d3.scaleBand()
+		yScale = d3.scaleBand()
 				.domain(taskTypes)
 				.range([ 0, height - margin.top - margin.bottom ])
 				.round(.1);
 
     	xAxis = d3.axisBottom()
-				.scale(x)
+				.scale(xScale)
 				.tickFormat(d3.timeFormat(tickFormat))
 				.tickSize(8)
 				.tickPadding(8);
 
     	yAxis = d3.axisLeft()
-				.scale(y)
+				.scale(yScale)
 				.tickSize(0);
 
     };
     
 	// for webpack hot reloading
 	function clean() {
+		if (svg) {
+			svg.remove();
+			svg = null;
+		}
+
 		d3.selectAll("svg.chart").remove();
 	}
 
-    function gantt(tasks) {
-		console.log('create gantt');
-		clean();
-		initTimeDomain(tasks);
-		initAxis();
-
-		var svg = d3.select(container).append("svg")
+	function create() {
+		// create SVG
+		svg = d3.select(container).append("svg")
 			.attr("class", "chart")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
@@ -127,25 +112,8 @@ export function ganttExt(d3lib) {
 			.attr("height", height + margin.top + margin.bottom)
 			.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
-		svg.selectAll(".chart")
-			.data(tasks, keyFunction).enter()
-			.append("rect")
-			.attr("rx", 5)
-			.attr("ry", 5)
-			.attr("class", function(d){ 
-				if(taskStatus[d.status] == null){ return "bar";}
-				return taskStatus[d.status];
-			}) 
-			.attr("y", 0)
-			.attr("transform", rectTransform)
-			.attr("height", function(d) { 
-				return y.bandwidth();
-			})
-			.attr("width", function(d) { 
-				return (x(d.endDate) - x(d.startDate)); 
-			});
 		
-		
+		// create Axis
 		svg.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")
@@ -156,20 +124,41 @@ export function ganttExt(d3lib) {
 			.attr("class", "y axis")
 			.transition()
 			.call(yAxis);
+
+		return;
+	}
+
+    function gantt(tasks) {
+		console.log('create gantt');
+		
+		clean();
+
+		initTimeDomain(tasks);
+		initAxis();
+
+		create();
+
+		draw(tasks);
 		
 		return gantt;
 
     };
     
-    gantt.redraw = function(tasks) {
+	gantt.redraw = function(tasks) {
 		console.log('redraw gantt');
 		initTimeDomain(tasks);
 		initAxis();
+		draw(tasks);	
+	};
+
+     function draw(tasks) {
+		console.log('draw gantt');
 	
-        var svg = d3.select("svg");
+        svg = d3.select("svg");
 
         var ganttChartGroup = svg.select(".gantt-chart");
-        var rect = ganttChartGroup.selectAll("rect").data(tasks, keyFunction);
+        var rect = ganttChartGroup.selectAll("rect")
+			.data(tasks, keyFunction);
         
         rect.enter()
 			.insert("rect",":first-child")
@@ -177,25 +166,25 @@ export function ganttExt(d3lib) {
 			.attr("ry", 5)
 			.attr("class", function(d){ 
 				if(taskStatus[d.status] == null){ return "bar";}
-				return taskStatus[d.status];
+					return taskStatus[d.status];
 				}) 
 			.transition()
 			.attr("y", 0)
 			.attr("transform", rectTransform)
 			.attr("height", function(d) {
-				return y.bandwidth();
+				return yScale.bandwidth();
 			})
 			.attr("width", function(d) { 
-				return (x(d.endDate) - x(d.startDate)); 
+				return (xScale(d.endDate) - xScale(d.startDate)); 
 			});
 
         rect.transition()
           	.attr("transform", rectTransform)
 	 		.attr("height", function(d) { 
-				return y.bandwidth();
+				return yScale.bandwidth();
 			})
 	 		.attr("width", function(d) { 
-	     		return (x(d.endDate) - x(d.startDate)); 
+	     		return (xScale(d.endDate) - xScale(d.startDate)); 
 	     	});
         
 		rect.exit().remove();
@@ -222,11 +211,6 @@ export function ganttExt(d3lib) {
 		return gantt;
     };
 
-    /**
-     * @param {string}
-     *                vale The value can be "fit" - the domain fits the data or
-     *                "fixed" - fixed domain.
-     */
     gantt.timeDomainMode = function(value) {
 		if (!arguments.length)
 			return timeDomainMode;

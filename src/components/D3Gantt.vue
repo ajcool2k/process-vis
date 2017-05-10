@@ -104,13 +104,15 @@ export default {
 
     
 
+    // prepare
     this.gantt = d3.gantt(d3)
                 .setContainer(".svg-container")
                 .taskTypes(taskNames)
                 .taskStatus(taskStatus)
-                .tickFormat(this.format);
+                .tickFormat(this.format)
+                ;
 
-    this.changeTimeDomain(this.timeDomainString);
+    // apply data
     this.gantt(tasks);
 
   },
@@ -140,6 +142,7 @@ export default {
         this.changeTimeDomain(this.timeDomainString);
         this.gantt.redraw(tasks);
     },
+
     removeTask() {
         let tasks = this.tasks;
         tasks.pop();
@@ -205,8 +208,9 @@ export default {
             format = "%H:%M"
         }
         
-        gantt.tickFormat(this.format);
-        gantt.redraw(this.tasks);
+        gantt
+          .tickFormat(this.format)
+          .redraw(this.tasks);
     }
   }
 }

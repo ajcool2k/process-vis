@@ -24,11 +24,11 @@
         <router-link to="/interact">
             <button>InteractJs</button>
         </router-link>
-        <!--
+
         <router-link to="/gantt">
             <button>D3Gantt</button>
         </router-link>
-        -->
+
         <div class="logo">
             <img src="../assets/logo.png" draggable="true">
         </div>    
