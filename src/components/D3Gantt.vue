@@ -4,19 +4,38 @@
     <div id="gantt">
       <button type="button" @click="addTask()">Add Task</button>
       <button type="button" @click="removeTask()">Remove Task</button>
-      <!--
-      <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-      <script type="text/javascript" src="http://static.mentful.com/gantt-chart-d3v21.js"></script>
-      <script type="text/javascript" src="example2.js"></script>    
-      -->
+      <button type="button" @click="changeTimeDomain('1hr')">1 HR</button>
+      <button type="button" @click="changeTimeDomain('3hr')">3 HR</button>
+      <button type="button" @click="changeTimeDomain('6hr')">6 HR</button>
+      <button type="button" @click="changeTimeDomain('1day')">1 DAY</button>
+      <button type="button" @click="changeTimeDomain('1week')">1 WEEK</button>
+      <button type="button" @click="fixedTimeDomain()">fixed</button>
+      <button type="button" @click="fitTimeDomain()">fit</button>
     </div>
+    <div class="svg-container"></div>
   </div>
 </template>
 
 <script>
 
 //import * as d3 from "d3";
-//import {scaleLinear} from "d3-scale";
+
+import {select, selectAll} from "d3-selection";
+import {scaleTime, scaleBand} from "d3-scale";
+import {axisLeft, axisBottom} from "d3-axis";
+import {timeDay, timeHour } from "d3-time";
+import {timeFormat } from "d3-time-format";
+import {transition } from "d3-transition";
+
+var d3 = {  select, selectAll,
+            scaleTime, scaleBand, 
+            axisLeft, axisBottom, 
+            timeDay, timeHour,
+            timeFormat,
+            transition,
+        };
+
+import { ganttExt } from '@/classes/ui/Gantt';
 
 
 export default {
@@ -26,6 +45,7 @@ export default {
         tasks: [],
         taskStatus: {},
         taskNames: [],
+        timeDomainString: "",
         gantt: null
       }
   },
@@ -37,12 +57,25 @@ export default {
   mounted: function() {
     console.log("mounted");
 
-    // var gantt = require('@/classes/ui/Gantt');
-    this.gantt = d3.gantt();
+    d3['gantt'] = ganttExt;
+
+    this.format = "%H:%M";
+    this.timeDomainString = "1day";
 
     this.tasks = [
-      {"startDate":new Date("Sun Dec 09 01:36:45 EST 2012"),"endDate":new Date("Sun Dec 09 02:36:45 EST 2012"),"taskName":"E Job","status":"RUNNING"}
-      ];
+    {
+        "startDate": new Date("Sun Dec 09 01:36:45 EST 2012"),
+        "endDate": new Date("Sun Dec 09 02:36:45 EST 2012"),
+        "taskName": "E Job",
+        "status": "FAILED"
+    },
+
+    {
+        "startDate": new Date("Sun Dec 09 04:56:32 EST 2012"),
+        "endDate": new Date("Sun Dec 09 06:35:47 EST 2012"),
+        "taskName": "A Job",
+        "status": "RUNNING"
+    }];
     let tasks = this.tasks;
 
     this.taskStatus = {
@@ -69,12 +102,16 @@ export default {
     
     var minDate = tasks[0].startDate;
 
-    var format = "%H:%M";
+    
 
-    var gantt = d3.gantt().taskTypes(taskNames).taskStatus(taskStatus).tickFormat(format);
-    //gantt.timeDomain([new Date("Sun Dec 09 04:54:19 EST 2012"),new Date("Sun Jan 09 04:54:19 EST 2013")]);
-    //gantt.timeDomainMode("fixed");
-    gantt(tasks);
+    this.gantt = d3.gantt(d3)
+                .setContainer(".svg-container")
+                .taskTypes(taskNames)
+                .taskStatus(taskStatus)
+                .tickFormat(this.format);
+
+    this.changeTimeDomain(this.timeDomainString);
+    this.gantt(tasks);
 
   },
 
@@ -98,13 +135,78 @@ export default {
         var taskStatusName = taskStatusKeys[Math.floor(Math.random()*taskStatusKeys.length)];
         var taskName = taskNames[Math.floor(Math.random()*taskNames.length)];
         
-        tasks.push({"startDate":d3.time.hour.offset(lastEndDate,Math.ceil(1*Math.random())),"endDate":d3.time.hour.offset(lastEndDate,(Math.ceil(Math.random()*3))+1),"taskName":taskName,"status":taskStatusName});
+        tasks.push({"startDate":d3.timeHour.offset(lastEndDate,Math.ceil(1*Math.random())),"endDate":d3.timeHour.offset(lastEndDate,(Math.ceil(Math.random()*3))+1),"taskName":taskName,"status":taskStatusName});
+        
+        this.changeTimeDomain(this.timeDomainString);
         this.gantt.redraw(tasks);
     },
     removeTask() {
         let tasks = this.tasks;
         tasks.pop();
+        
+        this.changeTimeDomain(this.timeDomainString);
         this.gantt.redraw(tasks);
+    },
+
+    getEndDate() {
+        var lastEndDate = Date.now();
+        let tasks = this.tasks;
+
+        if (tasks.length > 0) {
+          lastEndDate = tasks[tasks.length - 1].endDate;
+        }
+        return lastEndDate;
+    },
+    
+    fixedTimeDomain() {
+      this.gantt.timeDomainMode("fixed");
+      this.changeTimeDomain(this.timeDomainString);
+    },
+
+    fitTimeDomain() {
+      this.gantt.timeDomainMode("fit");
+      this.changeTimeDomain(this.timeDomainString);
+    },    
+    
+    changeTimeDomain(timeDomainString) {
+      this.timeDomainString = timeDomainString;
+
+      let gantt = this.gantt;
+      let format = this.format;
+      let getEndDate = this.getEndDate;
+
+      switch (timeDomainString) {
+          case "1hr":
+            format = "%H:%M:%S";
+            gantt.timeDomain([ d3.timeHour.offset(getEndDate(), -1), getEndDate() ]);
+            break;
+
+          case "3hr":
+            format = "%H:%M";
+            gantt.timeDomain([ d3.timeHour.offset(getEndDate(), -3), getEndDate() ]);
+            break;
+
+          case "6hr":
+            format = "%H:%M";
+            gantt.timeDomain([ d3.timeHour.offset(getEndDate(), -6), getEndDate() ]);
+            break;
+
+          case "1day":
+            format = "%H:%M";
+            gantt.timeDomain([ d3.timeDay.offset(getEndDate(), -1), getEndDate() ]);
+            break;
+
+          case "1week":
+            format = "%a %H:%M";
+            gantt.timeDomain([ d3.timeDay.offset(getEndDate(), -7), getEndDate() ]);
+            break;
+
+          default:
+            format = "%H:%M"
+        }
+        
+        gantt.tickFormat(this.format);
+        gantt.redraw(this.tasks);
     }
   }
 }
