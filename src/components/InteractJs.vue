@@ -25,7 +25,7 @@
         ref="showNodeDialog">
       </md-dialog-alert>
 
-      <div id="container" @click="resetActions" @touchmove="trackTouchPosition" @mousemove="throttle(trackMousePosition, 50)">
+      <div id="container" @click="resetActions" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
 
         <template v-for="(item, index) in shapes">
           <div class="snappyShape" :data-id="item.id" @click.stop="useProcess">
@@ -102,6 +102,12 @@ export default {
         time: Date.now(),
         fireCounter: 0,
 
+        // Options
+        options: {
+          isContainerDraggable: true,
+          isContainerResizeable: true,
+        },
+
         // Dialogs
         removeEdgeDialog: { title: 'Aktion', ok: 'Ja', cancel: 'Nein', contentHtml: 'Soll die Verbindung entfernt werden?', value: '' },
         showNodeDialog: { content: 'content', ok: 'Ausblenden' },
@@ -125,11 +131,14 @@ export default {
     console.info("touch support: " + this.hasTouchSupport);
 
     window.addEventListener('scroll', this.onScroll, true);
+    window.addEventListener('resize', this.onResize, true);
   },
 
   destroyed: function() {
     console.log("destroyed");
     window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this.onResize);
+    
   },
 
   mounted: function() {
@@ -142,7 +151,7 @@ export default {
     this.svgContainer = document.querySelector('svg.svgContainer');
     this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
 
-    var that = this;
+    let that = this;
     
 
     // remove existing event handlers
@@ -152,36 +161,12 @@ export default {
     // add new event handlers
     interact('#container')
       .draggable({})
-      .on('dragmove', function (event) {
-        
-        // update position in model
-        that.translate(event.dx, event.dy);
-
-        // update view by model
-        var containerPan = function() {
-          that.applyTransform();
-          Utils.scheduledAnimationFrame["containerPan"] = false;
-        }
-        Utils.debounce(containerPan, "containerPan");
-
-      })
+      .on('dragmove', this.onContainerDrag)
       .resizable({
         preserveAspectRatio: false,
         edges: { left: true, right: true, bottom: true, top: true }
       })
-      .on('resizemove', function (event) {
-
-        // update position in model
-        that.resizeElement(event);
-
-        // update view by model
-        var containerResize = function() {
-          that.applyTransform();
-          Utils.scheduledAnimationFrame["containerResize"] = false;
-        }
-        Utils.debounce(containerResize, "containerResize");       
-
-      });
+      .on('resizemove', this.onContainerResize);
 
     interact('.snappyShape')
       .draggable({
@@ -200,33 +185,10 @@ export default {
         }
       })
       .on('dragstart', function (event) {
-        event.preventDefault();
-
         that.actions.shapeDragMode = true;
       })      
-      .on('dragmove', function (event) {
-        event.preventDefault();
-        
-        let shapeId = event.target.getAttribute("data-id");
-        let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
-        let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
-
-        // update model
-        x += Math.round(event.dx / that.containerScale.x);
-        y += Math.round(event.dy / that.containerScale.y);
-        event.target.setAttribute('data-x', x);
-        event.target.setAttribute('data-y', y);
-
-        // update view
-        event.target.style.webkitTransform =
-        event.target.style.transform =
-            'translate(' + x + 'px, ' + y + 'px)';
-        
-        // update connections of the shape
-        that.redrawConnection(shapeId);
-      })
+      .on('dragmove', this.onShapeDrag)
       .on('dragend', function (event) {
-        event.preventDefault();
         that.actions.shapeDragMode = false;
         that.actions.changes = true;        
       })
@@ -235,11 +197,9 @@ export default {
         edges: { left: true, right: true, bottom: true, top: true }
       })
       .on('resizestart', function (event) {
-        event.preventDefault();
         that.actions.shapeResizeMode = true;
       })      
       .on('resizemove', function (event) {
-        event.preventDefault();
         that.resizeElement(event);
         let shapeId = event.target.getAttribute("data-id");
 
@@ -247,7 +207,6 @@ export default {
         that.redrawConnection(shapeId)
       })
       .on('resizeend', function (event) {
-        event.preventDefault();
         that.actions.shapeResizeMode = false;
         that.actions.changes = true;
       })          
@@ -423,6 +382,7 @@ export default {
 
     activateEdgeConnect(event) {
       event.preventDefault();
+
       console.log("activateEdgeConnect: " + event.type);
 
       let source = event.target;
@@ -440,10 +400,11 @@ export default {
     },
 
     useProcess(event) {
+      event.preventDefault();
+
       console.log("useProcess");
       console.log(event.type);
       console.log(JSON.stringify(this.actions));
-      event.preventDefault();
 
 
       let caller = event.srcElement ? event.srcElement : "unknown";
@@ -512,7 +473,6 @@ export default {
     },
 
     trackMousePosition(event) {
-      event.preventDefault();
 
       this.mousePosition.x = Math.round((event.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x);
       this.mousePosition.y = Math.round((event.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y);
@@ -525,7 +485,6 @@ export default {
     },
 
     trackTouchPosition(event) {
-      event.preventDefault();
 
       let touch = event.touches[0];
 
@@ -688,9 +647,66 @@ export default {
         event.target.style.display = displayValue;
     },
 
+    onShapeDrag(event) {
+      let shapeId = event.target.getAttribute("data-id");
+      let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
+      let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
+
+      // update model
+      x += Math.round(event.dx / this.containerScale.x);
+      y += Math.round(event.dy / this.containerScale.y);
+      event.target.setAttribute('data-x', x);
+      event.target.setAttribute('data-y', y);
+
+      // update view
+      event.target.style.webkitTransform =
+      event.target.style.transform =
+          'translate(' + x + 'px, ' + y + 'px)';
+      
+      // update connections of the shape
+      this.redrawConnection(shapeId);
+    },
+
+    onContainerDrag(event) {
+      if (this.options.isContainerDraggable === false)
+        return;
+
+      // update position in model
+      this.translate(event.dx, event.dy);
+
+      // update view by model
+      let that = this;
+      var containerPan = function() {
+        that.applyTransform();
+        Utils.scheduledAnimationFrame["containerPan"] = false;
+      }
+      Utils.debounce(containerPan, "containerPan");
+    },
+
+    onContainerResize(event) {
+      if (this.options.isContainerResizeable === false)
+        return;
+
+      // update position in model
+      this.resizeElement(event);
+
+      // update view by model
+      let that = this;
+      var containerResize = function() {
+        that.applyTransform();
+        Utils.scheduledAnimationFrame["containerResize"] = false;
+      }
+      Utils.debounce(containerResize, "containerResize");       
+    },
+
     onScroll(event) {
       console.log("onScroll");
       this.containerOffset = Utils.absolutePosition(this.containerNode); // forces reflow
+    },
+
+    onResize(event) {
+      console.log("onResize");
+      this.redraw();
     }
   }
 }
@@ -717,6 +733,8 @@ $test: #888;
   position: absolute;
   width: 1000px;
   height: 600px;
+  left: 0.5vw;
+  top: 0.5vw;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
