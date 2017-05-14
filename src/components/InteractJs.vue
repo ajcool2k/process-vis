@@ -1,14 +1,11 @@
 <template>
   <div id="InteractJs">
 
-    <md-toolbar>
-      <h2 class="md-title" style="flex: 1">Prozess-Visualisierung</h2>
-        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">zoomIn</md-button>
-        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">zoomOut</md-button>
-    </md-toolbar>
+    <!-- child component -->
+    <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom"></tool-bar>
 
     <div class="main-content">
-
+     
       <md-dialog-confirm
         :md-title="removeEdgeDialog.title"
         :md-content-html="removeEdgeDialog.contentHtml"
@@ -26,6 +23,13 @@
       </md-dialog-alert>
 
       <div id="container" @click="resetActions" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
+        <!-- child component -->
+        <horizontal-bar :cols="cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
+
+        <template v-for="(item, index) in cols">
+          <div :class="'col col' + index" :data-id="index" :style="'width: ' + ( 100 / cols.length ) + '%'">
+          </div>
+        </template>
 
         <template v-for="(item, index) in shapes">
           <div class="snappyShape" :data-id="item.id" @click.stop="useProcess">
@@ -55,6 +59,9 @@
 
 <script>
 
+// Child components
+import ToolBar from './ui/ToolBar.vue';
+import HorizontalBar from './ui/HorizontalBar.vue';
 
 import { Project } from '@/classes/Project';
 import { Process } from '@/classes/Process';
@@ -74,10 +81,15 @@ Vue.use(VueMaterial)
 
 export default {
   name: 'InteractJs',
+  components: {
+    'tool-bar': ToolBar,
+    'horizontal-bar' : HorizontalBar,
+  },
   data: function() {
       return {
         shapes: [],
         edges: [],
+        cols: [],
         counter: 0,
 
         containerNode: null,
@@ -143,6 +155,9 @@ export default {
 
   mounted: function() {
     console.log("mounted");
+
+    // add column
+    this.cols.push({ shapes: [] });
 
     // cache DOM
     this.containerNode = document.getElementById("container");
@@ -224,6 +239,11 @@ export default {
   },
 
   methods: {
+    test(event) {
+      console.log("test");
+      console.log(event);
+    },
+
     addData() {
       var shape1 = { id: this.counter++, name: "p" + this.counter }
       var shape2 = { id: this.counter++, name: "p" + this.counter }
@@ -574,29 +594,41 @@ export default {
       return {left: offsetLeft, top: offsetTop, height: offsetHeight, width: offsetWidth }; 
     },
 
-    zoom(scaleX, scaleY) {
-      this.zoomStop();
-      let that = this;
 
-      this.zoomInt = setInterval(function() {
-        that.scale(scaleX, scaleY);
-        that.applyTransform();
-      }, 50);  
+    addLane() {
+      console.log("add lane");
+      this.cols.push({ shapes: [] });
     },
 
-    zoomIn(event) {
-      if (event) event.preventDefault();
-      this.zoom(10/9.0, 10/9.0);
-    },
-    
-    zoomOut(event) {
-      if (event) event.preventDefault();
-      this.zoom(0.9, 0.9);
+    removeLane() {
+      console.log("remove lane");
+
+      if (this.cols.length < 2) {
+        console.warn("Could not remove more lanes"); 
+        return;
+      }
+
+      this.cols.splice(-1,1);
     },
 
-    zoomStop(event) {
-      if (event) event.preventDefault();
-      clearInterval(this.zoomInt);
+    // Listener for horizontal-bar emits
+    applyLaneChange(laneData) {
+      switch(laneData) {
+        case 'add':
+          this.addLane();
+          return;
+        case 'remove':
+          this.removeLane();
+          return;
+        default:
+          console.warn("laneData has unexpected information");
+      }
+    },
+
+    // Listener for tool-bar emits
+    applyZoom(scaleData) {
+      this.containerScale = scaleData;
+      this.applyTransform();
     },
 
     openRemoveConnectionDialog(event) {
@@ -716,6 +748,7 @@ export default {
 <style lang="scss" scoped>
 
 $test: #888;
+$bgColor: #eee;
 
 #InteractJs {
   overflow-x: hidden;
@@ -726,15 +759,18 @@ $test: #888;
   width: 100vw;
   height: 100vh;
   overflow-x: hidden;
-  background: #eee;
+  background: $bgColor;
 },
 
 #container {
   position: absolute;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   width: 1000px;
   height: 600px;
   left: 0.5vw;
-  top: 0.5vw;
+  top: 60px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
@@ -746,6 +782,11 @@ svg {
   height:100% !important; 
   width:100% !important;
   z-index: 1;
+}
+
+.col {
+  border: 1px dashed #ccc; 
+  text-align: center;
 }
 
 .connection, .tmpConnection {
