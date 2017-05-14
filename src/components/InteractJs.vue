@@ -733,7 +733,18 @@ export default {
 
     onScroll(event) {
       console.log("onScroll");
-      this.containerOffset = Utils.absolutePosition(this.containerNode); // forces reflow
+      /*
+      var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+        scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      console.log("scrollLeft: " + scrollLeft + " | scrollTop: " + scrollTop);
+      console.log(document.getElementById('container'));
+      console.log(document.getElementById('container').scrollTop);
+
+      console.log(JSON.stringify(this.containerOffset));
+      //this.containerOffset = Utils.absolutePosition(this.containerNode); // forces reflow
+      console.log(JSON.stringify(this.containerOffset));
+      */
     },
 
     onResize(event) {
@@ -751,14 +762,26 @@ $test: #888;
 $bgColor: #eee;
 
 #InteractJs {
-  overflow-x: hidden;
+  position: relative;
+  
+  width: 100%;
+  height: 100%;  
 } 
+
+.tool-bar {
+  position: fixed;
+  width: 100%;
+  z-index: 9;
+  height: 64px;
+}
 
 .main-content {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow-x: hidden;
+  width: 100%;
+  top: 64px;
+  min-height: 1000px;    
+  height: auto;
+
   background: $bgColor;
 },
 
