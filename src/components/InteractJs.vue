@@ -92,6 +92,9 @@ export default {
         cols: [],
         counter: 0,
 
+        workspaceNode: null,
+        workspaceSize: {x: 1000, y: 1000 },
+        
         containerNode: null,
         containerOffset: null,
         containerTranslation: { x: 0, y: 0 },
@@ -110,7 +113,7 @@ export default {
         actionPosition: { x: 0, y: 0 },
         mousePosition: {x: 0, y:0},
         actionId: null,
-
+        
         time: Date.now(),
         fireCounter: 0,
 
@@ -160,9 +163,13 @@ export default {
     this.cols.push({ shapes: [] });
 
     // cache DOM
-    this.containerNode = document.getElementById("container");
+    this.containerNode = document.querySelector("#container");
     this.containerOffset = Utils.absolutePosition(this.containerNode); // forces reflow
 
+    this.workspaceNode = document.querySelector(".main-content");
+    this.workspaceSize = { x: this.containerOffset.width + 100,  y: this.containerOffset.height + 100 }
+    this.updateWorkspaceSize(); // forces reflow
+    
     this.svgContainer = document.querySelector('svg.svgContainer');
     this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
 
@@ -176,12 +183,28 @@ export default {
     // add new event handlers
     interact('#container')
       .draggable({})
+      .on('dragstart', function (event) {
+        console.warn("dragstart container");
+        that.actionPosition = { x: event.pageX, y: event.pageY };
+      })         
       .on('dragmove', this.onContainerDrag)
+      .on('dragend', function (event) {
+        console.warn("dragend container");
+        that.updateWorkspaceSize({ x: event.pageX - that.actionPosition.x, y: event.pageY - that.actionPosition.y }); // forces reflow
+      })         
       .resizable({
         preserveAspectRatio: false,
         edges: { left: true, right: true, bottom: true, top: true }
       })
-      .on('resizemove', this.onContainerResize);
+      .on('resizestart', function (event) {
+        console.log("resizestart");
+        that.actionPosition = { x: event.pageX, y: event.pageY };
+      })  
+      .on('resizemove', this.onContainerResize)
+      .on('resizeend', function (event) {
+        console.log("resizeend");
+        that.updateWorkspaceSize({ x: event.pageX - that.actionPosition.x, y: event.pageY - that.actionPosition.y });  // forces reflow
+      });
 
     interact('.snappyShape')
       .draggable({
@@ -200,10 +223,12 @@ export default {
         }
       })
       .on('dragstart', function (event) {
+        console.warn("dragstart snappyShape");
         that.actions.shapeDragMode = true;
       })      
       .on('dragmove', this.onShapeDrag)
       .on('dragend', function (event) {
+        console.warn("dragend snappyShape");
         that.actions.shapeDragMode = false;
         that.actions.changes = true;        
       })
@@ -245,6 +270,8 @@ export default {
     },
 
     addData() {
+      console.log("addData");
+
       var shape1 = { id: this.counter++, name: "p" + this.counter }
       var shape2 = { id: this.counter++, name: "p" + this.counter }
       var shape3 = { id: this.counter++, name: "p" + this.counter }
@@ -262,7 +289,8 @@ export default {
     },
 
     addRandomData(shapeCount, edgeCount) {
-      
+      console.log("addRandomData");
+
       function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
       }
@@ -287,6 +315,7 @@ export default {
     },
 
     addConnection(sourceId, targetId) {
+      console.log("addConnection");
 
       // accept strings as well
       sourceId = Number.isInteger(sourceId) ? sourceId : Number.parseInt(sourceId);
@@ -310,6 +339,7 @@ export default {
 
     removeConnection(edgeId) {
       console.log("remove Edge: " + edgeId);
+
       this.edges = _.reject(this.edges, function(edge) {
         console.log(edge.id + " : " + edgeId); 
         console.log(edge.id == edgeId);
@@ -318,6 +348,8 @@ export default {
     },
 
     redraw() {
+      console.log("redraw");
+
       var that = this;
       
       this.shapes.forEach(function(shape){
@@ -327,6 +359,8 @@ export default {
     },
 
     redrawConnection(shapeId) {
+      console.log("redrawConnection");
+
       shapeId = parseInt(shapeId);
       
       var conSources = _.where(this.edges, {source: shapeId});
@@ -343,7 +377,8 @@ export default {
     },
 
     updateConnection(edge) {
-
+      console.log("updateConnection");
+      
       var line = document.querySelector('.connection[data-id="'+ edge.id +'"]');
 
       // ----------------------------------------------
@@ -493,6 +528,7 @@ export default {
     },
 
     trackMousePosition(event) {
+      console.log("trackMousePosition");
 
       this.mousePosition.x = Math.round((event.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x);
       this.mousePosition.y = Math.round((event.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y);
@@ -505,6 +541,9 @@ export default {
     },
 
     trackTouchPosition(event) {
+      console.log("trackTouchPosition");
+      event.preventDefault();
+      event.stopPropagation();
 
       let touch = event.touches[0];
 
@@ -520,6 +559,7 @@ export default {
     },
 
     drawLine() {
+      console.log("drawLine");
       if (this.actions.drawingMode === false) return; // escape if mode got disabled meanwhile
 
       /*
@@ -541,10 +581,12 @@ export default {
     },
 
     detectFireRate() {
+      console.log("detectFireRate");
       Utils.detectFireRate(1000);
     },
 
     resetActions() {
+      console.log("resetActions");
       for (const key of Object.keys(this.actions)) {
           this.actions[key] = false;
       }
@@ -558,11 +600,31 @@ export default {
       }
     },
 
+    updateWorkspaceSize(dragDelta) {
+      console.log("updateWorkspaceSize");
+
+      let delta = dragDelta ? dragDelta : {x:0, y:0}; 
+
+      this.workspaceSize = { x: this.workspaceSize.x + delta.x, y: this.workspaceSize.y + delta.y };
+      let width = Math.round(this.containerScale.x * this.workspaceSize.x);
+      let height = Math.round(this.containerScale.x * this.workspaceSize.y);
+
+      let displayValue = this.workspaceNode.style.display;
+      this.workspaceNode.style.display = 'none';        // avoid reflows by multiple style changes
+      this.workspaceNode.style.width =  width+ "px";
+      this.workspaceNode.style.height = height + "px";
+      this.workspaceNode.style.display = displayValue;  // set active again
+    },
+
     applyTransform() {
+        console.log("applyTransform");
+
         let transformTranslate =  "translate(" + this.containerTranslation.x + "px, " + this.containerTranslation.y + "px)";
         let transformScale =  "scale(" + this.containerScale.x + "," + this.containerScale.y + ")";
         this.containerNode.style.webkitTransform =
         this.containerNode.style.transform = transformTranslate + " " + transformScale;
+        
+        this.updateWorkspaceSize();
     },
 
     translate(dx, dy) {
@@ -577,23 +639,6 @@ export default {
 
       this.containerScale = {x: this.containerScale.x * multX, y: this.containerScale.y * multY};
     },
-
-    untransformedOffset(el) {
-      let offsetHeight = el.offsetHeight;
-      let offsetWidth = el.offsetWidth;
-
-      let offsetLeft = 0;
-      let offsetTop  = 0;
-
-      do {
-        offsetLeft += el.offsetLeft;
-        offsetTop  += el.offsetTop;
-        el = el.offsetParent;
-      } while( el );
-
-      return {left: offsetLeft, top: offsetTop, height: offsetHeight, width: offsetWidth }; 
-    },
-
 
     addLane() {
       console.log("add lane");
@@ -651,6 +696,7 @@ export default {
     },
 
     resizeElement(event) {
+        console.log("resizeElement");
 
         // read from model
         let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
@@ -680,6 +726,8 @@ export default {
     },
 
     onShapeDrag(event) {
+      console.log("onShapeDrag");
+
       let shapeId = event.target.getAttribute("data-id");
       let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
       let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
@@ -700,6 +748,8 @@ export default {
     },
 
     onContainerDrag(event) {
+      console.log("onContainerDrag");
+
       if (this.options.isContainerDraggable === false)
         return;
 
@@ -716,6 +766,8 @@ export default {
     },
 
     onContainerResize(event) {
+      console.log("onContainerResize");
+
       if (this.options.isContainerResizeable === false)
         return;
 
@@ -733,18 +785,6 @@ export default {
 
     onScroll(event) {
       console.log("onScroll");
-      /*
-      var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
-        scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-      console.log("scrollLeft: " + scrollLeft + " | scrollTop: " + scrollTop);
-      console.log(document.getElementById('container'));
-      console.log(document.getElementById('container').scrollTop);
-
-      console.log(JSON.stringify(this.containerOffset));
-      //this.containerOffset = Utils.absolutePosition(this.containerNode); // forces reflow
-      console.log(JSON.stringify(this.containerOffset));
-      */
     },
 
     onResize(event) {
@@ -763,27 +803,27 @@ $bgColor: #eee;
 
 #InteractJs {
   position: relative;
-  
-  width: 100%;
-  height: 100%;  
-} 
+  width: 100vw;
+  min-height: 100vh;  
+}
 
 .tool-bar {
   position: fixed;
-  width: 100%;
+  width: 100vw;
   z-index: 9;
   height: 64px;
 }
 
 .main-content {
   position: relative;
-  width: 100%;
   top: 64px;
-  min-height: 1000px;    
   height: auto;
+  width: auto;
+  min-height: 100vh;    
+  min-width: 100vw;
 
   background: $bgColor;
-},
+}
 
 #container {
   position: absolute;
@@ -808,7 +848,7 @@ svg {
 }
 
 .col {
-  border: 1px dashed #ccc; 
+  border: 1px dashed #29e; 
   text-align: center;
 }
 

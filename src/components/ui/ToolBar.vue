@@ -1,9 +1,9 @@
 <template>
   <div class="tool-bar">
     <md-toolbar>
-      <h2 class="md-title" style="flex: 1">Prozess-Visualisierung</h2>
-        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">zoomIn</md-button>
+      <h2 class="md-title" style="flex: 1">Visualisierung</h2>
         <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">zoomOut</md-button>
+        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">zoomIn</md-button>
     </md-toolbar>
   </div>
 </template>
@@ -84,5 +84,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+    .tool-bar {
+        white-space: nowrap;
+    }
 </style>
