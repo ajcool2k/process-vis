@@ -848,8 +848,12 @@ svg {
 }
 
 .col {
-  border: 1px dashed #29e; 
+  border-left: 1px dashed #ccc; 
   text-align: center;
+}
+
+.col0 {
+  border-left: none;
 }
 
 .connection, .tmpConnection {
