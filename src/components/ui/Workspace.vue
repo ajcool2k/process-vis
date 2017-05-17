@@ -73,8 +73,8 @@ Vue.use(MdBackdrop);
 */
 
 // Child components
-import ToolBar from './ui/ToolBar.vue';
-import HorizontalBar from './ui/HorizontalBar.vue';
+import ToolBar from './ToolBar.vue';
+import HorizontalBar from './HorizontalBar.vue';
 
 import { Project } from '@/classes/Project';
 import { Process } from '@/classes/Process';
@@ -90,7 +90,7 @@ import { Data } from '@/classes/utils/Data';
 
 
 export default {
-  name: 'InteractJs',
+  name: 'Workspace',
   components: {
     'tool-bar': ToolBar,
     'horizontal-bar' : HorizontalBar,

@@ -1,31 +1,33 @@
 <template>
     <div id="index">
-        
-        <!--
-        <router-link to="/draw">
-            <button>Route zeichnen</button>
-        </router-link>
+        <p>App:         
+            <router-link to="/process">
+                <button>Process-Vis</button>
+            </router-link>
+        </p>
 
-        <router-link to="/draw2">
-            <button>CyDemo</button>
-        </router-link>
-        -->
+            <p>Demos:
+            <!--
+            <router-link to="/draw">
+                <button>Route zeichnen</button>
+            </router-link>
 
-        <router-link to="/flexbox">
-            <button>Flexbox</button>
-        </router-link>
+            <router-link to="/draw2">
+                <button>CyDemo</button>
+            </router-link>
+            -->
+            <router-link to="/flexbox">
+                <button>Flexbox</button>
+            </router-link>
 
-        <router-link to="/draw3">
-            <button>D3demo</button>
-        </router-link>
+            <router-link to="/draw3">
+                <button>D3demo</button>
+            </router-link>
 
-        <router-link to="/interact">
-            <button>InteractJs</button>
-        </router-link>
-
-        <router-link to="/gantt">
-            <button>D3Gantt</button>
-        </router-link>
+            <router-link to="/gantt">
+                <button>D3Gantt</button>
+            </router-link>
+        </p>
 
         <div class="logo">
             <img src="../assets/logo.png" draggable="true">
