@@ -70,8 +70,13 @@ import { Participant } from '@/classes/Participant';
 import { interact } from 'interactjs';
 import { _ } from 'underscore';
 
-import { Utils } from '@/classes/Utils';
-import { TouchSupport } from '@/classes/TouchSupport';
+
+import { TouchSupport } from '@/classes/utils/TouchSupport';
+import { Events } from '@/classes/utils/Events';
+import { Calc } from '@/classes/utils/Calc';
+import { Data } from '@/classes/utils/Data';
+
+
 
 import Vue from 'vue'
 import VueMaterial from 'vue-material'
@@ -164,7 +169,7 @@ export default {
 
     // cache DOM
     this.containerNode = document.querySelector("#container");
-    this.containerOffset = Utils.absolutePosition(this.containerNode); // forces reflow
+    this.containerOffset = Calc.absolutePosition(this.containerNode); // forces reflow
 
     this.workspaceNode = document.querySelector(".main-content");
     this.workspaceSize = { x: this.containerOffset.width + 100,  y: this.containerOffset.height + 100 }
@@ -234,6 +239,7 @@ export default {
       })
       .resizable({
         preserveAspectRatio: false,
+        restrict: { /* restrict options */ },
         edges: { left: true, right: true, bottom: true, top: true }
       })
       .on('resizestart', function (event) {
@@ -386,8 +392,8 @@ export default {
       var source = document.querySelector('.snappyShape[data-id="'+ edge.source +'"]');
       var target = document.querySelector('.snappyShape[data-id="'+ edge.target +'"]');
 
-      let sourceRect = Utils.absolutePosition(source);  // forces reflow
-      let targetRect = Utils.absolutePosition(target);  // forces reflow
+      let sourceRect = Calc.absolutePosition(source);  // forces reflow
+      let targetRect = Calc.absolutePosition(target);  // forces reflow
       // ----------------------------------------------
 
       let markerOffset = 2;
@@ -441,7 +447,7 @@ export default {
       console.log("activateEdgeConnect: " + event.type);
 
       let source = event.target;
-      let sourceRect = Utils.absolutePosition(source); // forces reflow
+      let sourceRect = Calc.absolutePosition(source); // forces reflow
 
       let sourcePoint = { 
         x: Math.round((-this.containerTranslation.x + sourceRect.left + (sourceRect.width / 2) - this.containerOffset.left) / this.containerScale.x),
@@ -536,14 +542,13 @@ export default {
 
       if (this.actions.drawingMode === true) {
         console.log("drawingMode 1");
-        Utils.debounce(this.drawLine, "drawLine");
+        Events.debounce(this.drawLine, "drawLine");
       }
     },
 
     trackTouchPosition(event) {
       console.log("trackTouchPosition");
       event.preventDefault();
-      event.stopPropagation();
 
       let touch = event.touches[0];
 
@@ -553,7 +558,7 @@ export default {
 
       if (this.actions.drawingMode === true) {
         // console.log("drawingMode 2");
-        Utils.debounce(this.drawLine, "drawLine");
+        Events.debounce(this.drawLine, "drawLine");
       }
 
     },
@@ -573,16 +578,16 @@ export default {
           this.mousePosition.x + "," + this.mousePosition.y
         );
       // console.log("works!!");
-      Utils.scheduledAnimationFrame["drawLine"] = false;
+      Events.scheduledAnimationFrame["drawLine"] = false;
     },
 
     throttle(fn, wait) {
-      this.time = Utils.throttle(fn, wait, this.time);
+      this.time = Events.throttle(fn, wait, this.time);
     },
 
     detectFireRate() {
       console.log("detectFireRate");
-      Utils.detectFireRate(1000);
+      Events.detectFireRate(1000);
     },
 
     resetActions() {
@@ -760,9 +765,9 @@ export default {
       let that = this;
       var containerPan = function() {
         that.applyTransform();
-        Utils.scheduledAnimationFrame["containerPan"] = false;
+        Events.scheduledAnimationFrame["containerPan"] = false;
       }
-      Utils.debounce(containerPan, "containerPan");
+      Events.debounce(containerPan, "containerPan");
     },
 
     onContainerResize(event) {
@@ -778,9 +783,9 @@ export default {
       let that = this;
       var containerResize = function() {
         that.applyTransform();
-        Utils.scheduledAnimationFrame["containerResize"] = false;
+        Events.scheduledAnimationFrame["containerResize"] = false;
       }
-      Utils.debounce(containerResize, "containerResize");       
+      Events.debounce(containerResize, "containerResize");       
     },
 
     onScroll(event) {
@@ -848,7 +853,7 @@ svg {
 }
 
 .col {
-  border-left: 1px dashed #ccc; 
+  border-left: 2px dashed #ccc; 
   text-align: center;
 }
 

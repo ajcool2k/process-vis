@@ -13,7 +13,7 @@
 
 import cytoscape from 'cytoscape';
 
-import { Utils } from '@/classes/Utils';
+import { Data } from '@/classes/utils/Data';
 import { Grid } from '@/classes/ui/Grid';
 
 import { Project } from '@/classes/Project';
@@ -80,7 +80,7 @@ export default {
 
     });
 
-    var data = Utils.generateData();
+    var data = Data.generateData();
 
     let nodes = data.nodes;
     let edges = data.edges;
@@ -132,7 +132,7 @@ export default {
         }, true);
 
         var path = dijkstra.pathTo( '#tail' );
-        Utils.printPath(path);
+        Data.printPath(path);
         var distTo = dijkstra.distanceTo( '#tail' );
         console.log(distTo);        
         */
