@@ -23,16 +23,16 @@ export class Events {
     static debounce(fn, fname) {
 
       // Check if Setting is enabled
-      if (!Utils.debounceFunctions) {
-        if (Utils.benchmarkFireRate) Utils.detectFireRate();
+      if (!Events.debounceFunctions) {
+        if (Events.benchmarkFireRate) Events.detectFireRate();
         return fn(); 
       }
       // Prevent multiple rAF callbacks.
-      if (Utils.scheduledAnimationFrame[fname]) return;
+      if (Events.scheduledAnimationFrame[fname]) return;
 
-      Utils.scheduledAnimationFrame[fname] = true;
+      Events.scheduledAnimationFrame[fname] = true;
       requestAnimationFrame(fn);
-      if (Utils.benchmarkFireRate) Utils.detectFireRate();
+      if (Events.benchmarkFireRate) Events.detectFireRate();
     }
 
     /**
@@ -43,14 +43,14 @@ export class Events {
      */
     static throttle(fn, wait, lastRun) {
       // Check if Setting is enabled    
-      if (!Utils.throttleFunctions || wait < 1) {
-        // if (Utils.benchmarkFireRate) Utils.detectFireRate();
+      if (!Events.throttleFunctions || wait < 1) {
+        // if (Events.benchmarkFireRate) Events.detectFireRate();
         return fn(event);
       }
 
       if ((lastRun + wait - Date.now()) < 0) {
         fn(event);
-        // if (Utils.benchmarkFireRate) Utils.detectFireRate();
+        // if (Events.benchmarkFireRate) Events.detectFireRate();
         lastRun = Date.now();
       }
       return lastRun;     
@@ -60,13 +60,13 @@ export class Events {
      * Methode dient zum Erfassen wie oft ein Event vom Client ausgeführt wird.
      */
     static detectFireRate() {
-        let maxIterations = Utils.benchmarkFireRateIterations;
-        if (Utils.FIRE_RATE_COUNTER == 0) {
-            Utils.FIRE_RATE_START = Date.now();
+        let maxIterations = Events.benchmarkFireRateIterations;
+        if (Events.FIRE_RATE_COUNTER == 0) {
+            Events.FIRE_RATE_START = Date.now();
             console.warn("detectFireRate started");
         }
-        if (++Utils.FIRE_RATE_COUNTER == maxIterations) {
-            let delta = Date.now() - Utils.FIRE_RATE_START;
+        if (++Events.FIRE_RATE_COUNTER == maxIterations) {
+            let delta = Date.now() - Events.FIRE_RATE_START;
             let deltaSec = delta / 1000.0;
             console.warn("detectFireRate finished!");
             console.warn("Time passed (s): " + deltaSec);
@@ -74,7 +74,7 @@ export class Events {
             console.warn("Events per sec: " + eventsPerSec);
 
             // reset
-            Utils.FIRE_RATE_START = Utils.FIRE_RATE_COUNTER = 0;
+            Events.FIRE_RATE_START = Events.FIRE_RATE_COUNTER = 0;
             return;
         }
         return;
