@@ -2,7 +2,13 @@
   <div id="Process">
 
     <!-- child component -->
-    <workspace></workspace>
+    <workspace :processModel="mod" 
+        v-on:addConnection="addConnection" 
+        v-on:removeConnection="removeConnection" 
+        v-on:addLane="addLane" 
+        v-on:removeLane="removeLane" 
+
+    ></workspace>
 
   </div>
 </template>
@@ -12,6 +18,7 @@
 // Child components
 import Workspace from './ui/Workspace.vue';
 
+import { _ } from 'underscore';
 
 export default {
   name: 'Process',
@@ -20,9 +27,12 @@ export default {
   },
   data: function() {
       return {
-        shapes: [],
-        edges: [],
-        cols: []
+        mod: {
+          shapes: [],
+          edges: [],
+          cols: []
+        },
+        counter: 0, // obj counter;
       }
   },
 
@@ -38,10 +48,10 @@ export default {
     console.log("App mounted");
 
     // add column
-    this.cols.push({ shapes: [] });
+    this.mod.cols.push({ shapes: [] });
     this.addData();
     // this.addRandomData(10,5);
-    
+    console.log(this.mod);
   },
 
   updated: function() {
@@ -58,10 +68,11 @@ export default {
       var shape3 = { id: this.counter++, name: "p" + this.counter }
       var shape4 = { id: this.counter++, name: "p" + this.counter }
 
-      this.shapes.push(shape1);
-      this.shapes.push(shape2);
-      this.shapes.push(shape3);
-      this.shapes.push(shape4);
+      this.mod.shapes.push(shape1);
+      this.mod.shapes.push(shape2);
+      this.mod.shapes.push(shape3);
+      this.mod.shapes.push(shape4);
+
       /*
       this.addConnection(shape1.id, shape2.id);
       this.addConnection(shape3.id, shape2.id);
@@ -93,7 +104,41 @@ export default {
         this.addConnection(this.shapes[rand1].id, this.shapes[rand2].id);
       }
       
-    }
+    },
+
+    addConnection(edgeData) {
+      let edge = {
+        id: this.counter++,
+        source: edgeData.source,
+        target: edgeData.target
+      };
+      this.mod.edges.push(edge);
+      console.log(this.mod.edges);
+    },
+
+    removeConnection(edgeId) {
+      this.mod.edges = _.reject(this.mod.edges, function(edge) {
+        console.log(edge.id + " : " + edgeId); 
+        console.log(edge.id == edgeId);
+        return edge.id == edgeId; 
+      });
+    },
+
+    addLane() {
+      this.mod.cols.push({ shapes: [] });
+    },
+
+    removeLane() {
+      console.log("remove lane");
+
+      if (this.mod.cols.length < 2) {
+        console.warn("Could not remove more lanes"); 
+        return;
+      }
+
+      this.mod.cols.splice(-1,1);
+    },    
+
   }
 }
 

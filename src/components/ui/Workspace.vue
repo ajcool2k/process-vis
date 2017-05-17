@@ -1,5 +1,5 @@
 <template>
-  <div id="InteractJs">
+  <div id="workspace">
 
     <!-- child component -->
     <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom"></tool-bar>
@@ -24,14 +24,14 @@
 
       <div id="container" @click="resetActions" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
         <!-- child component -->
-        <horizontal-bar :cols="cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
+        <horizontal-bar :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
 
-        <template v-for="(item, index) in cols">
-          <div :class="'col col' + index" :data-id="index" :style="'width: ' + ( 100 / cols.length ) + '%'">
+        <template v-for="(item, index) in processModel.cols">
+          <div :class="'col col' + index" :data-id="index" :style="'width: ' + ( 100 / processModel.cols.length ) + '%'">
           </div>
         </template>
 
-        <template v-for="(item, index) in shapes">
+        <template v-for="(item, index) in processModel.shapes">
           <div class="snappyShape" :data-id="item.id" @click.stop="useProcess">
             <div class="content" :data-id="item.id">{{item.name}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
@@ -47,7 +47,7 @@
             <path d="M 0 0 L 10 5 L 0 10 z" />
           </marker>
 
-          <template v-for="(item, index) in edges">
+          <template v-for="(item, index) in processModel.edges">
             <polyline @click.stop="openRemoveConnectionDialog" class="connection" :data-id="item.id" points="" />
           </template>
           <polyline class="tmpConnection" points="" />
@@ -95,12 +95,9 @@ export default {
     'tool-bar': ToolBar,
     'horizontal-bar' : HorizontalBar,
   },
+  props: [ 'processModel' ],
   data: function() {
       return {
-        shapes: [],
-        edges: [],
-        cols: [],
-        counter: 0,
 
         workspaceNode: null,
         workspaceSize: {x: 1000, y: 1000 },
@@ -147,7 +144,10 @@ export default {
   },
 
   created: function() {
-    console.log("created");
+    console.log("Worspace created");
+
+    // apply model
+    console.log(this.processModel);
 
     // check support
     this.hasTouchSupport = TouchSupport.hasSupport();
@@ -167,10 +167,7 @@ export default {
   },
 
   mounted: function() {
-    console.log("mounted");
-
-    // add column
-    this.cols.push({ shapes: [] });
+    console.log("Workspace mounted");
 
     // cache DOM
     this.containerNode = document.querySelector("#container");
@@ -264,8 +261,6 @@ export default {
       ;      
 
 
-    this.addData();
-    // this.addRandomData(10,5);
     
   },
 
@@ -280,51 +275,6 @@ export default {
       console.log(event);
     },
 
-    addData() {
-      console.log("addData");
-
-      var shape1 = { id: this.counter++, name: "p" + this.counter }
-      var shape2 = { id: this.counter++, name: "p" + this.counter }
-      var shape3 = { id: this.counter++, name: "p" + this.counter }
-      var shape4 = { id: this.counter++, name: "p" + this.counter }
-
-      this.shapes.push(shape1);
-      this.shapes.push(shape2);
-      this.shapes.push(shape3);
-      this.shapes.push(shape4);
-      /*
-      this.addConnection(shape1.id, shape2.id);
-      this.addConnection(shape3.id, shape2.id);
-      this.addConnection(shape3.id, shape4.id);
-      */
-    },
-
-    addRandomData(shapeCount, edgeCount) {
-      console.log("addRandomData");
-
-      function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1) + min);
-      }
-
-      for (let i=0; i < shapeCount; i++) {
-        this.shapes.push({ id: i, name: "p" + i });
-      }
-
-      for (let i=0; i < edgeCount; i++) {
-        let rand1 = getRandomInt(0,shapeCount-1);
-        let rand2 = getRandomInt(0,shapeCount-1);
-
-        // avoid connection betwen the same element
-        if (rand2 === rand1) {
-          if (rand2 + 1 < shapeCount) rand2++
-          else if (rand2 - 1 > 0) rand2--
-        }
- 
-        this.addConnection(this.shapes[rand1].id, this.shapes[rand2].id);
-      }
-      
-    },
-
     addConnection(sourceId, targetId) {
       console.log("addConnection");
 
@@ -333,29 +283,22 @@ export default {
       targetId = Number.isInteger(targetId) ? targetId : Number.parseInt(targetId);
       
       // avoid duplicate connections
-      if (_.findWhere(this.edges, {source: sourceId, target: targetId})) {
+      if (_.findWhere(this.processModel.edges, {source: sourceId, target: targetId})) {
         console.warn("skipped new connection, it is already present");
         return;
       }
 
-      // add to model
+      // update model
       let edge = {
-        id: this.counter++,
         source: sourceId,
         target: targetId
       };
-
-      this.edges.push(edge);
+      this.$emit('addConnection', edge);
     },
 
     removeConnection(edgeId) {
       console.log("remove Edge: " + edgeId);
-
-      this.edges = _.reject(this.edges, function(edge) {
-        console.log(edge.id + " : " + edgeId); 
-        console.log(edge.id == edgeId);
-        return edge.id == edgeId; 
-      });
+      this.$emit('removeConnection', edgeId);
     },
 
     redraw() {
@@ -363,7 +306,7 @@ export default {
 
       var that = this;
       
-      this.shapes.forEach(function(shape){
+      this.processModel.shapes.forEach(function(shape){
         that.redrawConnection(shape.id);
       });
 
@@ -374,8 +317,8 @@ export default {
 
       shapeId = parseInt(shapeId);
       
-      var conSources = _.where(this.edges, {source: shapeId});
-      var conTargets = _.where(this.edges, {target: shapeId});
+      var conSources = _.where(this.processModel.edges, {source: shapeId});
+      var conTargets = _.where(this.processModel.edges, {target: shapeId});
       
       var cons = _.union(conSources, conTargets);
       console.log("redraw: " + cons.length + " connection(s)");
@@ -469,9 +412,10 @@ export default {
       event.preventDefault();
 
       console.log("useProcess");
+    /*
       console.log(event.type);
       console.log(JSON.stringify(this.actions));
-
+    */
 
       let caller = event.srcElement ? event.srcElement : "unknown";
       let eventType = event ? event.type : "unknown";
@@ -513,7 +457,7 @@ export default {
 
       // open dialog
       this.actionId = event.target.getAttribute('data-id');
-      let p = _.findWhere(this.shapes, { id: parseInt(this.actionId) });
+      let p = _.findWhere(this.processModel.shapes, { id: parseInt(this.actionId) });
       console.log(p);
 
       this.showNodeDialog.content = 
@@ -650,31 +594,15 @@ export default {
       this.containerScale = {x: this.containerScale.x * multX, y: this.containerScale.y * multY};
     },
 
-    addLane() {
-      console.log("add lane");
-      this.cols.push({ shapes: [] });
-    },
-
-    removeLane() {
-      console.log("remove lane");
-
-      if (this.cols.length < 2) {
-        console.warn("Could not remove more lanes"); 
-        return;
-      }
-
-      this.cols.splice(-1,1);
-    },
-
     // Listener for horizontal-bar emits
     applyLaneChange(laneData) {
       switch(laneData) {
         case 'add':
-          this.addLane();
-          return;
+            this.$emit('addLane');
+            return;
         case 'remove':
-          this.removeLane();
-          return;
+            this.$emit('removeLane');
+            return;
         default:
           console.warn("laneData has unexpected information");
       }
@@ -811,7 +739,7 @@ export default {
 $test: #888;
 $bgColor: #eee;
 
-#InteractJs {
+#workspace {
   position: relative;
   width: 100vw;
   min-height: 100vh;  
