@@ -33,7 +33,7 @@
 
         <template v-for="(item, index) in processModel.shapes">
           <div class="snappyShape" :data-id="item.id" @click.stop="useProcess">
-            <div class="content" :data-id="item.id">{{item.name}}</div>
+            <div class="content" :data-id="item.id">{{item.id}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
         </div>
         </template>
@@ -87,6 +87,7 @@ import { TouchSupport } from '@/classes/utils/TouchSupport';
 import { Events } from '@/classes/utils/Events';
 import { Calc } from '@/classes/utils/Calc';
 import { Data } from '@/classes/utils/Data';
+import { Helper } from '@/classes/utils/Helper';
 
 
 export default {
@@ -276,11 +277,11 @@ export default {
     },
 
     addConnection(sourceId, targetId) {
-      console.log("addConnection");
+      console.warn("addConnection");
 
       // accept strings as well
-      sourceId = Number.isInteger(sourceId) ? sourceId : Number.parseInt(sourceId);
-      targetId = Number.isInteger(targetId) ? targetId : Number.parseInt(targetId);
+      sourceId = Helper.parse(sourceId);
+      targetId = Helper.parse(targetId);;
       
       // avoid duplicate connections
       if (_.findWhere(this.processModel.edges, {source: sourceId, target: targetId})) {
@@ -302,7 +303,7 @@ export default {
     },
 
     redraw() {
-      console.log("redraw");
+      console.warn("redraw");
 
       var that = this;
       
@@ -313,10 +314,10 @@ export default {
     },
 
     redrawConnection(shapeId) {
-      console.log("redrawConnection");
+      console.log("redrawConnection: " + shapeId);
 
-      shapeId = parseInt(shapeId);
-      
+      shapeId = Helper.parse(shapeId);
+
       var conSources = _.where(this.processModel.edges, {source: shapeId});
       var conTargets = _.where(this.processModel.edges, {target: shapeId});
       
@@ -457,7 +458,7 @@ export default {
 
       // open dialog
       this.actionId = event.target.getAttribute('data-id');
-      let p = _.findWhere(this.processModel.shapes, { id: parseInt(this.actionId) });
+      let p = _.findWhere(this.processModel.shapes, { id: Helper.parse(this.actionId) });
       console.log(p);
 
       this.showNodeDialog.content = 
@@ -474,7 +475,7 @@ export default {
 
           <md-card-content>
             id: ${p.id} <br>
-            name: ${p.name}
+            name: ${p.id}
           </md-card-content>
         </md-card>
       `;

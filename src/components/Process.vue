@@ -15,10 +15,14 @@
 
 <script>
 
+// Node Dependencies
+import { _ } from 'underscore';
+
+// Classes
+import { Data } from '@/classes/utils/Data';
+
 // Child components
 import Workspace from './ui/Workspace.vue';
-
-import { _ } from 'underscore';
 
 export default {
   name: 'Process',
@@ -47,10 +51,8 @@ export default {
   mounted: function() {
     console.log("App mounted");
 
-    // add column
-    this.mod.cols.push({ shapes: [] });
     this.addData();
-    // this.addRandomData(10,5);
+
     console.log(this.mod);
   },
 
@@ -60,50 +62,37 @@ export default {
 
   methods: {
 
+    addNode() {
+      var shape = { id: this.counter++, name: "p" + this.counter }
+      this.mod.shapes.push(shape);
+    },
+
     addData() {
       console.log("App addData");
 
-      var shape1 = { id: this.counter++, name: "p" + this.counter }
-      var shape2 = { id: this.counter++, name: "p" + this.counter }
-      var shape3 = { id: this.counter++, name: "p" + this.counter }
-      var shape4 = { id: this.counter++, name: "p" + this.counter }
-
-      this.mod.shapes.push(shape1);
-      this.mod.shapes.push(shape2);
-      this.mod.shapes.push(shape3);
-      this.mod.shapes.push(shape4);
+      // add column
+      this.addLane();
 
       /*
-      this.addConnection(shape1.id, shape2.id);
-      this.addConnection(shape3.id, shape2.id);
-      this.addConnection(shape3.id, shape4.id);
+      for(let i = 0; i < 4; i++)
+        this.addNode();
+
+      let con1 = { source: this.mod.shapes[0].id, target: this.mod.shapes[1].id };
+      let con2 = { source: this.mod.shapes[0].id, target: this.mod.shapes[2].id };
+
+      this.addConnection(con1);
+      this.addConnection(con2);
+
+      var that = this;
+      this.mod.edges.forEach(function(elem) {
+        console.log(elem);
+        that.addConnection(elem);
+      });
       */
-    },
 
-    addRandomData(shapeCount, edgeCount) {
-      console.log("addRandomData");
-
-      function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1) + min);
-      }
-
-      for (let i=0; i < shapeCount; i++) {
-        this.shapes.push({ id: i, name: "p" + i });
-      }
-
-      for (let i=0; i < edgeCount; i++) {
-        let rand1 = getRandomInt(0,shapeCount-1);
-        let rand2 = getRandomInt(0,shapeCount-1);
-
-        // avoid connection betwen the same element
-        if (rand2 === rand1) {
-          if (rand2 + 1 < shapeCount) rand2++
-          else if (rand2 - 1 > 0) rand2--
-        }
- 
-        this.addConnection(this.shapes[rand1].id, this.shapes[rand2].id);
-      }
-      
+      let data = Data.generateData();
+      this.mod.shapes = data.nodes;
+      this.mod.edges = data.edges;
     },
 
     addConnection(edgeData) {

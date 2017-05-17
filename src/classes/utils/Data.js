@@ -16,25 +16,26 @@ export class Data {
 
         var edges = Array();
 
-        edges.push({ source: 'head', target: 'n0' } );
-        edges.push({ source: 'n0', target: 'n1' } );
-        edges.push({ source: 'n0', target: 'n2' } );
-        edges.push({ source: 'n1', target: 'n3' } );
-        edges.push({ source: 'n3', target: 'tail' } );
-        edges.push({ source: 'n2', target: 'n4' } );
-        edges.push({ source: 'n4', target: 'n3' } );
+        edges.push( { id: 1, source: 'head', target: 'n0' } );
+        edges.push( { id: 2, source: 'n0', target: 'n1' } );
+        edges.push( { id: 3, source: 'n0', target: 'n2' } );
+        edges.push( { id: 4, source: 'n1', target: 'n3' } );
+        edges.push( { id: 5, source: 'n3', target: 'tail' } );
+        edges.push( { id: 6, source: 'n2', target: 'n4' } );
+        edges.push( { id: 7, source: 'n4', target: 'n3' } );
 
         var participants = Array();
         
-        participants.push([1, 'A1']);
-        participants.push([2, 'A2']);
-        participants.push([3, 'A3']);
-        participants.push([4, 'A4']);
-        participants.push([5, 'A5']);
+        participants.push( [1, 'A1'] );
+        participants.push( [2, 'A2'] );
+        participants.push( [3, 'A3'] );
+        participants.push( [4, 'A4'] );
+        participants.push( [5, 'A5'] );
 
         return {
             nodes: nodes,
-            edges: edges
+            edges: edges,
+            participants: participants
         }
     }
 
@@ -47,5 +48,31 @@ export class Data {
         });
 
         console.log(ret);
+    }
+
+    static generateRandomData(shapeCount, edgeCount) {
+      console.log("addRandomData");
+
+      function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+      }
+
+      for (let i=0; i < shapeCount; i++) {
+        this.shapes.push({ id: i, name: "p" + i });
+      }
+
+      for (let i=0; i < edgeCount; i++) {
+        let rand1 = getRandomInt(0,shapeCount-1);
+        let rand2 = getRandomInt(0,shapeCount-1);
+
+        // avoid connection betwen the same element
+        if (rand2 === rand1) {
+          if (rand2 + 1 < shapeCount) rand2++
+          else if (rand2 - 1 > 0) rand2--
+        }
+ 
+        this.addConnection(this.shapes[rand1].id, this.shapes[rand2].id);
+      }
+      
     }
 }
