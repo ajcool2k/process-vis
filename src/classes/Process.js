@@ -1,5 +1,4 @@
 import { Object } from './Object'
-import _ from 'lodash';
 
 export class Process extends Object  {
     constructor(name, duration, participant, time) {
