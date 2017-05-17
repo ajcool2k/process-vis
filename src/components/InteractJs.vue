@@ -59,6 +59,19 @@
 
 <script>
 
+import Vue from 'vue'
+import 'vue-material/dist/vue-material.css'
+
+import VueMaterial from 'vue-material'
+Vue.use(VueMaterial);
+
+/*
+import { MdCore, MdDialog, MdBackdrop } from 'vue-material'
+Vue.use(MdCore);
+Vue.use(MdDialog);
+Vue.use(MdBackdrop);
+*/
+
 // Child components
 import ToolBar from './ui/ToolBar.vue';
 import HorizontalBar from './ui/HorizontalBar.vue';
@@ -70,19 +83,11 @@ import { Participant } from '@/classes/Participant';
 import { interact } from 'interactjs';
 import { _ } from 'underscore';
 
-
 import { TouchSupport } from '@/classes/utils/TouchSupport';
 import { Events } from '@/classes/utils/Events';
 import { Calc } from '@/classes/utils/Calc';
 import { Data } from '@/classes/utils/Data';
 
-
-
-import Vue from 'vue'
-import VueMaterial from 'vue-material'
-import 'vue-material/dist/vue-material.css'
-
-Vue.use(VueMaterial)
 
 export default {
   name: 'InteractJs',

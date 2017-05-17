@@ -1,6 +1,7 @@
 <template>
     <div id="index">
-
+        
+        <!--
         <router-link to="/draw">
             <button>Route zeichnen</button>
         </router-link>
@@ -8,13 +9,10 @@
         <router-link to="/draw2">
             <button>CyDemo</button>
         </router-link>
+        -->
 
         <router-link to="/flexbox">
             <button>Flexbox</button>
-        </router-link>
-
-        <router-link to="/material">
-            <button>VueMaterial</button>
         </router-link>
 
         <router-link to="/draw3">

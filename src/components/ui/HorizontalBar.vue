@@ -14,10 +14,17 @@
 
 
 import Vue from 'vue'
-import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.css'
 
-Vue.use(VueMaterial)
+import VueMaterial from 'vue-material'
+Vue.use(VueMaterial);
+
+/*
+import { MdCore, MdButton, MdIcon } from 'vue-material'
+Vue.use(MdCore);
+Vue.use(MdButton);
+Vue.use(MdIcon);
+*/
 
 export default {
   name: 'HorizontalBar',

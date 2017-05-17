@@ -12,10 +12,16 @@
 
 
 import Vue from 'vue'
-import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.css'
+import VueMaterial from 'vue-material'
+Vue.use(VueMaterial);
 
-Vue.use(VueMaterial)
+/*
+import { MdCore, MdToolbar, MdButton } from 'vue-material'
+Vue.use(MdCore);
+Vue.use(MdToolbar);
+Vue.use(MdButton);
+*/
 
 export default {
   name: 'ToolBar',
