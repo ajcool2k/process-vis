@@ -3,8 +3,13 @@
 
     <!-- child component -->
     <workspace :processModel="mod" 
+
         v-on:addConnection="addConnection" 
         v-on:removeConnection="removeConnection" 
+
+        v-on:addNode="addNode" 
+        v-on:removeNode="removeNode" 
+
         v-on:addLane="addLane" 
         v-on:removeLane="removeLane" 
 
@@ -34,7 +39,8 @@ export default {
         mod: {
           shapes: [],
           edges: [],
-          cols: []
+          cols: [],
+          tests: {}
         },
         counter: 0, // obj counter;
       }
@@ -42,6 +48,10 @@ export default {
 
   created: function() {
     console.log("App created");
+
+    this.addData();
+    console.log(this.mod);
+
   },
 
   destroyed: function() {
@@ -51,9 +61,6 @@ export default {
   mounted: function() {
     console.log("App mounted");
 
-    this.addData();
-
-    console.log(this.mod);
   },
 
   updated: function() {
@@ -62,37 +69,27 @@ export default {
 
   methods: {
 
-    addNode() {
-      var shape = { id: this.counter++, name: "p" + this.counter }
-      this.mod.shapes.push(shape);
-    },
-
     addData() {
       console.log("App addData");
 
       // add column
       this.addLane();
-
-      /*
-      for(let i = 0; i < 4; i++)
-        this.addNode();
-
-      let con1 = { source: this.mod.shapes[0].id, target: this.mod.shapes[1].id };
-      let con2 = { source: this.mod.shapes[0].id, target: this.mod.shapes[2].id };
-
-      this.addConnection(con1);
-      this.addConnection(con2);
-
-      var that = this;
-      this.mod.edges.forEach(function(elem) {
-        console.log(elem);
-        that.addConnection(elem);
-      });
-      */
-
       let data = Data.generateData();
       this.mod.shapes = data.nodes;
       this.mod.edges = data.edges;
+    },
+
+    addNode() {
+      var shape = { id: this.counter++, name: "p" + this.counter }
+      this.mod.shapes.push(shape);
+    },
+
+    removeNode(shapeId) {
+      this.mod.shapes = _.reject(this.mod.shapes, function(shape) {
+        console.log(shape.id + " : " + shapeId); 
+        console.log(shape.id == shapeId);
+        return shape.id == shapeId; 
+      });
     },
 
     addConnection(edgeData) {
@@ -126,7 +123,7 @@ export default {
       }
 
       this.mod.cols.splice(-1,1);
-    },    
+    },
 
   }
 }

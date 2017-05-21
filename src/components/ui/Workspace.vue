@@ -32,7 +32,12 @@
         </template>
 
         <template v-for="(item, index) in processModel.shapes">
-          <div class="snappyShape" :data-id="item.id" @click.stop="useProcess">
+          <div class="snappyShape" 
+                :data-id="item.id" 
+                :data-x="item.position.x" 
+                :data-y="item.position.y" 
+                :style="'transform: translate(' + item.position.x + 'px ,' + item.position.y + 'px)'"
+                @click.stop="useProcess">
             <div class="content" :data-id="item.id">{{item.id}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
         </div>
@@ -104,6 +109,8 @@ export default {
         workspaceSize: {x: 1000, y: 1000 },
         
         containerNode: null,
+        containerSize: {x: 1000, y: 600 },
+
         containerOffset: null,
         containerTranslation: { x: 0, y: 0 },
         containerScale: { x: 1.0, y: 1.0 },
@@ -145,10 +152,7 @@ export default {
   },
 
   created: function() {
-    console.log("Worspace created");
-
-    // apply model
-    console.log(this.processModel);
+    console.log("Worspace created");  
 
     // check support
     this.hasTouchSupport = TouchSupport.hasSupport();
@@ -172,14 +176,20 @@ export default {
 
     // cache DOM
     this.containerNode = document.querySelector("#container");
-    this.containerOffset = Calc.absolutePosition(this.containerNode); // forces reflow
-
     this.workspaceNode = document.querySelector(".main-content");
+    this.svgContainer = document.querySelector('svg.svgContainer');
+    this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
+
+    // prepare Container and Workspace
+    Calc.addElementPosition(this.processModel.shapes);
+    this.containerSize = Calc.containerSize(this.processModel.shapes);
+    this.containerNode.style.width = this.containerSize.x + "px"; // forces reflow
+    this.containerNode.style.height = this.containerSize.y + "px"; // forces reflow
+    this.containerOffset = Calc.absolutePosition(this.containerNode); // forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100,  y: this.containerOffset.height + 100 }
     this.updateWorkspaceSize(); // forces reflow
     
-    this.svgContainer = document.querySelector('svg.svgContainer');
-    this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
+
 
     let that = this;
     
@@ -238,7 +248,14 @@ export default {
       .on('dragend', function (event) {
         console.warn("dragend snappyShape");
         that.actions.shapeDragMode = false;
-        that.actions.changes = true;        
+        that.actions.changes = true;
+
+        // store drag movement in model
+        let shapeId = event.target.getAttribute("data-id");
+        let shape = _.findWhere(that.processModel.shapes, {id: shapeId});
+        let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
+        let y = (parseFloat(event.target.getAttribute('data-y')) || 0);        
+        shape.position = { x: x, y: y };     
       })
       .resizable({
         preserveAspectRatio: false,
@@ -266,15 +283,11 @@ export default {
   },
 
   updated: function() {
-    console.log("updated");
+    console.log("Workspace updated");
     this.redraw();
   },
 
-  methods: {
-    test(event) {
-      console.log("test");
-      console.log(event);
-    },
+  methods: { 
 
     addConnection(sourceId, targetId) {
       console.warn("addConnection");
