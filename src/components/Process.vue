@@ -117,7 +117,16 @@ export default {
 
     removeLane() {
       console.log("remove lane");
+      let that = this;
 
+      // avoid if shapes are on this lane to keep them in container
+      var shapes = _.find(that.mod.shapes, function(shape){ return shape.p.participant == that.mod.cols.length; });
+      if (shapes) {
+        console.warn("Could not remove lane, there are still processes applied"); 
+        return;
+      }
+
+      // avoid if only one lane is left
       if (this.mod.cols.length < 2) {
         console.warn("Could not remove more lanes"); 
         return;
