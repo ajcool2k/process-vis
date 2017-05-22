@@ -25,8 +25,11 @@ export class Calc {
      * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
      */
     static addElementPosition(nodes) {
+        let colWidth = 400;
+        let shapeWidth = 100;
+
         nodes.forEach(function(elem, index) {
-            let x = 150 * elem.p.participant;
+            let x = (colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2);
             let y = elem.p.time * 3 + 40;
 
             elem.position = { 
@@ -41,19 +44,23 @@ export class Calc {
      * Zur Berechnung ist es notwendig, dass addElementPosition zuvor aufgerufen wurde.
      * @see addElementPosition
      */
-    static containerSize(nodes) {
+    static containerSize(nodes, cols) {
+        let colWidth = 400;
+        var containerX = 0;
+        var containerY = 0;
+        
+        // relative approch
+        nodes.forEach(function(elem, index) {
+            // store x / y for container size
+            containerX = Math.max(containerX, elem.position.x);
+            containerY = Math.max(containerY, elem.position.y + 300);
+        });
 
-      var containerX = 0;
-      var containerY = 0;
-
-      nodes.forEach(function(elem, index) {
-        // store x / y for container size
-        containerX = Math.max(containerX, elem.position.x * 2);
-        containerY = Math.max(containerY, elem.position.y + 300);
-      });
-      
-      // return containerSize
-      return { x: containerX, y: containerY };
+        // easy approch
+        containerX = cols.length * colWidth;
+        
+        // return containerSize
+        return { x: containerX, y: containerY };
     }
 
 }

@@ -77,6 +77,7 @@ export default {
       let data = Data.generateData();
       this.mod.shapes = data.nodes;
       this.mod.edges = data.edges;
+      this.mod.cols = data.participants;
     },
 
     addNode() {
@@ -111,7 +112,7 @@ export default {
     },
 
     addLane() {
-      this.mod.cols.push({ shapes: [] });
+      this.mod.cols.push({ id: this.counter++, name: "unset" });
     },
 
     removeLane() {

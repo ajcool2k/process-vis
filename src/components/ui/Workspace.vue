@@ -27,7 +27,7 @@
         <horizontal-bar :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
 
         <template v-for="(item, index) in processModel.cols">
-          <div :class="'col col' + index" :data-id="index" :style="'width: ' + ( 100 / processModel.cols.length ) + '%'">
+          <div :class="'col col' + index" :data-id="index" :style="'width: ' + ( containerSize.x / processModel.cols.length ) + 'px'">
           </div>
         </template>
 
@@ -182,7 +182,7 @@ export default {
 
     // prepare Container and Workspace
     Calc.addElementPosition(this.processModel.shapes);
-    this.containerSize = Calc.containerSize(this.processModel.shapes);
+    this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols);
     this.containerNode.style.width = this.containerSize.x + "px"; // forces reflow
     this.containerNode.style.height = this.containerSize.y + "px"; // forces reflow
     this.containerOffset = Calc.absolutePosition(this.containerNode); // forces reflow
@@ -283,7 +283,8 @@ export default {
   },
 
   updated: function() {
-    console.log("Workspace updated");
+    console.warn("Workspace updated");
+    console.log(this.processModel);
     this.redraw();
   },
 
@@ -327,7 +328,7 @@ export default {
     },
 
     redrawConnection(shapeId) {
-      console.log("redrawConnection: " + shapeId);
+      // console.log("redrawConnection: " + shapeId);
 
       shapeId = Helper.parse(shapeId);
 
@@ -335,7 +336,7 @@ export default {
       var conTargets = _.where(this.processModel.edges, {target: shapeId});
       
       var cons = _.union(conSources, conTargets);
-      console.log("redraw: " + cons.length + " connection(s)");
+      // console.log("redraw: " + cons.length + " connection(s)");
       
       var that = this;
       
@@ -345,7 +346,7 @@ export default {
     },
 
     updateConnection(edge) {
-      console.log("updateConnection");
+      // console.log("updateConnection");
       
       var line = document.querySelector('.connection[data-id="'+ edge.id +'"]');
 
@@ -497,7 +498,7 @@ export default {
     },
 
     trackMousePosition(event) {
-      console.log("trackMousePosition");
+      // console.log("trackMousePosition");
 
       this.mousePosition.x = Math.round((event.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x);
       this.mousePosition.y = Math.round((event.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y);
@@ -510,7 +511,7 @@ export default {
     },
 
     trackTouchPosition(event) {
-      console.log("trackTouchPosition");
+      // console.log("trackTouchPosition");
       event.preventDefault();
 
       let touch = event.touches[0];
