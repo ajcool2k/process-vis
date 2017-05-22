@@ -178,11 +178,9 @@ export default {
     this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
 
     // prepare Container and Workspace
-           
-    this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols);
-    this.containerNode.style.width = this.containerSize.x + "px"; // forces reflow
-    this.containerNode.style.height = this.containerSize.y + "px"; // forces reflow
-    this.containerOffset = Calc.absolutePosition(this.containerNode); // forces reflow
+    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize); // set position on the model
+    this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols);  // calc layout based on model
+    this.updateContainerSize(); // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100,  y: this.containerOffset.height + 100 }
     this.updateWorkspaceSize(); // forces reflow
     
@@ -218,7 +216,9 @@ export default {
       .on('resizemove', this.onContainerResize)
       .on('resizeend', function (event) {
         console.log("resizeend");
-        that.updateWorkspaceSize({ x: event.pageX - that.actionPosition.x, y: event.pageY - that.actionPosition.y });  // forces reflow
+        let dragDelta = { x: event.pageX - that.actionPosition.x, y: event.pageY - that.actionPosition.y };
+        that.updateContainerSize(dragDelta); // forces reflow
+        that.updateWorkspaceSize(dragDelta);  // forces reflow
       });
 
     interact('.snappyShape')
@@ -593,6 +593,17 @@ export default {
         console.log("resetActions -> " + caller + " " + eventType);
         this.tmpLine.removeAttribute("points");
       }
+    },
+    
+    updateContainerSize(dragDelta) {
+      let delta = dragDelta ? dragDelta : {x:0, y:0}; 
+
+      this.containerSize = { x: this.containerSize.x + delta.x, y: this.containerSize.y + delta.y };
+      
+      this.containerNode.style.width = this.containerSize.x + "px"; // forces reflow
+      this.containerNode.style.height = this.containerSize.y + "px"; // forces reflow
+      this.containerOffset = Calc.absolutePosition(this.containerNode); // forces reflow
+
     },
 
     updateWorkspaceSize(dragDelta) {
