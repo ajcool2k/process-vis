@@ -21,11 +21,15 @@ export class Calc {
         return data;
     }
 
+    static columnSize(containerSize, cols) {
+        return containerSize.x / cols.length;
+    }
+
     /**
      * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
      */
-    static addElementPosition(nodes) {
-        let colWidth = 400;
+    static shapePosition(nodes, cols, containerSize) {
+        let colWidth = Calc.columnSize(containerSize, cols);
         let shapeWidth = 100;
 
         nodes.forEach(function(elem, index) {

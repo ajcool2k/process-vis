@@ -33,10 +33,7 @@
 
         <template v-for="(item, index) in processModel.shapes">
           <div class="snappyShape" 
-                :data-id="item.id" 
-                :data-x="item.position.x" 
-                :data-y="item.position.y" 
-                :style="'transform: translate(' + item.position.x + 'px ,' + item.position.y + 'px)'"
+                :data-id="item.id"  
                 @click.stop="useProcess">
             <div class="content" :data-id="item.id">{{item.id}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
@@ -181,7 +178,7 @@ export default {
     this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
 
     // prepare Container and Workspace
-    Calc.addElementPosition(this.processModel.shapes);
+           
     this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols);
     this.containerNode.style.width = this.containerSize.x + "px"; // forces reflow
     this.containerNode.style.height = this.containerSize.y + "px"; // forces reflow
@@ -285,6 +282,7 @@ export default {
   updated: function() {
     console.warn("Workspace updated");
     console.log(this.processModel);
+    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize);
     this.redraw();
   },
 
@@ -322,9 +320,37 @@ export default {
       var that = this;
       
       this.processModel.shapes.forEach(function(shape){
+        // draw shape at correct position
+        that.redrawShapePosition(shape);
+        // draw connection
         that.redrawConnection(shape.id);
       });
 
+    },
+
+    redrawShapePosition(shape) {
+
+      var source = document.querySelector('.snappyShape[data-id="'+ shape.id +'"]');
+
+      let storedX = Helper.parse(source.getAttribute("data-x"));
+      let storedY = Helper.parse(source.getAttribute("data-y"));
+
+      if (storedX === shape.position.x && storedY === shape.position.y) {
+        console.log("shape position not changed - skipping");
+        return;
+      }
+
+      source.setAttribute("data-x", shape.position.x);
+      source.setAttribute("data-y",  shape.position.y);
+
+
+      // store position
+      source.setAttribute("data-x", shape.position.x);
+      source.setAttribute("data-y",  shape.position.y);
+
+      // transform
+      source.style.webkitTransform =
+      source.style.transform = 'translate(' + shape.position.x + 'px ,' + shape.position.y + 'px)';
     },
 
     redrawConnection(shapeId) {
@@ -737,7 +763,7 @@ export default {
     },
 
     onScroll(event) {
-      console.log("onScroll");
+      //console.log("onScroll");
     },
 
     onResize(event) {
