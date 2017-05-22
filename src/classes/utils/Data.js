@@ -27,11 +27,9 @@ export class Data {
 
         var participants = Array();
         
-        participants.push( [1, 'A1'] );
-        participants.push( [2, 'A2'] );
-        participants.push( [3, 'A3'] );
-        participants.push( [4, 'A4'] );
-        participants.push( [5, 'A5'] );
+        participants.push( { id: 1, name: 'A1' });
+        participants.push( { id: 2, name: 'A2' });
+        participants.push( { id: 3, name: 'A3' });
 
         return {
             nodes: nodes,
