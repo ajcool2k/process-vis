@@ -28,12 +28,12 @@ export class Calc {
     /**
      * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
      */
-    static shapePosition(nodes, cols, containerSize) {
+    static shapePosition(nodes, cols, containerSize, containerNode) {
         let colWidth = Calc.columnSize(containerSize, cols);
         let shapeWidth = Math.min(colWidth / 2, 100);
-
         nodes.forEach(function(elem, index) {
-            let shape = document.querySelector('.snappyShape[data-id="'+ elem.id +'"]');
+
+            let shape = containerNode.querySelector('.shape[data-id="'+ elem.id +'"]');
             shape.style.width = shapeWidth + "px";
 
             let x = (colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2);

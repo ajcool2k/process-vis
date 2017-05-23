@@ -1,10 +1,10 @@
 <template>
-  <div id="workspace">
+  <div id="vue-workspace">
 
     <!-- child component -->
     <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom"></tool-bar>
 
-    <div class="main-content">
+    <div class="workspace">
      
       <md-dialog-confirm
         :md-title="removeEdgeDialog.title"
@@ -22,7 +22,7 @@
         ref="showNodeDialog">
       </md-dialog-alert>
 
-      <div id="container" @click="resetActions" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
+      <div class="processContainer" @click="resetActions" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
         <!-- child component -->
         <horizontal-bar :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
 
@@ -32,7 +32,7 @@
         </template>
 
         <template v-for="(item, index) in processModel.shapes">
-          <div class="snappyShape" 
+          <div class="shape" 
                 :data-id="item.id"  
                 @click.stop="useProcess">
             <div class="content" :data-id="item.id">{{item.id}}</div>
@@ -40,7 +40,7 @@
         </div>
         </template>
 
-        <svg class="svgContainer">
+        <svg class="svgNode">
           <marker id="triangle"
             viewBox="0 0 10 10" refX="0" refY="5" 
             markerUnits="strokeWidth"
@@ -111,7 +111,7 @@ export default {
         containerOffset: null,
         containerTranslation: { x: 0, y: 0 },
         containerScale: { x: 1.0, y: 1.0 },
-        svgContainer: null,
+        svgNode: null,
 
         tmpLine: null,
 
@@ -172,13 +172,13 @@ export default {
     console.log("Workspace mounted");
 
     // cache DOM
-    this.containerNode = document.querySelector("#container");
-    this.workspaceNode = document.querySelector(".main-content");
-    this.svgContainer = document.querySelector('svg.svgContainer');
-    this.tmpLine = document.querySelector('svg.svgContainer .tmpConnection');
+    this.workspaceNode = document.querySelector(".workspace");
+    this.containerNode = this.workspaceNode.querySelector(".processContainer");
+    this.svgNode = this.containerNode.querySelector('svg.svgNode');
+    this.tmpLine = this.svgNode.querySelector('.tmpConnection');
 
     // prepare Container and Workspace
-    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize); // set position on the model
+    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode); // set position on the model
     this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols);  // calc layout based on model
     this.updateContainerSize(); // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100,  y: this.containerOffset.height + 100 }
@@ -190,11 +190,11 @@ export default {
     
 
     // remove existing event handlers
-    interact('#container').unset();
-    interact('.snappyShape').unset();
+    interact('.processContainer').unset();
+    interact('.shape').unset();
 
     // add new event handlers
-    interact('#container')
+    interact('.processContainer')
       .draggable({})
       .on('dragstart', function (event) {
         console.warn("dragstart container");
@@ -221,7 +221,7 @@ export default {
         that.updateWorkspaceSize(dragDelta);  // forces reflow
       });
 
-    interact('.snappyShape')
+    interact('.shape')
       .draggable({
         snap: {
           targets: [
@@ -238,12 +238,12 @@ export default {
         }
       })
       .on('dragstart', function (event) {
-        console.warn("dragstart snappyShape");
+        console.warn("dragstart shape");
         that.actions.shapeDragMode = true;
       })      
       .on('dragmove', this.onShapeDrag)
       .on('dragend', function (event) {
-        console.warn("dragend snappyShape");
+        console.warn("dragend shape");
         that.actions.shapeDragMode = false;
         that.actions.changes = true;
 
@@ -282,7 +282,7 @@ export default {
   updated: function() {
     console.warn("Workspace updated");
     console.log(this.processModel);
-    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize);
+    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode);
     this.redraw();
   },
 
@@ -330,7 +330,7 @@ export default {
 
     redrawShapePosition(shape) {
 
-      let source = document.querySelector('.snappyShape[data-id="'+ shape.id +'"]');
+      let source = this.containerNode.querySelector('.shape[data-id="'+ shape.id +'"]');
 
       let storedX = Helper.parse(source.getAttribute("data-x"));
       let storedY = Helper.parse(source.getAttribute("data-y"));
@@ -374,12 +374,12 @@ export default {
     updateConnection(edge) {
       // console.log("updateConnection");
       
-      let line = document.querySelector('.connection[data-id="'+ edge.id +'"]');
+      let line = this.svgNode.querySelector('.connection[data-id="'+ edge.id +'"]');
 
       // ----------------------------------------------
       // source könnte ausgelagert werden, aber nicht performance kritisch
-      let source = document.querySelector('.snappyShape[data-id="'+ edge.source +'"]');
-      let target = document.querySelector('.snappyShape[data-id="'+ edge.target +'"]');
+      let source = this.containerNode.querySelector('.shape[data-id="'+ edge.source +'"]');
+      let target = this.containerNode.querySelector('.shape[data-id="'+ edge.target +'"]');
 
       let sourceRect = Calc.absolutePosition(source);  // forces reflow
       let targetRect = Calc.absolutePosition(target);  // forces reflow
@@ -791,7 +791,7 @@ export default {
 $test: #888;
 $bgColor: #eee;
 
-#workspace {
+#vue-workspace {
   position: relative;
   width: 100vw;
   min-height: 100vh;  
@@ -804,7 +804,7 @@ $bgColor: #eee;
   height: 64px;
 }
 
-.main-content {
+.workspace {
   position: relative;
   top: 64px;
   height: auto;
@@ -815,7 +815,7 @@ $bgColor: #eee;
   background: $bgColor;
 }
 
-#container {
+.processContainer {
   position: absolute;
   display: flex;
   flex-direction: row;
@@ -866,7 +866,7 @@ marker {
   stroke: #888;
 }
 
-.snappyShape {
+.shape {
   position: absolute;
   display: flex;  
   left: 0;
