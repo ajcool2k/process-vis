@@ -9,7 +9,7 @@ export class Calc {
     static absolutePosition(elementNode) {
         let rect = elementNode.getBoundingClientRect(); // forces reflow
 
-        var data = {
+        let data = {
             left: Math.round(rect.left + window.scrollX),
             top: Math.round(rect.top + window.scrollY),
             width: rect.width,
@@ -30,9 +30,12 @@ export class Calc {
      */
     static shapePosition(nodes, cols, containerSize) {
         let colWidth = Calc.columnSize(containerSize, cols);
-        let shapeWidth = 100;
+        let shapeWidth = Math.min(colWidth / 2, 100);
 
         nodes.forEach(function(elem, index) {
+            let shape = document.querySelector('.snappyShape[data-id="'+ elem.id +'"]');
+            shape.style.width = shapeWidth + "px";
+
             let x = (colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2);
             let y = elem.p.time * 3 + 40;
 
@@ -50,8 +53,8 @@ export class Calc {
      */
     static containerSize(nodes, cols) {
         let colWidth = 400;
-        var containerX = 0;
-        var containerY = 0;
+        let containerX = 0;
+        let containerY = 0;
         
         // relative approch
         nodes.forEach(function(elem, index) {

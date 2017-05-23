@@ -4,7 +4,7 @@ export class Data {
     
     static generateData() {
 
-        var nodes = Array();
+        let nodes = Array();
         let unsetPosition = { x: 0, y: 0 };
 
         nodes.push( { id: 'head', p: new Process('head', 0 * 24, 0, 0), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition } );
@@ -15,7 +15,7 @@ export class Data {
         nodes.push( { id: 'n4', p: new Process('n4', 3 * 24, 2, 280 ), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition } );
         nodes.push( { id: 'tail', p: new Process('tail', 0 * 24, 0, 450 ), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition } );
 
-        var edges = Array();
+        let edges = Array();
 
         edges.push( { id: 1, source: 'head', target: 'n0' } );
         edges.push( { id: 2, source: 'n0', target: 'n1' } );
@@ -25,7 +25,7 @@ export class Data {
         edges.push( { id: 6, source: 'n2', target: 'n4' } );
         edges.push( { id: 7, source: 'n4', target: 'n3' } );
 
-        var participants = Array();
+        let participants = Array();
         
         participants.push( { id: 1, name: 'A1' });
         participants.push( { id: 2, name: 'A2' });

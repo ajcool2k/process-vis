@@ -317,7 +317,7 @@ export default {
     redraw() {
       console.warn("redraw");
 
-      var that = this;
+      let that = this;
       
       this.processModel.shapes.forEach(function(shape){
         // draw shape at correct position
@@ -330,7 +330,7 @@ export default {
 
     redrawShapePosition(shape) {
 
-      var source = document.querySelector('.snappyShape[data-id="'+ shape.id +'"]');
+      let source = document.querySelector('.snappyShape[data-id="'+ shape.id +'"]');
 
       let storedX = Helper.parse(source.getAttribute("data-x"));
       let storedY = Helper.parse(source.getAttribute("data-y"));
@@ -358,13 +358,13 @@ export default {
 
       shapeId = Helper.parse(shapeId);
 
-      var conSources = _.where(this.processModel.edges, {source: shapeId});
-      var conTargets = _.where(this.processModel.edges, {target: shapeId});
+      let conSources = _.where(this.processModel.edges, {source: shapeId});
+      let conTargets = _.where(this.processModel.edges, {target: shapeId});
       
-      var cons = _.union(conSources, conTargets);
+      let cons = _.union(conSources, conTargets);
       // console.log("redraw: " + cons.length + " connection(s)");
       
-      var that = this;
+      let that = this;
       
       cons.forEach(function(edge){
         that.updateConnection(edge);
@@ -374,12 +374,12 @@ export default {
     updateConnection(edge) {
       // console.log("updateConnection");
       
-      var line = document.querySelector('.connection[data-id="'+ edge.id +'"]');
+      let line = document.querySelector('.connection[data-id="'+ edge.id +'"]');
 
       // ----------------------------------------------
       // source könnte ausgelagert werden, aber nicht performance kritisch
-      var source = document.querySelector('.snappyShape[data-id="'+ edge.source +'"]');
-      var target = document.querySelector('.snappyShape[data-id="'+ edge.target +'"]');
+      let source = document.querySelector('.snappyShape[data-id="'+ edge.source +'"]');
+      let target = document.querySelector('.snappyShape[data-id="'+ edge.target +'"]');
 
       let sourceRect = Calc.absolutePosition(source);  // forces reflow
       let targetRect = Calc.absolutePosition(target);  // forces reflow
@@ -748,7 +748,7 @@ export default {
 
       // update view by model
       let that = this;
-      var containerPan = function() {
+      let containerPan = function() {
         that.applyTransform();
         Events.scheduledAnimationFrame["containerPan"] = false;
       }
@@ -766,7 +766,7 @@ export default {
 
       // update view by model
       let that = this;
-      var containerResize = function() {
+      let containerResize = function() {
         that.applyTransform();
         Events.scheduledAnimationFrame["containerResize"] = false;
       }
