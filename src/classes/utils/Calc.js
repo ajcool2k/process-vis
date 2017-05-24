@@ -21,9 +21,7 @@ export class Calc {
         return data;
     }
 
-    static columnSize(containerSize, cols) {
-        return containerSize.x / cols.length;
-    }
+    static columnSize = (containerSize, cols) => containerSize.x / cols.length;
 
     /**
      * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.

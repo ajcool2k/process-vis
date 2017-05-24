@@ -183,11 +183,7 @@ export default {
     this.updateContainerSize(); // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100,  y: this.containerOffset.height + 100 }
     this.updateWorkspaceSize(); // forces reflow
-    
-
-
-    let that = this;
-    
+        
 
     // remove existing event handlers
     interact('.processContainer').unset();
@@ -196,29 +192,29 @@ export default {
     // add new event handlers
     interact('.processContainer')
       .draggable({})
-      .on('dragstart', function (event) {
+      .on('dragstart', event => {
         console.warn("dragstart container");
-        that.actionPosition = { x: event.pageX, y: event.pageY };
+        this.actionPosition = { x: event.pageX, y: event.pageY };
       })         
       .on('dragmove', this.onContainerDrag)
-      .on('dragend', function (event) {
+      .on('dragend', event => {
         console.warn("dragend container");
-        that.updateWorkspaceSize({ x: event.pageX - that.actionPosition.x, y: event.pageY - that.actionPosition.y }); // forces reflow
+        this.updateWorkspaceSize({ x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }); // forces reflow
       })         
       .resizable({
         preserveAspectRatio: false,
         edges: { left: true, right: true, bottom: true, top: true }
       })
-      .on('resizestart', function (event) {
+      .on('resizestart', event => {
         console.log("resizestart");
-        that.actionPosition = { x: event.pageX, y: event.pageY };
+        this.actionPosition = { x: event.pageX, y: event.pageY };
       })  
       .on('resizemove', this.onContainerResize)
-      .on('resizeend', function (event) {
+      .on('resizeend', event => {
         console.log("resizeend");
-        let dragDelta = { x: event.pageX - that.actionPosition.x, y: event.pageY - that.actionPosition.y };
-        that.updateContainerSize(dragDelta); // forces reflow
-        that.updateWorkspaceSize(dragDelta);  // forces reflow
+        let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y };
+        this.updateContainerSize(dragDelta); // forces reflow
+        this.updateWorkspaceSize(dragDelta);  // forces reflow
       });
 
     interact('.shape')
@@ -237,19 +233,19 @@ export default {
           endOnly: true
         }
       })
-      .on('dragstart', function (event) {
+      .on('dragstart', event => {
         console.warn("dragstart shape");
-        that.actions.shapeDragMode = true;
+        this.actions.shapeDragMode = true;
       })      
       .on('dragmove', this.onShapeDrag)
-      .on('dragend', function (event) {
+      .on('dragend',  event => {
         console.warn("dragend shape");
-        that.actions.shapeDragMode = false;
-        that.actions.changes = true;
+        this.actions.shapeDragMode = false;
+        this.actions.changes = true;
 
         // store drag movement in model
         let shapeId = event.target.getAttribute("data-id");
-        let shape = _.findWhere(that.processModel.shapes, {id: shapeId});
+        let shape = _.findWhere(this.processModel.shapes, {id: shapeId});
         let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
         let y = (parseFloat(event.target.getAttribute('data-y')) || 0);        
         shape.position = { x: x, y: y };     
@@ -259,23 +255,20 @@ export default {
         restrict: { /* restrict options */ },
         edges: { left: true, right: true, bottom: true, top: true }
       })
-      .on('resizestart', function (event) {
-        that.actions.shapeResizeMode = true;
+      .on('resizestart', event => {
+        this.actions.shapeResizeMode = true;
       })      
-      .on('resizemove', function (event) {
-        that.resizeElement(event);
+      .on('resizemove', event => {
+        this.resizeElement(event);
         let shapeId = event.target.getAttribute("data-id");
 
         // update connections of the shape
-        that.redrawConnection(shapeId)
+        this.redrawConnection(shapeId)
       })
-      .on('resizeend', function (event) {
-        that.actions.shapeResizeMode = false;
-        that.actions.changes = true;
-      })          
-      ;      
-
-
+      .on('resizeend', event => {
+        this.actions.shapeResizeMode = false;
+        this.actions.changes = true;
+      });      
     
   },
 
@@ -317,13 +310,11 @@ export default {
     redraw() {
       console.warn("redraw");
 
-      let that = this;
-      
-      this.processModel.shapes.forEach(function(shape){
+      this.processModel.shapes.forEach(shape => {
         // draw shape at correct position
-        that.redrawShapePosition(shape);
+        this.redrawShapePosition(shape);
         // draw connection
-        that.redrawConnection(shape.id);
+        this.redrawConnection(shape.id);
       });
 
     },
@@ -364,10 +355,8 @@ export default {
       let cons = _.union(conSources, conTargets);
       // console.log("redraw: " + cons.length + " connection(s)");
       
-      let that = this;
-      
-      cons.forEach(function(edge){
-        that.updateConnection(edge);
+      cons.forEach(edge => {
+        this.updateConnection(edge);
       });
     },
 
@@ -453,10 +442,6 @@ export default {
       event.preventDefault();
 
       console.log("useProcess");
-    /*
-      console.log(event.type);
-      console.log(JSON.stringify(this.actions));
-    */
 
       let caller = event.srcElement ? event.srcElement : "unknown";
       let eventType = event ? event.type : "unknown";
@@ -747,9 +732,8 @@ export default {
       this.translate(event.dx, event.dy);
 
       // update view by model
-      let that = this;
-      let containerPan = function() {
-        that.applyTransform();
+      let containerPan = () => {
+        this.applyTransform();
         Events.scheduledAnimationFrame["containerPan"] = false;
       }
       Events.debounce(containerPan, "containerPan");
@@ -765,9 +749,8 @@ export default {
       this.resizeElement(event);
 
       // update view by model
-      let that = this;
-      let containerResize = function() {
-        that.applyTransform();
+      let containerResize = () => {
+        this.applyTransform();
         Events.scheduledAnimationFrame["containerResize"] = false;
       }
       Events.debounce(containerResize, "containerResize");       

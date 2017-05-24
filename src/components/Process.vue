@@ -86,11 +86,7 @@ export default {
     },
 
     removeNode(shapeId) {
-      this.mod.shapes = _.reject(this.mod.shapes, function(shape) {
-        console.log(shape.id + " : " + shapeId); 
-        console.log(shape.id == shapeId);
-        return shape.id == shapeId; 
-      });
+      this.mod.shapes = _.reject(this.mod.shapes, (shape) => shape.id == shapeId);
     },
 
     addConnection(edgeData) {
@@ -104,11 +100,7 @@ export default {
     },
 
     removeConnection(edgeId) {
-      this.mod.edges = _.reject(this.mod.edges, function(edge) {
-        console.log(edge.id + " : " + edgeId); 
-        console.log(edge.id == edgeId);
-        return edge.id == edgeId; 
-      });
+      this.mod.edges = _.reject(this.mod.edges, edge => edge.id == edgeId);
     },
 
     addLane() {
@@ -120,7 +112,8 @@ export default {
       let that = this;
 
       // avoid if shapes are on this lane to keep them in container
-      var shapes = _.find(that.mod.shapes, function(shape){ return shape.p.participant == that.mod.cols.length; });
+      var shapes = _.find(that.mod.shapes, shape => shape.p.participant == that.mod.cols.length);
+
       if (shapes) {
         console.warn("Could not remove lane, there are still processes applied"); 
         return;
