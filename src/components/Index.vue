@@ -27,6 +27,10 @@
             <router-link to="/gantt">
                 <button>D3Gantt</button>
             </router-link>
+
+            <router-link to="/state-machine">
+                <button>StateMachine</button>
+            </router-link>            
         </p>
 
         <div class="logo">

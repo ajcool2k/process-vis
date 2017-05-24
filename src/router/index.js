@@ -8,9 +8,8 @@ import Index from '@/components/Index'
 import D3demo from '@/components/demos/D3demo'
 import D3Gantt from '@/components/demos/D3Gantt'
 import Flexbox from '@/components/demos/Flexbox'
-
+import StateMachine from '@/components/demos/StateMachine'
 import Process from '@/components/Process'
-
 
 Vue.use(Router)
 
@@ -23,6 +22,7 @@ export default new Router({
     { name: 'D3Gantt', path: '/gantt', component: D3Gantt },
     { name: 'Flexbox', path: '/flexbox', component: Flexbox }, 
     { name: 'D3demo', path: '/draw3', component: D3demo },
+    { name: 'StateMachine', path: '/state-machine', component: StateMachine },
     { name: 'Process', path: '/process', component: Process }, 
   ]
 })
