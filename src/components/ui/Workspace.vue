@@ -85,6 +85,7 @@ import { interact } from 'interactjs';
 import { _ } from 'underscore';
 
 import { Dialog } from '@/classes/ui/Dialog';
+import { StateMachine } from '@/classes/utils/StateMachine';
 import { TouchSupport } from '@/classes/utils/TouchSupport';
 import { Events } from '@/classes/utils/Events';
 import { Calc } from '@/classes/utils/Calc';
@@ -101,6 +102,7 @@ export default {
   props: [ 'processModel' ],
   data: function() {
       return {
+        fsm: null,  // finite state machine
 
         workspaceNode: null,
         workspaceSize: {x: 1000, y: 1000 },
@@ -149,6 +151,8 @@ export default {
 
   created: function() {
     console.log("Worspace created");  
+
+    this.fsm = new StateMachine();
 
     // check support
     this.hasTouchSupport = TouchSupport.hasSupport();
