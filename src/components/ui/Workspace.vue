@@ -7,18 +7,17 @@
     <div class="workspace">
      
       <md-dialog-confirm
-        :md-title="removeEdgeDialog.title"
-        :md-content-html="removeEdgeDialog.contentHtml"
-        :md-ok-text="removeEdgeDialog.ok"
-        :md-cancel-text="removeEdgeDialog.cancel"
-        @open="onOpen"
-        @close="onClose"
+        :md-title="dialog.removeEdgeDialog.title"
+        :md-content-html="dialog.removeEdgeDialog.contentHtml"
+        :md-ok-text="dialog.removeEdgeDialog.ok"
+        :md-cancel-text="dialog.removeEdgeDialog.cancel"
+        @close="onCloseRemoveEdgeDialog"
         ref="removeEdgeDialog">
       </md-dialog-confirm>
 
       <md-dialog-alert
-        :md-content-html="showNodeDialog.content"
-        :md-ok-text="showNodeDialog.ok"
+        :md-content-html="dialog.showNodeDialog.content"
+        :md-ok-text="dialog.showNodeDialog.ok"
         ref="showNodeDialog">
       </md-dialog-alert>
 
@@ -85,6 +84,7 @@ import { Participant } from '@/classes/Participant';
 import { interact } from 'interactjs';
 import { _ } from 'underscore';
 
+import { Dialog } from '@/classes/ui/Dialog';
 import { TouchSupport } from '@/classes/utils/TouchSupport';
 import { Events } from '@/classes/utils/Events';
 import { Calc } from '@/classes/utils/Calc';
@@ -136,8 +136,7 @@ export default {
         },
 
         // Dialogs
-        removeEdgeDialog: { title: 'Aktion', ok: 'Ja', cancel: 'Nein', contentHtml: 'Soll die Verbindung entfernt werden?', value: '' },
-        showNodeDialog: { content: 'content', ok: 'Ausblenden' },
+        dialog: Dialog.useAll(),
 
         // Support
         hasTouchSupport: false,
@@ -472,7 +471,6 @@ export default {
         this.actions.shapeResizeMode = false;
         return;
       }
-      
 
       if (this.actions.changes === true) {
         console.log("--> changes done " + caller + " " + eventType);
@@ -480,32 +478,11 @@ export default {
         return
       }
 
-
       // open dialog
       this.actionId = event.target.getAttribute('data-id');
       let p = _.findWhere(this.processModel.shapes, { id: Helper.parse(this.actionId) });
-      console.log(p);
-
-      this.showNodeDialog.content = 
-      `
-        <md-card>
-          <md-card-media>
-            <img src="https://image.flaticon.com/icons/svg/364/364172.svg" alt="processImage">
-          </md-card-media>
-
-          <md-card-header>
-            <div class="md-title">Prozess</div>
-            <div class="md-subhead">Inhalt</div>
-          </md-card-header>
-
-          <md-card-content>
-            id: ${p.id} <br>
-            name: ${p.id}
-          </md-card-content>
-        </md-card>
-      `;
+      Dialog.setNodeDialog(p);
       this.$refs['showNodeDialog'].open();
-
     },
 
     trackMousePosition(event) {
@@ -656,15 +633,7 @@ export default {
       this.$refs['removeEdgeDialog'].open();
     },
 
-    closeDialog(ref) {
-      this.$refs[ref].close();
-    },
-
-    onOpen() {
-      console.log('Opened');
-    },
-
-    onClose(type) {
+    onCloseRemoveEdgeDialog(type) {
       console.log('Closed', type);
       if (type === 'cancel') return;
       this.removeConnection(this.actionId);
