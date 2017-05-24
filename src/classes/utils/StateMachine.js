@@ -45,10 +45,8 @@ export class StateMachine {
         let obj = (typeof initialState === 'string') ?  this.states[initialState] : initialState;
 
         this.initialState = obj;
-        console.log("FSM: starting with initialState = " + initialState);
+        console.log("FSM: starting with initialState = " + initialState.name);
         this.actualState = this.initialState;
-        console.log(this.actualState)
-
     }
 
     run(eventName) {
@@ -57,22 +55,20 @@ export class StateMachine {
         // find state
         let state = this.actualState;
         if (!state) {
-            console.warn("FSM: State " + this.actualState + " not found in StateMachine");
+            console.warn("FSM: state " + this.actualState + " not found");
             return;
         }
 
         // find event
         let stateEvent = _.find(state.events, e => e.name === eventName);
         if (!stateEvent) {
-            console.log("FSM: Unknown Event " + eventName + " called for State " + this.actualState);
+            console.log("FSM: unknown event " + eventName + " called for state " + this.actualState);
             return;
         }
 
-        console.log(stateEvent);
-
         // do event action
         let p = new Promise(function(resolve, reject) {
-            console.log("FSM: action for " + state.name + " - " + stateEvent.name)
+            console.log("FSM: action for state " + state.name + " - " + stateEvent.name)
             stateEvent.action();
             resolve('Success!');
         });
@@ -81,9 +77,9 @@ export class StateMachine {
         p.then(() => {
             console.log("FSM: action done");
             this.actualState = stateEvent.stateNext;
-            console.log("FSM: new State: " + this.actualState.name);
-        }).catch(() => {
-    	    console.warn("FSM: Could not execute action");
+            console.log("FSM: new state: " + this.actualState.name);
+        }).catch( e => {
+    	    console.error("FSM: could not execute action: " + e);
         })        
     }
 
