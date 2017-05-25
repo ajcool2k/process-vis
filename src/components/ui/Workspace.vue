@@ -317,7 +317,7 @@ export default {
         // draw shape at correct position
         this.redrawShapePosition(shape);
         // draw connection
-        this.redrawConnection(shape.id);
+        this.redrawConnection(shape);
       });
 
     },
@@ -334,10 +334,6 @@ export default {
         return;
       }
 
-      source.setAttribute("data-x", shape.position.x);
-      source.setAttribute("data-y",  shape.position.y);
-
-
       // store position
       source.setAttribute("data-x", shape.position.x);
       source.setAttribute("data-y",  shape.position.y);
@@ -347,16 +343,14 @@ export default {
       source.style.transform = 'translate(' + shape.position.x + 'px ,' + shape.position.y + 'px)';
     },
 
-    redrawConnection(shapeId) {
-      // console.log("redrawConnection: " + shapeId);
+    redrawConnection(shape) {
 
-      shapeId = Helper.parse(shapeId);
+      if (typeof shape === 'string') shape = _.findWhere(this.processModel.shapes, {id: shape});
 
-      let conSources = _.where(this.processModel.edges, {source: shapeId});
-      let conTargets = _.where(this.processModel.edges, {target: shapeId});
+      let conSources = _.where(this.processModel.edges, {source: shape.id});
+      let conTargets = _.where(this.processModel.edges, {target: shape.id});
       
       let cons = _.union(conSources, conTargets);
-      // console.log("redraw: " + cons.length + " connection(s)");
       
       cons.forEach(edge => {
         this.updateConnection(edge);
