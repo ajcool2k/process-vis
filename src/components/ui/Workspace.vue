@@ -18,10 +18,11 @@
       <md-dialog-alert
         :md-content-html="dialog.showNodeDialog.content"
         :md-ok-text="dialog.showNodeDialog.ok"
+        @close="onCloseShowNodeDialog"
         ref="showNodeDialog">
       </md-dialog-alert>
 
-      <div class="processContainer" @click="resetActions" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
+      <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
         <!-- child component -->
         <horizontal-bar :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
 
@@ -33,7 +34,7 @@
         <template v-for="(item, index) in processModel.shapes">
           <div class="shape" 
                 :data-id="item.id"  
-                @click.stop="useProcess">
+                @click.stop="onShapeClick">
             <div class="content" :data-id="item.id">{{item.id}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
         </div>
@@ -152,7 +153,7 @@ export default {
   created: function() {
     console.log("Worspace created");  
 
-    this.fsm = new StateMachine();
+    this.initStateMachine();
 
     // check support
     this.hasTouchSupport = TouchSupport.hasSupport();
@@ -238,11 +239,17 @@ export default {
       })
       .on('dragstart', event => {
         console.warn("dragstart shape");
+        if (!this.fsm.hasEvent("dragstart")) return;
+        this.fsm.run("dragstart");
+
         this.actions.shapeDragMode = true;
       })      
       .on('dragmove', this.onShapeDrag)
       .on('dragend',  event => {
         console.warn("dragend shape");
+        if (!this.fsm.hasEvent("dragend")) return;
+        this.fsm.run("dragend");
+
         this.actions.shapeDragMode = false;
         this.actions.changes = true;
 
@@ -259,6 +266,9 @@ export default {
         edges: { left: true, right: true, bottom: true, top: true }
       })
       .on('resizestart', event => {
+        if (!this.fsm.hasEvent("resizestart")) return;
+        this.fsm.run("resizestart");
+
         this.actions.shapeResizeMode = true;
       })      
       .on('resizemove', event => {
@@ -269,6 +279,9 @@ export default {
         this.redrawConnection(shapeId)
       })
       .on('resizeend', event => {
+        if (!this.fsm.hasEvent("resizeend")) return;
+        this.fsm.run("resizeend");
+
         this.actions.shapeResizeMode = false;
         this.actions.changes = true;
       });      
@@ -283,6 +296,118 @@ export default {
   },
 
   methods: { 
+
+    initStateMachine() {
+      this.fsm = new StateMachine();
+
+      let idle = this.fsm.addState("idle");
+
+      // Edges
+      let drawEdge = this.fsm.addState("drawEdge");
+      let connectEdge = this.fsm.addState("connectEdge");
+
+      // Shapes
+      let dragShape = this.fsm.addState("dragShape");
+      let droppedShape = this.fsm.addState("droppedShape");
+
+      let resizeShape = this.fsm.addState("resizeShape");
+      let resizeShapeFinished = this.fsm.addState("resizeShapeFinished");
+
+      // Dialogs
+      let showProcess = this.fsm.addState("showProcess");
+      let showRemoveEdge = this.fsm.addState("showRemoveEdge");
+
+      this.fsm.addEvent(idle, drawEdge, { 
+          name: 'activateEdgeConnect',
+          action: (event) => {}
+      });      
+
+      this.fsm.addEvent(drawEdge, idle, { 
+          name: 'onContainerClick',
+          action: (event) => {}
+      });      
+
+      this.fsm.addEvent(drawEdge, idle, { 
+          name: 'onShapeClick',
+          action: (event) => {
+            let source = this.tmpLine;
+            let sourceId = source.getAttribute("data-id");
+            let target = event.target;
+            let targetId = target.getAttribute("data-id");
+
+            // add to model
+            this.addConnection(sourceId, targetId);
+            this.resetActions();
+          }
+      });      
+
+      this.fsm.addEvent(idle, resizeShape, { 
+          name: 'resizestart',
+          action: (event) => {
+          }
+      });      
+
+      this.fsm.addEvent(resizeShape, resizeShapeFinished, { 
+          name: 'resizeend',
+          action: (event) => {
+          }
+      });      
+
+      this.fsm.addEvent(resizeShapeFinished, idle, { 
+          name: 'onShapeClick',
+          action: (event) => {
+          }
+      });      
+
+
+      this.fsm.addEvent(idle, dragShape, { 
+          name: 'dragstart',
+          action: (event) => {
+          }
+      });      
+
+      this.fsm.addEvent(dragShape, droppedShape, { 
+          name: 'dragend',
+          action: (event) => {
+          }
+      });      
+
+      this.fsm.addEvent(droppedShape, idle, { 
+          name: 'onShapeClick',
+          action: (event) => {
+          }
+      });      
+
+      this.fsm.addEvent(idle, showProcess, { 
+          name: 'onShapeClick',
+          action: (event) => {
+            this.actionId = event.target.getAttribute('data-id');
+            let p = _.findWhere(this.processModel.shapes, { id: Helper.parse(this.actionId) });
+            Dialog.setNodeDialog(p);
+            this.$refs['showNodeDialog'].open();
+          }
+      });      
+
+      this.fsm.addEvent(showProcess, idle, { 
+          name: 'onCloseShowNodeDialog',
+          action: (event) => {}
+      });      
+
+      this.fsm.addEvent(idle, showRemoveEdge, { 
+          name: 'openRemoveConnectionDialog',
+          action: (event) => {
+          }
+      });      
+
+      this.fsm.addEvent(showRemoveEdge, idle, { 
+          name: 'onCloseRemoveEdgeDialog',
+          action: (event) => {}
+      });
+
+
+      this.fsm.start(idle);
+
+    },
 
     addConnection(sourceId, targetId) {
       console.warn("addConnection");
@@ -417,8 +542,11 @@ export default {
     },
 
     activateEdgeConnect(event) {
-      event.preventDefault();
+      if (!this.fsm.hasEvent("activateEdgeConnect")) return;
+      this.fsm.run("activateEdgeConnect");
 
+      event.preventDefault();
+      
       console.log("activateEdgeConnect: " + event.type);
 
       let source = event.target;
@@ -435,54 +563,6 @@ export default {
       this.actions.drawingMode = true;      
     },
 
-    useProcess(event) {
-      event.preventDefault();
-
-      console.log("useProcess");
-
-      let caller = event.srcElement ? event.srcElement : "unknown";
-      let eventType = event ? event.type : "unknown";
-      
-      if (this.actions.drawingMode === true) {
-        console.log("--> add connection " + caller + " " + eventType);
-        let source = this.tmpLine;
-        let sourceId = source.getAttribute("data-id");
-        let target = event.target;
-        let targetId = target.getAttribute("data-id");
-
-        // add to model
-        this.addConnection(sourceId, targetId);
-        this.resetActions();
-        return;
-      }
-
-      // avoid dragged clicks
-      if (this.actions.shapeDragMode === true) {
-        console.log("--> avoid dragged " + caller + " " + eventType);
-        this.actions.shapeDragMode = false;
-        return;
-      }
-
-      // avoid resized clicks
-      if (this.actions.shapeResizeMode === true) {
-        console.log("--> avoid resized " + caller + " " + eventType);
-        this.actions.shapeResizeMode = false;
-        return;
-      }
-
-      if (this.actions.changes === true) {
-        console.log("--> changes done " + caller + " " + eventType);
-        this.actions.changes = false;
-        return
-      }
-
-      // open dialog
-      this.actionId = event.target.getAttribute('data-id');
-      let p = _.findWhere(this.processModel.shapes, { id: Helper.parse(this.actionId) });
-      Dialog.setNodeDialog(p);
-      this.$refs['showNodeDialog'].open();
-    },
-
     trackMousePosition(event) {
       // console.log("trackMousePosition");
 
@@ -491,7 +571,6 @@ export default {
       // console.log(this.mousePosition.x + ":" + this.mousePosition.y);
 
       if (this.actions.drawingMode === true) {
-        console.log("drawingMode 1");
         Events.debounce(this.drawLine, "drawLine");
       }
     },
@@ -514,7 +593,7 @@ export default {
     },
 
     drawLine() {
-      console.log("drawLine");
+
       if (this.actions.drawingMode === false) return; // escape if mode got disabled meanwhile
 
       /*
@@ -626,15 +705,37 @@ export default {
       this.applyTransform();
     },
 
+    onContainerClick() {
+      console.log("onContainerClick");
+      if (!this.fsm.hasEvent("onContainerClick")) return;
+      this.fsm.run("onContainerClick");
+
+      this.resetActions();
+    },
+
     openRemoveConnectionDialog(event) {
+
+      if (!this.fsm.hasEvent("openRemoveConnectionDialog")) return;
+      this.fsm.run("openRemoveConnectionDialog", event);
+
       this.actionId = event.target.getAttribute('data-id');
       this.$refs['removeEdgeDialog'].open();
     },
 
     onCloseRemoveEdgeDialog(type) {
+
+      if (!this.fsm.hasEvent("onCloseRemoveEdgeDialog")) return;
+      this.fsm.run("onCloseRemoveEdgeDialog", event);
+
       console.log('Closed', type);
+
       if (type === 'cancel') return;
       this.removeConnection(this.actionId);
+    },
+
+    onCloseShowNodeDialog(type) {
+      if (!this.fsm.hasEvent("onCloseShowNodeDialog")) return;
+      this.fsm.run("onCloseShowNodeDialog");
     },
 
     resizeElement(event) {
@@ -665,6 +766,16 @@ export default {
             'translate(' + x + 'px,' + y + 'px)';
 
         event.target.style.display = displayValue;
+    },
+
+    onShapeClick(event) {
+      console.log("onShapeClick");
+
+      if (!this.fsm.hasEvent("onShapeClick")) return;
+      this.fsm.run("onShapeClick", event);
+
+      event.preventDefault();
+      
     },
 
     onShapeDrag(event) {

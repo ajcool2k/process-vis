@@ -111,7 +111,7 @@ export default {
       onMouseDownLeft(event) {
         console.log(event);
         event.stopPropagation();
-
+        
         this.fsm.run("onMouseDownLeft");
 
       },

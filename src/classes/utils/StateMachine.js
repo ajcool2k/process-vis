@@ -49,7 +49,12 @@ export class StateMachine {
         this.actualState = this.initialState;
     }
 
-    run(eventName) {
+    hasEvent(eventName) {
+        let stateEvent = _.find(this.actualState.events, e => e.name === eventName);
+        return stateEvent ? true : false;
+    }
+
+    run(eventName, domEvent) {
         console.log("FSM: " + eventName);
 
         // find state
@@ -69,7 +74,7 @@ export class StateMachine {
         // do event action
         let p = new Promise(function(resolve, reject) {
             console.log("FSM: action for state " + state.name + " - " + stateEvent.name)
-            stateEvent.action();
+            stateEvent.action(domEvent);
             resolve('Success!');
         });
 
