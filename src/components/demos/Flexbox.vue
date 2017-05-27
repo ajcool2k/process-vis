@@ -24,6 +24,7 @@
 import { Project } from '@/classes/Project';
 import { Process } from '@/classes/Process';
 import { Participant } from '@/classes/Participant';
+import { _ } from 'underscore';
 
 
 export default {
