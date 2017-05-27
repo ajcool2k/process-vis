@@ -8,6 +8,8 @@
         v-on:removeConnection="removeConnection" 
 
         v-on:addNode="addNode" 
+        v-on:moveNode="moveNode" 
+
         v-on:removeNode="removeNode" 
 
         v-on:addLane="addLane" 
@@ -83,6 +85,11 @@ export default {
     addNode() {
       var shape = { id: this.counter++, name: "p" + this.counter }
       this.mod.shapes.push(shape);
+    },
+
+    moveNode(shapeData) {
+      let node = _.findWhere(this.mod.shapes, { id: shapeData.shapeId });
+      node.p.participant = shapeData.laneId;
     },
 
     removeNode(shapeId) {

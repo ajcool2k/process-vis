@@ -27,12 +27,12 @@
         <horizontal-bar :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
 
         <template v-for="(item, index) in processModel.cols">
-          <div :class="'col col' + index" :data-id="index" :style="'width: ' + ( containerSize.x / processModel.cols.length ) + 'px'">
+          <div :class="'col col' + index" :data-id="item.id" :style="'width: ' + ( containerSize.x / processModel.cols.length ) + 'px'">
           </div>
         </template>
 
         <template v-for="(item, index) in processModel.shapes">
-          <div class="shape" 
+          <div class="shape draggable drag-drop" 
                 :data-id="item.id"  
                 @click.stop="onShapeClick">
             <div class="content" :data-id="item.id">{{item.id}}</div>
@@ -119,10 +119,7 @@ export default {
         tmpLine: null,
 
         actions: {
-          changes: false,
-          drawingMode: false,
-          shapeDragMode: false,
-          shapeResizeMode: false,
+          drawingMode: false
         },
 
         actionPosition: { x: 0, y: 0 },
@@ -191,6 +188,7 @@ export default {
 
     // remove existing event handlers
     interact('.processContainer').unset();
+    interact('.col').unset();
     interact('.shape').unset();
 
     // add new event handlers
@@ -242,16 +240,12 @@ export default {
         if (!this.fsm.hasEvent("dragstart")) return;
         this.fsm.run("dragstart");
 
-        this.actions.shapeDragMode = true;
       })      
       .on('dragmove', this.onShapeDrag)
       .on('dragend',  event => {
         console.warn("dragend shape");
         if (!this.fsm.hasEvent("dragend")) return;
         this.fsm.run("dragend");
-
-        this.actions.shapeDragMode = false;
-        this.actions.changes = true;
 
         // store drag movement in model
         let shapeId = event.target.getAttribute("data-id");
@@ -268,8 +262,6 @@ export default {
       .on('resizestart', event => {
         if (!this.fsm.hasEvent("resizestart")) return;
         this.fsm.run("resizestart");
-
-        this.actions.shapeResizeMode = true;
       })      
       .on('resizemove', event => {
         this.resizeElement(event);
@@ -281,11 +273,50 @@ export default {
       .on('resizeend', event => {
         if (!this.fsm.hasEvent("resizeend")) return;
         this.fsm.run("resizeend");
-
-        this.actions.shapeResizeMode = false;
-        this.actions.changes = true;
       });      
-    
+
+    interact('.col')
+      .dropzone({
+      // only accept elements matching this CSS selector
+      accept: '.shape',
+      // Require a 75% element overlap for a drop to be possible
+      overlap: 0.75,
+
+      // listen for drop related events:
+
+      ondropactivate: function (event) {
+        // add active dropzone feedback
+        event.target.classList.add('drop-active');
+      },
+      ondragenter: function (event) {
+        var draggableElement = event.relatedTarget,
+            dropzoneElement = event.target;
+
+        // feedback the possibility of a drop
+        dropzoneElement.classList.add('lane-drop');
+        draggableElement.classList.add('shape-drop');
+        //draggableElement.textContent = 'Dragged in';
+      },
+      ondragleave: function (event) {
+        // remove the drop feedback style
+        event.target.classList.remove('lane-drop');
+        event.relatedTarget.classList.remove('shape-drop');
+        //event.relatedTarget.textContent = 'Dragged out';
+      },
+      ondrop: event => {
+
+        if (!this.fsm.hasEvent("onShapeDrop")) return;
+        this.fsm.run("onShapeDrop", event);
+        event.relatedTarget.classList.remove('shape-drop');
+
+      },
+      ondropdeactivate: function (event) {
+        // remove active dropzone feedback
+        event.target.classList.remove('drop-active');
+        event.target.classList.remove('lane-drop');
+      }
+    });
+
   },
 
   updated: function() {
@@ -367,8 +398,15 @@ export default {
       });      
 
       this.fsm.addEvent(dragShape, droppedShape, { 
-          name: 'dragend',
+          name: 'onShapeDrop',
           action: (event) => {
+            let draggableElement = event.relatedTarget;
+            let dropzoneElement = event.target;
+            let data = {
+              shapeId: Helper.parse(draggableElement.getAttribute('data-id')),
+              laneId: Helper.parse(dropzoneElement.getAttribute('data-id')),
+            }
+            this.$emit('moveNode', data);
           }
       });      
 
@@ -945,12 +983,19 @@ marker {
   opacity: 0.5
 }
 
+.shape-drop {
+  color: #000;
+  background-color: #4e4;
+}
+
+
 .content {
   flex-grow: 1;
   align-self: center;
 }
 
 $anchorSize: 20px;
+
 .anchor {
   width: $anchorSize;
   height: $anchorSize;
@@ -961,5 +1006,15 @@ $anchorSize: 20px;
   align-self: center;
   cursor: crosshair;
 }
+
+.drop-active {
+  border-color: #aaa;
+}
+
+.lane-drop {
+  background-color: #29e;
+  opacity: 0.3;
+}
+
 
 </style>
