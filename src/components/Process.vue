@@ -26,6 +26,7 @@
 import { _ } from 'underscore';
 
 // Classes
+import { Helper } from '@/classes/utils/Helper';
 import { Data } from '@/classes/utils/Data';
 
 // Child components
@@ -42,9 +43,9 @@ export default {
           shapes: [],
           edges: [],
           cols: [],
+          change: new Date(),
           tests: {}
         },
-        counter: 0, // obj counter;
       }
   },
 
@@ -83,13 +84,18 @@ export default {
     },
 
     addNode() {
-      var shape = { id: this.counter++, name: "p" + this.counter }
+      var newId = Helper.nextId(this.mod.shapes);
+      var shape = { id: newId, name: "p" + newId }
       this.mod.shapes.push(shape);
     },
 
     moveNode(shapeData) {
       let node = _.findWhere(this.mod.shapes, { id: shapeData.shapeId });
+      if (node.p.participant === shapeData.laneId)
+        return;
+
       node.p.participant = shapeData.laneId;
+      this.forceRedraw();
     },
 
     removeNode(shapeId) {
@@ -97,8 +103,11 @@ export default {
     },
 
     addConnection(edgeData) {
+
+      let newId = Helper.nextId(this.mod.edges);
+
       let edge = {
-        id: this.counter++,
+        id: newId,
         source: edgeData.source,
         target: edgeData.target
       };
@@ -111,7 +120,7 @@ export default {
     },
 
     addLane() {
-      this.mod.cols.push({ id: this.counter++, name: "unset" });
+      this.mod.cols.push({ id: Helper.nextId(this.mod.cols), name: "unset" });
     },
 
     removeLane() {
@@ -134,6 +143,10 @@ export default {
 
       this.mod.cols.splice(-1,1);
     },
+
+    forceRedraw() {
+      this.mod.change = new Date();
+    }
 
   }
 }

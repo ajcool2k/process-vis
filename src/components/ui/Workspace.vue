@@ -1,5 +1,5 @@
 <template>
-  <div id="vue-workspace">
+  <div id="vue-workspace" :data-change="processModel.change">
 
     <!-- child component -->
     <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom"></tool-bar>
@@ -406,6 +406,7 @@ export default {
               shapeId: Helper.parse(draggableElement.getAttribute('data-id')),
               laneId: Helper.parse(dropzoneElement.getAttribute('data-id')),
             }
+            console.log(JSON.stringify(data))
             this.$emit('moveNode', data);
           }
       });      
