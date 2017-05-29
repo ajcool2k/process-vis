@@ -1,5 +1,5 @@
 <template>
-  <div id="vue-workspace" :data-change="processModel.change">
+  <div id="vue-workspace" :data-change="changes.time">
 
     <!-- child component -->
     <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom"></tool-bar>
@@ -100,11 +100,12 @@ export default {
     'tool-bar': ToolBar,
     'horizontal-bar' : HorizontalBar,
   },
-  props: [ 'processModel' ],
+  props: [ 'processModel', 'changes' ],
+
   data: function() {
       return {
         fsm: null,  // finite state machine
-
+        
         workspaceNode: null,
         workspaceSize: {x: 1000, y: 1000 },
         

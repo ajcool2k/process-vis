@@ -16,13 +16,9 @@ export class Helper {
             console.warn("Helper: expected Array of Objects with Attribute id")
             return
         }
-
-        let highestId = 0;
-        x.forEach(elem => {
-          highestId = Math.max(elem.id, highestId);   
-        });
-
-        highestId++;
+        
+        let idList = x.map(elem => elem.id);
+        let highestId = Math.max(...idList) + 1;   // Math.max.apply(null, idList) + 1
         return highestId;
     }
 }

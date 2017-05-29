@@ -2,7 +2,7 @@
   <div id="Process">
 
     <!-- child component -->
-    <workspace :processModel="mod" 
+    <workspace :processModel="mod" :changes="changes" 
 
         v-on:addConnection="addConnection" 
         v-on:removeConnection="removeConnection" 
@@ -43,8 +43,10 @@ export default {
           shapes: [],
           edges: [],
           cols: [],
-          change: new Date(),
           tests: {}
+        },
+        changes: { 
+          time: new Date()
         },
       }
   },
@@ -145,7 +147,11 @@ export default {
     },
 
     forceRedraw() {
-      this.mod.change = new Date();
+      let change = {
+        time: new Date(),
+      }
+
+      this.changes = change;
     }
 
   }
