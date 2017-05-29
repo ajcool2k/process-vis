@@ -41,6 +41,9 @@
         </template>
 
         <svg class="svgNode">
+
+          <g class="axis"></g> 
+
           <marker id="triangle"
             viewBox="0 0 10 10" refX="0" refY="5" 
             markerUnits="strokeWidth"
@@ -94,6 +97,8 @@ import { Data } from '@/classes/utils/Data';
 import { Helper } from '@/classes/utils/Helper';
 
 
+import { Axis } from '@/classes/ui/Axis';
+
 export default {
   name: 'Workspace',
   components: {
@@ -115,7 +120,10 @@ export default {
         containerOffset: null,
         containerTranslation: { x: 0, y: 0 },
         containerScale: { x: 1.0, y: 1.0 },
+
         svgNode: null,
+
+        axis: null,
 
         tmpLine: null,
 
@@ -186,7 +194,6 @@ export default {
     this.workspaceSize = { x: this.containerOffset.width + 100,  y: this.containerOffset.height + 100 }
     this.updateWorkspaceSize(); // forces reflow
         
-
     // remove existing event handlers
     interact('.processContainer').unset();
     interact('.col').unset();
@@ -218,6 +225,7 @@ export default {
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y };
         this.updateContainerSize(dragDelta); // forces reflow
         this.updateWorkspaceSize(dragDelta);  // forces reflow
+        this.resizeAxis();
       });
 
     interact('.shape')
@@ -318,12 +326,18 @@ export default {
       }
     });
 
+
+    // d3 axis
+    this.axis = new Axis();
+    this.axis.create(".axis", this.containerSize)
+    this.drawAxis();
   },
 
   updated: function() {
     console.warn("Workspace updated");
     console.log(this.processModel);
     Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode);
+    this.drawAxis();
     this.redraw();
   },
 
@@ -447,6 +461,17 @@ export default {
 
       this.fsm.start(idle);
 
+    },
+
+    drawAxis() {
+      let actorNames = this.processModel.cols.map(elem => elem.name)
+      this.axis.setData('actorNames', actorNames);
+      this.axis.draw();
+    },
+
+    resizeAxis() {
+      this.axis.setSize(this.containerSize);
+      this.axis.draw();
     },
 
     addConnection(sourceId, targetId) {

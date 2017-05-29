@@ -122,7 +122,8 @@ export default {
     },
 
     addLane() {
-      this.mod.cols.push({ id: Helper.nextId(this.mod.cols), name: "unset" });
+      let newId = Helper.nextId(this.mod.cols);
+      this.mod.cols.push({ id: newId, name: "A" + newId });
     },
 
     removeLane() {
