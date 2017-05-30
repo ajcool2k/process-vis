@@ -16,13 +16,13 @@ Vue.use(Router)
 // 2. Define some routes
 export default new Router({
   routes: [
-    { name: 'Index', path: '/', component:  Index },
-    // { name: 'Route zeichnen', path: '/draw', component: RouteDraw }, 
-    // { name: 'CyDemo', path: '/draw2', component: CyDemo }, 
+    { name: 'Index', path: '/', component: Index },
+    // { name: 'Route zeichnen', path: '/draw', component: RouteDraw },
+    // { name: 'CyDemo', path: '/draw2', component: CyDemo },
     { name: 'D3Gantt', path: '/gantt', component: D3Gantt },
-    { name: 'Flexbox', path: '/flexbox', component: Flexbox }, 
+    { name: 'Flexbox', path: '/flexbox', component: Flexbox },
     { name: 'D3demo', path: '/draw3', component: D3demo },
     { name: 'StateMachine', path: '/state-machine', component: StateMachine },
-    { name: 'Process', path: '/process', component: Process }, 
+    { name: 'Process', path: '/process', component: Process }
   ]
 })

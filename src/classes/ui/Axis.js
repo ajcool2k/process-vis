@@ -100,10 +100,14 @@ export class Axis {
         this.clean();
 
         // Create an SVG group Element for the Axis elements and call the xAxis function
-        this.domAxisGroup.x = this.domContainer.append("g")
+        this.domAxisGroup.x = this.domContainer
+            .append("g")
+            .attr("class", "axis-x")
             .call(this.xAxis);
 
-        this.domAxisGroup.y = this.domContainer.append("g")
+        this.domAxisGroup.y = this.domContainer
+            .append("g")
+            .attr("class", "axis-y")
             .call(this.yAxis);
     }
 

@@ -17,7 +17,7 @@ import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 
 import VueMaterial from 'vue-material'
-Vue.use(VueMaterial);
+Vue.use(VueMaterial)
 
 /*
 import { MdCore, MdButton, MdIcon } from 'vue-material'
@@ -29,36 +29,36 @@ Vue.use(MdIcon);
 export default {
   name: 'HorizontalBar',
   props: ['cols'],
-  data: function() {
-      return {
-      }
+  data: function () {
+    return {
+    }
   },
 
-  created: function() {
-    console.log("HorizontalBar created");
+  created: function () {
+    console.log('HorizontalBar created')
   },
 
-  destroyed: function() {
+  destroyed: function () {
   },
 
-  mounted: function() {
-    console.log("HorizontalBar mounted");
+  mounted: function () {
+    console.log('HorizontalBar mounted')
   },
 
-  updated: function() {
-    console.log("HorizontalBar updated");
+  updated: function () {
+    console.log('HorizontalBar updated')
   },
 
   methods: {
 
-    addLane(event) {
-      event.stopPropagation();
-      this.$emit('laneChange', 'add');
+    addLane (event) {
+      event.stopPropagation()
+      this.$emit('laneChange', 'add')
     },
 
-    removeLane(event) {
-      event.stopPropagation();
-      this.$emit('laneChange', 'remove');
+    removeLane (event) {
+      event.stopPropagation()
+      this.$emit('laneChange', 'remove')
     }
   }
 }

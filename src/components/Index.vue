@@ -42,12 +42,13 @@
 
 
 <script>
-    export default {
-        name: 'Index',
-        data: function() {
-            return {}
-        }
+  export default {
+    name: 'Index',
+    data: function () {
+      return {}
     }
+}
+
 </script>
 
 <style scoped>

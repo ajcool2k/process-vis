@@ -10,15 +10,15 @@
 
 export default {
   name: 'app',
-  data: function() {
-      return {
-        graph: null,
-        route: null,
-        counter: 0
-      }
+  data: function () {
+    return {
+      graph: null,
+      route: null,
+      counter: 0
+    }
   },
 
-  mounted: function() {}
+  mounted: function () {}
 }
 
 </script>
