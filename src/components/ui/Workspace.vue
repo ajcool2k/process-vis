@@ -80,10 +80,6 @@ Vue.use(MdBackdrop);
 import ToolBar from './ToolBar.vue'
 import HorizontalBar from './HorizontalBar.vue'
 
-import { Project } from '@/classes/Project'
-import { Process } from '@/classes/Process'
-import { Participant } from '@/classes/Participant'
-
 import { interact } from 'interactjs'
 import { _ } from 'underscore'
 
@@ -92,7 +88,6 @@ import { StateMachine } from '@/classes/utils/StateMachine'
 import { TouchSupport } from '@/classes/utils/TouchSupport'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
-import { Data } from '@/classes/utils/Data'
 import { Helper } from '@/classes/utils/Helper'
 
 import { Axis } from '@/classes/ui/Axis'
@@ -341,7 +336,6 @@ export default {
 
       // Edges
       let drawEdge = this.fsm.addState('drawEdge')
-      let connectEdge = this.fsm.addState('connectEdge')
 
       // Shapes
       let dragShape = this.fsm.addState('dragShape')
@@ -361,7 +355,10 @@ export default {
 
       this.fsm.addEvent(drawEdge, idle, {
         name: 'onContainerClick',
-        action: (event) => {}
+        action: (event) => {
+          this.actions.drawingMode = false
+          this.tmpLine.removeAttribute('points')
+        }
       })
 
       this.fsm.addEvent(drawEdge, idle, {
@@ -374,7 +371,8 @@ export default {
 
           // add to model
           this.addConnection(sourceId, targetId)
-          this.resetActions()
+          this.actions.drawingMode = false
+          this.tmpLine.removeAttribute('points')
         }
       })
 
@@ -669,23 +667,8 @@ export default {
       Events.detectFireRate(1000)
     },
 
-    resetActions (event) {
-      console.log('resetActions')
-      for (const key of Object.keys(this.actions)) {
-        this.actions[key] = false
-      }
-
-      let caller = event.srcElement ? event.srcElement : 'unknown'
-      let eventType = event ? event.type : 'unknown'
-
-      if (this.tmpLine) {
-        console.log('resetActions -> ' + caller + ' ' + eventType)
-        this.tmpLine.removeAttribute('points')
-      }
-    },
-
     updateContainerSize (dragDelta) {
-      let delta = dragDelta ? dragDelta : { x: 0, y: 0 }
+      let delta = typeof dragDelta === 'object' ? dragDelta : { x: 0, y: 0 }
 
       this.containerSize = { x: this.containerSize.x + delta.x, y: this.containerSize.y + delta.y }
       this.containerNode.style.width = this.containerSize.x + 'px' // forces reflow
@@ -696,7 +679,7 @@ export default {
     updateWorkspaceSize (dragDelta) {
       console.log('updateWorkspaceSize')
 
-      let delta = dragDelta ? dragDelta : { x: 0, y: 0 }
+      let delta = typeof dragDelta === 'object' ? dragDelta : { x: 0, y: 0 }
 
       this.workspaceSize = { x: this.workspaceSize.x + delta.x, y: this.workspaceSize.y + delta.y }
       let width = Math.round(this.containerScale.x * this.workspaceSize.x)
@@ -756,8 +739,6 @@ export default {
       console.log('onContainerClick')
       if (!this.fsm.hasEvent('onContainerClick')) return
       this.fsm.run('onContainerClick')
-
-      this.resetActions()
     },
 
     openRemoveConnectionDialog (event) {
