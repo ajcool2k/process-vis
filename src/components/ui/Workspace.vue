@@ -86,6 +86,7 @@ import { _ } from 'underscore'
 import { Dialog } from '@/classes/ui/Dialog'
 import { StateMachine } from '@/classes/utils/StateMachine'
 import { TouchSupport } from '@/classes/utils/TouchSupport'
+import { Benchmark } from '@/classes/utils/Benchmark'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
@@ -109,6 +110,7 @@ export default {
       workspaceSize: { x: 1000, y: 1000 },
       containerNode: null,
       containerSize: { x: 1000, y: 600 },
+      scopeProp: '',
 
       containerOffset: null,
       containerTranslation: { x: 0, y: 0 },
@@ -176,6 +178,9 @@ export default {
     this.containerNode = this.workspaceNode.querySelector('.processContainer')
     this.svgNode = this.containerNode.querySelector('svg.svgNode')
     this.tmpLine = this.svgNode.querySelector('.tmpConnection')
+
+    // Scope Prop
+    this.scopeProp = Helper.getScopeProp(this.svgNode)
 
     // prepare Container and Workspace
     Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode) // set position on the model
@@ -315,7 +320,7 @@ export default {
 
     // d3 axis
     this.axis = new Axis()
-    this.axis.create('.axis', this.containerSize)
+    this.axis.create('.axis', this.containerSize, this.scopeProp)
     this.drawAxis()
   },
 
@@ -455,6 +460,7 @@ export default {
       let actorNames = this.processModel.cols.map(elem => elem.name)
       this.axis.setData('actorNames', actorNames)
       this.axis.draw()
+      Benchmark.messure('addScopeProp', () => { Helper.addScopeProp(this.svgNode, this.scopeProp) })
     },
 
     resizeAxis () {

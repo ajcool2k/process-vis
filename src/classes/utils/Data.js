@@ -9,9 +9,9 @@ export class Data {
     nodes.push({ id: 'n0', p: new Process('n0', 1 * 24, 1, 100), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
     nodes.push({ id: 'n1', p: new Process('n1', 2 * 24, 1, 200), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
     nodes.push({ id: 'n2', p: new Process('n2', 1 * 24, 2, 200), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n3', p: new Process('n3', 1 * 24, 1, 350), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n4', p: new Process('n4', 3 * 24, 2, 280), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'tail', p: new Process('tail', 0 * 24, 0, 450), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition })
+    nodes.push({ id: 'n3', p: new Process('n3', 1 * 24, 1, 400), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
+    nodes.push({ id: 'n4', p: new Process('n4', 3 * 24, 2, 300), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
+    nodes.push({ id: 'tail', p: new Process('tail', 0 * 24, 0, 500), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition })
 
     let edges = []
 

@@ -22,7 +22,9 @@ export class Axis {
     this.selector = null
 
     this.size = null
-    this.offset = { x: 20, y: 20 }
+
+    this.offsetAxisX = { x: 20, y: 40 }
+    this.offsetAxisY = { x: 60, y: 40 }
 
     this.xScale = null
     this.yScale = null
@@ -44,35 +46,60 @@ export class Axis {
     this.applySettings()
   }
 
-  create (selector, size) {
+  create (selector, size, scopedProp) {
     this.selector = selector
     this.size = size
+    this.scopedProp = typeof scopedProp === 'string' ? scopedProp : 'no-scope'
 
     let d3 = this.d3
 
     this.domContainer = d3
       .select(selector)
-      .attr('transform', 'translate(' + this.offset.x + ',' + this.offset.y + ')')
   }
 
   applySettings () {
     let d3 = this.d3
 
+    let data = [
+      { y: 0, start: 1, end: 5 },
+      { y: 300, start: 6, end: 10 },
+      { y: 600, start: 11, end: 15 },
+      { y: 900, start: 16, end: 20 },
+      { y: 1200, start: 21, end: 25 },
+      { y: 1500, start: 26, end: 30 }
+    ]
+
+    let domainArray = []
+    let rangeArray = []
+
+    data.forEach((elem) => {
+      domainArray.push(domainArray.length)
+      domainArray.push(domainArray.length)
+      rangeArray.push(elem.y)
+      rangeArray.push(elem.y + 200)
+    })
+
     this.xScale = d3.scaleBand()
         .domain(this.data.actorNames)
-        .range([0, this.size.x - 2 * this.offset.x])
+        .range([0, this.size.x - 2 * this.offsetAxisX.x])
 
     this.yScale = d3.scaleLinear()
-        .domain([0, 60])
-        .range([0, this.size.y - 2 * this.offset.y])
+        .domain(domainArray)            // [0, 1, 2, 3, 4, 5]
+        .range(rangeArray)              // [0, 200, 300, 500, 600, 800, 900, 1100, 1200, 1400, 1500, 1700]
 
     this.xAxis = d3.axisTop()
         .scale(this.xScale)
-        .ticks(8)
+        .ticks(this.data.actorNames.length)
+
 
     this.yAxis = d3.axisLeft()
         .scale(this.yScale)
-        .ticks(6)
+        .ticks(rangeArray.length)
+        .tickFormat(function (d, i) {
+          let vIndex = Math.floor(i / 2)
+          let v = i % 2 === 0 ? data[vIndex].start : data[vIndex].end
+          return 'Tag ' + v
+        })
   }
 
   clean () {
@@ -95,11 +122,15 @@ export class Axis {
     this.domAxisGroup.x = this.domContainer
         .append('g')
         .attr('class', 'axis-x')
+        .attr(this.scopedProp, '')
+        .attr('transform', 'translate(' + this.offsetAxisX.x + ',' + 20 + ')')
         .call(this.xAxis)
 
     this.domAxisGroup.y = this.domContainer
         .append('g')
         .attr('class', 'axis-y')
+        .attr(this.scopedProp, '')
+        .attr('transform', 'translate(' + this.offsetAxisY.x + ',' + this.offsetAxisY.y + ')')
         .call(this.yAxis)
   }
 }
