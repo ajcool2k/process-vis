@@ -1,16 +1,15 @@
 import { Object } from './Object'
 
 export class Process extends Object {
-  constructor (name, duration, participant, time) {
+  constructor (name, participant, begin, end, startProcess) {
     super(name)
 
-    // Von Bis
-    this.begin = ''
-    this.end = ''
+    this.begin = begin
+    this.end = end
+    this.duration = this.end - this.begin // in Millis
 
-    this.time = time
-    this.duration = duration
-    this.participant = participant ? participant : 1
+    this.participant = typeof participant !== 'undefined' ? participant : 1
+    this.startProcess = typeof startProcess !== 'undefined' ? startProcess : false
 
     // externe Beteiligung
     this.access = 'closed'
@@ -21,6 +20,6 @@ export class Process extends Object {
   }
 
   static validateInstance (obj) {
-    return (obj && obj instanceof Process) ? true : false;
+    return (obj && obj instanceof Process)
   }
 }

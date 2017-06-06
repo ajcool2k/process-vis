@@ -78,9 +78,12 @@ export default {
       // add column
       this.addLane()
       let data = Data.generateData()
+      console.log(data)
       this.mod.shapes = data.nodes
       this.mod.edges = data.edges
       this.mod.cols = data.participants
+      let startProcess = data.nodes.filter(node => node.p.startProcess === true)
+      this.mod.startProcess = startProcess.length === 1 ? startProcess[0] : null
     },
 
     addNode () {

@@ -32,7 +32,8 @@ export class Axis {
     this.yAxis = null
 
     this.data = {
-      actorNames: []
+      actorNames: [],
+      scale: { x: 1, y: 1 }
     }
   }
 
@@ -59,6 +60,11 @@ export class Axis {
 
   applySettings () {
     let d3 = this.d3
+    let scale = this.data.scale
+
+    this.offsetAxisX = { x: 20 / scale.x, y: 10 + 10 / scale.x }
+    this.offsetAxisY = { x: 20 + 20 / scale.x, y: 40 }
+
 
     let data = [
       { y: 0, start: 1, end: 5 },
@@ -117,19 +123,22 @@ export class Axis {
   draw () {
     console.log('draw axis')
     this.clean()
+    let fontSize = Math.max(10, Math.floor(10 / this.data.scale.x))
 
     // Create an SVG group Element for the Axis elements and call the xAxis function
     this.domAxisGroup.x = this.domContainer
         .append('g')
         .attr('class', 'axis-x')
         .attr(this.scopedProp, '')
-        .attr('transform', 'translate(' + this.offsetAxisX.x + ',' + 20 + ')')
+        .style('font-size', fontSize)
+        .attr('transform', 'translate(' + this.offsetAxisX.x + ',' + this.offsetAxisX.y + ')')
         .call(this.xAxis)
 
     this.domAxisGroup.y = this.domContainer
         .append('g')
         .attr('class', 'axis-y')
         .attr(this.scopedProp, '')
+        .style('font-size', fontSize)
         .attr('transform', 'translate(' + this.offsetAxisY.x + ',' + this.offsetAxisY.y + ')')
         .call(this.yAxis)
   }

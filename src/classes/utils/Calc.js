@@ -27,7 +27,7 @@ export class Calc {
   /**
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    */
-  static shapePosition (nodes, cols, containerSize, containerNode) {
+  static shapePosition (nodes, cols, containerSize, containerNode, startProcess) {
     let colWidth = Calc.columnSize(containerSize, cols)
     let shapeWidth = Math.min(colWidth / 2, 100)
     nodes.forEach(function (elem, index) {
@@ -35,7 +35,11 @@ export class Calc {
       shape.style.width = shapeWidth + 'px'
 
       let x = (colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2)
-      let y = elem.p.time * 3 + 40
+      let diff = elem.p.begin - startProcess.p.begin
+      diff = diff / 1000 / 60 / 60 / 24
+      // 40px offset
+      // 340 = 5 * x + 40 => 300 = 5x => x = 60       
+      let y = diff * 60 + 40
 
       elem.position = {
         x: x,

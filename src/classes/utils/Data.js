@@ -5,19 +5,19 @@ export class Data {
     let nodes = []
     let unsetPosition = { x: 0, y: 0 }
 
-    nodes.push({ id: 'head', p: new Process('head', 0 * 24, 0, 0), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition })
-    nodes.push({ id: 'n0', p: new Process('n0', 1 * 24, 1, 100), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n1', p: new Process('n1', 2 * 24, 1, 200), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n2', p: new Process('n2', 1 * 24, 2, 200), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n3', p: new Process('n3', 1 * 24, 1, 400), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n4', p: new Process('n4', 3 * 24, 2, 300), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'tail', p: new Process('tail', 0 * 24, 0, 500), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition })
+    nodes.push({ id: 'head', p: new Process('head', 1, new Date(2017, 0, 1), new Date(2017, 0, 5), true), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition })
+    nodes.push({ id: 'n0', p: new Process('n0', 1, new Date(2017, 0, 6), new Date(2017, 0, 10)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
+    nodes.push({ id: 'n1', p: new Process('n1', 1, new Date(2017, 0, 11), new Date(2017, 0, 15)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
+    nodes.push({ id: 'n2', p: new Process('n2', 2, new Date(2017, 0, 16), new Date(2017, 0, 20)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
+    nodes.push({ id: 'n3', p: new Process('n3', 1, new Date(2017, 0, 21), new Date(2017, 0, 25)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
+    nodes.push({ id: 'n4', p: new Process('n4', 2, new Date(2017, 0, 26), new Date(2017, 0, 30)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
+    nodes.push({ id: 'tail', p: new Process('tail', 1, new Date(2017, 0, 31), new Date(2017, 0, 35)), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition })
 
     let edges = []
 
     edges.push({ id: 1, source: 'head', target: 'n0' })
     edges.push({ id: 2, source: 'n0', target: 'n1' })
-    edges.push({ id: 3, source: 'n0', target: 'n2' })
+    edges.push({ id: 3, source: 'n1', target: 'n2' })
     edges.push({ id: 4, source: 'n1', target: 'n3' })
     edges.push({ id: 5, source: 'n3', target: 'tail' })
     edges.push({ id: 6, source: 'n2', target: 'n4' })

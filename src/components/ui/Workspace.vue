@@ -183,7 +183,7 @@ export default {
     this.scopeProp = Helper.getScopeProp(this.svgNode)
 
     // prepare Container and Workspace
-    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode) // set position on the model
+    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess) // set position on the model
     this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols)  // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
@@ -326,8 +326,7 @@ export default {
 
   updated: function () {
     console.warn('Workspace updated')
-    console.log(this.processModel)
-    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode)
+    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess)
     this.drawAxis()
     this.redraw()
   },
@@ -458,7 +457,12 @@ export default {
 
     drawAxis () {
       let actorNames = this.processModel.cols.map(elem => elem.name)
+      let processData = this.processModel.shapes
+      let scale = this.containerScale
+
       this.axis.setData('actorNames', actorNames)
+      this.axis.setData('processes', processData)
+      this.axis.setData('scale', scale)
       this.axis.draw()
       Benchmark.messure('addScopeProp', () => { Helper.addScopeProp(this.svgNode, this.scopeProp) })
     },
