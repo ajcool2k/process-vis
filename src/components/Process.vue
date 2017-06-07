@@ -120,6 +120,7 @@ export default {
     },
 
     removeConnection (edgeId) {
+      edgeId = Helper.parse(edgeId)
       this.mod.edges = _.reject(this.mod.edges, edge => edge.id === edgeId)
     },
 
@@ -163,4 +164,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 </style>
