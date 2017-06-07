@@ -885,10 +885,29 @@ export default {
 $test: #888;
 $bgColor: #eee;
 
+  @media print {
+
+    .shape {
+      -webkit-print-color-adjust: exact;
+    }
+
+    .processContainer {
+      top: 0 !important 
+    }
+
+    .tool-bar {
+      display: none
+    }
+
+    .horizontal-bar {
+      display: none
+    }
+  }
+
 #vue-workspace {
   position: relative;
   width: 100vw;
-  min-height: 100vh;  
+  min-height: 100vh;
 }
 
 .tool-bar {
