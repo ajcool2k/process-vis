@@ -35,8 +35,15 @@ export class StateMachine {
       console.warn('FSM: Event required property missing')
       return
     }
+
+    // One-Action - add event to this state
     event.stateNext = stateNext
     state.events.push(event)
+
+    // Transition - add event to next state as well
+    if (event.hasOwnProperty('type') && event.type === 'transition') {
+      stateNext.events.push(event)
+    }
   }
 
   start (initialState) {
@@ -49,7 +56,7 @@ export class StateMachine {
 
   hasEvent (eventName) {
     let stateEvent = _.find(this.actualState.events, e => e.name === eventName)
-    console.log('hasEvent')
+    console.log('hasEvent: ' + eventName)
     return typeof stateEvent === 'object'
   }
 

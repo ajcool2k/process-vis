@@ -272,22 +272,16 @@ export default {
         edges: { left: true, right: true, bottom: true, top: true }
       })
       .on('resizestart', event => {
-        if (!this.fsm.hasEvent('resizestart')) return
-        this.fsm.run('resizestart')
+        if (!this.fsm.hasEvent('resizeShapeStart')) return
+        this.fsm.run('resizeShapeStart')
       })
       .on('resizemove', event => {
-        this.resizeElement(event)
-        let shapeId = event.target.getAttribute('data-id')
-
-        // show time ruler
-        this.drawRuler(event)
-
-        // update connections of the shape
-        this.redrawConnection(shapeId)
+        if (!this.fsm.hasEvent('resizeShapeMove')) return
+        this.fsm.run('resizeShapeMove', event)
       })
       .on('resizeend', event => {
-        if (!this.fsm.hasEvent('resizeend')) return
-        this.fsm.run('resizeend')
+        if (!this.fsm.hasEvent('resizeShapeFinished')) return
+        this.fsm.run('resizeShapeFinished')
       })
 
     interact('.col')
@@ -357,7 +351,8 @@ export default {
       let dragShape = this.fsm.addState('dragShape')
       let droppedShape = this.fsm.addState('droppedShape')
 
-      let resizeShape = this.fsm.addState('resizeShape')
+      let resizeShapeStart = this.fsm.addState('resizeShapeStart')
+      let resizeShapeMove = this.fsm.addState('resizeShapeMove')
       let resizeShapeFinished = this.fsm.addState('resizeShapeFinished')
 
       // Dialogs
@@ -392,16 +387,31 @@ export default {
         }
       })
 
-      this.fsm.addEvent(idle, resizeShape, {
-        name: 'resizestart',
+      this.fsm.addEvent(idle, resizeShapeStart, {
+        name: 'resizeShapeStart',
         action: (event) => {
           this.timeRuler.setAttribute('data-y', this.mousePosition.y)
           this.timeRuler.style.display = 'inline'
         }
       })
 
-      this.fsm.addEvent(resizeShape, resizeShapeFinished, {
-        name: 'resizeend',
+      this.fsm.addEvent(resizeShapeStart, resizeShapeMove, {
+        name: 'resizeShapeMove',
+        type: 'transition',
+        action: (event) => {
+          this.resizeElement(event)
+          let shapeId = event.target.getAttribute('data-id')
+
+          // show time ruler
+          this.drawRuler(event)
+
+          // update connections of the shape
+          this.redrawConnection(shapeId)
+        }
+      })
+
+      this.fsm.addEvent(resizeShapeMove, resizeShapeFinished, {
+        name: 'resizeShapeFinished',
         action: (event) => {
           this.timeRuler.style.display = 'none'
         }
