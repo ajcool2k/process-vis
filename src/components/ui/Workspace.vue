@@ -5,7 +5,7 @@
     <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom"></tool-bar>
 
     <div class="workspace">
-     
+
       <md-dialog-confirm
         :md-title="dialog.removeEdgeDialog.title"
         :md-content-html="dialog.removeEdgeDialog.contentHtml"
@@ -32,8 +32,8 @@
         </template>
 
         <template v-for="(item, index) in processModel.shapes">
-          <div class="shape draggable drag-drop" 
-                :data-id="item.id"  
+          <div class="shape draggable drag-drop"
+                :data-id="item.id"
                 @click.stop="onShapeClick">
             <div class="content" :data-id="item.id">{{item.id}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
@@ -42,23 +42,30 @@
 
         <svg class="svgNode">
 
-          <g class="axis"></g> 
+          <g class="axis"></g>
+          <defs>
+            <marker id="marker-triangle"
+              viewBox="0 0 10 10" refX="0" refY="5"
+              markerUnits="strokeWidth"
+              markerWidth="4" markerHeight="3"
+              orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
 
-          <marker id="triangle"
-            viewBox="0 0 10 10" refX="0" refY="5" 
-            markerUnits="strokeWidth"
-            markerWidth="4" markerHeight="3"
-            orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" />
-          </marker>
+            <marker id="marker-circle" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+              <circle cx="5" cy="5" r="2" fill="dodgerblue"/>
+            </marker>
+
+          </defs>          
 
           <template v-for="(item, index) in processModel.edges">
             <polyline @click.stop="openRemoveConnectionDialog" class="connection" :data-id="item.id" points="" />
           </template>
           <polyline class="tmpConnection" points="" />
+          <line class="timeRuler" />
         </svg>
       </div>
-    </div>    
+    </div>
   </div>
 </template>
 
@@ -120,6 +127,7 @@ export default {
 
       axis: null,
 
+      timeRuler: null,
       tmpLine: null,
 
       actions: {
@@ -178,6 +186,7 @@ export default {
     this.containerNode = this.workspaceNode.querySelector('.processContainer')
     this.svgNode = this.containerNode.querySelector('svg.svgNode')
     this.tmpLine = this.svgNode.querySelector('.tmpConnection')
+    this.timeRuler = this.svgNode.querySelector('.timeRuler')
 
     // Scope Prop
     this.scopeProp = Helper.getScopeProp(this.svgNode)
@@ -269,6 +278,9 @@ export default {
       .on('resizemove', event => {
         this.resizeElement(event)
         let shapeId = event.target.getAttribute('data-id')
+
+        // show time ruler
+        this.drawRuler(event)
 
         // update connections of the shape
         this.redrawConnection(shapeId)
@@ -383,12 +395,15 @@ export default {
       this.fsm.addEvent(idle, resizeShape, {
         name: 'resizestart',
         action: (event) => {
+          this.timeRuler.setAttribute('data-y', this.mousePosition.y)
+          this.timeRuler.style.display = 'inline'
         }
       })
 
       this.fsm.addEvent(resizeShape, resizeShapeFinished, {
         name: 'resizeend',
         action: (event) => {
+          this.timeRuler.style.display = 'none'
         }
       })
 
@@ -684,6 +699,30 @@ export default {
       this.containerNode.style.width = this.containerSize.x + 'px' // forces reflow
       this.containerNode.style.height = this.containerSize.y + 'px' // forces reflow
       this.containerOffset = Calc.absolutePosition(this.containerNode) // forces reflow
+      this.initRuler()
+    },
+
+    initRuler () {
+      this.timeRuler.setAttribute('x1', '10')
+      this.timeRuler.setAttribute('y1', '0')
+      this.timeRuler.setAttribute('x2', this.containerSize.x - 10)
+      this.timeRuler.setAttribute('y2', '0')
+    },
+
+    drawRuler (event) {
+      // read from model
+      let y = (parseFloat(this.timeRuler.getAttribute('data-y')) || 0)
+
+      // update model
+        // translate when resizing from top or left edges
+      y += Math.round(event.dy / this.containerScale.y)
+        // store position
+      this.timeRuler.setAttribute('data-y', y)
+
+      // update view
+      this.timeRuler.style.webkitTransform =
+      this.timeRuler.style.transform =
+          'translate(0px,' + y + 'px)'
     },
 
     updateWorkspaceSize (dragDelta) {
@@ -892,7 +931,7 @@ $bgColor: #eee;
     }
 
     .processContainer {
-      top: 0 !important 
+      top: 0 !important
     }
 
     .tool-bar {
@@ -922,7 +961,7 @@ $bgColor: #eee;
   top: 64px;
   height: auto;
   width: auto;
-  min-height: 100vh;    
+  min-height: 100vh;
   min-width: 100vw;
 
   background: $bgColor;
@@ -943,9 +982,9 @@ $bgColor: #eee;
   box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
 }
 
-svg { 
+svg {
   position: absolute;
-  height:100% !important; 
+  height:100% !important;
   width:100% !important;
   z-index: 1;
 }
@@ -955,7 +994,7 @@ svg {
 }
 
 .col {
-  border-left: 2px dashed #ccc; 
+  border-left: 2px dashed #ccc;
   text-align: center;
 }
 
@@ -963,13 +1002,24 @@ svg {
   border-left: none;
 }
 
+.timeRuler {
+  fill: none;
+  display: none;
+  stroke: #29e;
+  stroke-width: 2;
+  stroke-dasharray: 5,5;
+  marker-start: url(#marker-circle);
+  pointer-events:all;
+  
+}
+
 .connection, .tmpConnection {
   fill: none;
   stroke: #888;
   stroke-width: 2;
   stroke-dasharray: 5,5;
-  marker-end: url(#triangle);
-  pointer-events:all;
+  marker-end: url(#marker-triangle);
+  pointer-events: all;
 }
 
 .connection:hover {
@@ -978,14 +1028,14 @@ svg {
 }
 
 marker {
-  fill: none;
+  fill: rgb(100, 100, 100);
   stroke-width: 2;
   stroke: #888;
 }
 
 .shape {
   position: absolute;
-  display: flex;  
+  display: flex;
   left: 0;
   top: 0;
   height: 200px;
