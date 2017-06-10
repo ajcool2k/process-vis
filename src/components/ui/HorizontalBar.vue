@@ -12,7 +12,6 @@
 
 <script>
 
-
 import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 
@@ -69,7 +68,7 @@ export default {
 
 .horizontal-bar {
   position: absolute;
-  margin-top: -50px;
+  margin-top: -90px;
   height: 50px;
   width: 100%;
   display: flex;

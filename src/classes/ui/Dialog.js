@@ -18,7 +18,7 @@ export class Dialog {
     static setNodeDialog(p) { 
         Dialog.showNodeDialog.content =
         `
-            <md-card>
+        <md-card>
             <md-card-media>
                 <img src="https://image.flaticon.com/icons/svg/364/364172.svg" alt="processImage">
             </md-card-media>
@@ -32,7 +32,34 @@ export class Dialog {
                 id: ${p.id} <br>
                 name: ${p.id}
             </md-card-content>
-            </md-card>
+        </md-card>
+        `;
+    };
+
+    static showActorDialog = { 
+        ref: "showActorDialog",
+        content: 'content', 
+        ok: 'Ausblenden' 
+    };
+
+    static setActorDialog(a) { 
+        Dialog.showActorDialog.content =
+        `
+        <md-card>
+            <md-card-media>
+                <img src="https://image.flaticon.com/icons/svg/364/364172.svg" alt="ActorInfo">
+            </md-card-media>
+
+            <md-card-header>
+                <div class="md-title">Actor</div>
+                <div class="md-subhead">Inhalt</div>
+            </md-card-header>
+
+            <md-card-content>
+                id: ${a.id} <br>
+                name: ${a.name}
+            </md-card-content>
+        </md-card>
         `;
     };
 
@@ -40,6 +67,7 @@ export class Dialog {
         return {
             removeEdgeDialog: Dialog.removeEdgeDialog,
             showNodeDialog: Dialog.showNodeDialog,
+            showActorDialog: Dialog.showActorDialog
         }
     };
 

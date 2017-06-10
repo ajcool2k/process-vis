@@ -26,9 +26,7 @@ export class Axis {
     this.offsetAxisX = { x: 20, y: 40 }
     this.offsetAxisY = { x: 60, y: 40 }
 
-    this.xScale = null
     this.yScale = null
-    this.xAxis = null
     this.yAxis = null
 
     this.data = {
@@ -65,7 +63,6 @@ export class Axis {
     this.offsetAxisX = { x: 20 / scale.x, y: 10 + 10 / scale.x }
     this.offsetAxisY = { x: 20 + 20 / scale.x, y: 40 }
 
-
     let data = [
       { y: 0, start: 1, end: 5 },
       { y: 300, start: 6, end: 10 },
@@ -85,18 +82,9 @@ export class Axis {
       rangeArray.push(elem.y + 200)
     })
 
-    this.xScale = d3.scaleBand()
-        .domain(this.data.actorNames)
-        .range([0, this.size.x - 2 * this.offsetAxisX.x])
-
     this.yScale = d3.scaleLinear()
         .domain(domainArray)            // [0, 1, 2, 3, 4, 5]
         .range(rangeArray)              // [0, 200, 300, 500, 600, 800, 900, 1100, 1200, 1400, 1500, 1700]
-
-    this.xAxis = d3.axisTop()
-        .scale(this.xScale)
-        .ticks(this.data.actorNames.length)
-
 
     this.yAxis = d3.axisLeft()
         .scale(this.yScale)
@@ -109,11 +97,6 @@ export class Axis {
   }
 
   clean () {
-    if (this.domAxisGroup.x) {
-      this.domAxisGroup.x.remove()
-      this.domAxisGroup.x = null
-    }
-
     if (this.domAxisGroup.y) {
       this.domAxisGroup.y.remove()
       this.domAxisGroup.y = null
@@ -126,13 +109,6 @@ export class Axis {
     let fontSize = Math.max(10, Math.floor(10 / this.data.scale.x))
 
     // Create an SVG group Element for the Axis elements and call the xAxis function
-    this.domAxisGroup.x = this.domContainer
-        .append('g')
-        .attr('class', 'axis-x')
-        .attr(this.scopedProp, '')
-        .style('font-size', fontSize)
-        .attr('transform', 'translate(' + this.offsetAxisX.x + ',' + this.offsetAxisX.y + ')')
-        .call(this.xAxis)
 
     this.domAxisGroup.y = this.domContainer
         .append('g')

@@ -25,6 +25,7 @@
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
         <!-- child component -->
         <horizontal-bar :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
+        <axis-x :cols="processModel.cols" :scale="containerScale"></axis-x>
 
         <template v-for="(item, index) in processModel.cols">
           <div :class="'col col' + index" :data-id="item.id" :style="'width: ' + ( containerSize.x / processModel.cols.length ) + 'px'">
@@ -56,7 +57,7 @@
               <circle cx="5" cy="5" r="2" fill="dodgerblue"/>
             </marker>
 
-          </defs>          
+          </defs>
 
           <template v-for="(item, index) in processModel.edges">
             <polyline @click.stop="openRemoveConnectionDialog" class="connection" :data-id="item.id" points="" />
@@ -86,6 +87,7 @@ Vue.use(MdBackdrop);
 // Child components
 import ToolBar from './ToolBar.vue'
 import HorizontalBar from './HorizontalBar.vue'
+import AxisX from './AxisX.vue'
 
 import { interact } from 'interactjs'
 import { _ } from 'underscore'
@@ -106,7 +108,8 @@ export default {
   name: 'Workspace',
   components: {
     'tool-bar': ToolBar,
-    'horizontal-bar': HorizontalBar
+    'horizontal-bar': HorizontalBar,
+    'axis-x': AxisX
   },
   props: [ 'processModel', 'changes' ],
 
@@ -423,7 +426,6 @@ export default {
         }
       })
 
-
       this.fsm.addEvent(idle, dragShape, {
         name: 'dragstart',
         action: (event) => {
@@ -475,7 +477,6 @@ export default {
         name: 'onCloseRemoveEdgeDialog',
         action: (event) => {}
       })
-
 
       this.fsm.start(idle)
     },
@@ -985,7 +986,7 @@ $bgColor: #eee;
   width: 1000px;
   height: 600px;
   left: 0.5vw;
-  top: 60px;
+  top: 120px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
@@ -1020,7 +1021,7 @@ svg {
   stroke-dasharray: 5,5;
   marker-start: url(#marker-circle);
   pointer-events:all;
-  
+
 }
 
 .connection, .tmpConnection {
