@@ -26,6 +26,7 @@
         <!-- child component -->
         <horizontal-bar :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
         <axis-x :cols="processModel.cols" :scale="containerScale"></axis-x>
+        <axis-y :cols="processModel.cols" :shapes="processModel.shapes" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
         <template v-for="(item, index) in processModel.cols">
           <div :class="'col col' + index" :data-id="item.id" :style="'width: ' + ( containerSize.x / processModel.cols.length ) + 'px'">
@@ -40,10 +41,8 @@
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
         </div>
         </template>
-
+        
         <svg class="svgNode">
-
-          <g class="axis"></g>
           <defs>
             <marker id="marker-triangle"
               viewBox="0 0 10 10" refX="0" refY="5"
@@ -88,6 +87,7 @@ Vue.use(MdBackdrop);
 import ToolBar from './ToolBar.vue'
 import HorizontalBar from './HorizontalBar.vue'
 import AxisX from './AxisX.vue'
+import AxisY from './AxisY.vue'
 
 import { interact } from 'interactjs'
 import { _ } from 'underscore'
@@ -95,12 +95,9 @@ import { _ } from 'underscore'
 import { Dialog } from '@/classes/ui/Dialog'
 import { StateMachine } from '@/classes/utils/StateMachine'
 import { TouchSupport } from '@/classes/utils/TouchSupport'
-import { Benchmark } from '@/classes/utils/Benchmark'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
-
-import { Axis } from '@/classes/ui/Axis'
 
 Vue.use(VueMaterial)
 
@@ -109,7 +106,8 @@ export default {
   components: {
     'tool-bar': ToolBar,
     'horizontal-bar': HorizontalBar,
-    'axis-x': AxisX
+    'axis-x': AxisX,
+    'axis-y': AxisY
   },
   props: [ 'processModel', 'changes' ],
 
@@ -127,8 +125,6 @@ export default {
       containerScale: { x: 1.0, y: 1.0 },
 
       svgNode: null,
-
-      axis: null,
 
       timeRuler: null,
       tmpLine: null,
@@ -231,7 +227,6 @@ export default {
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         this.updateContainerSize(dragDelta) // forces reflow
         this.updateWorkspaceSize(dragDelta)  // forces reflow
-        this.resizeAxis()
       })
 
     interact('.shape')
@@ -326,17 +321,11 @@ export default {
           event.target.classList.remove('lane-drop')
         }
       })
-
-    // d3 axis
-    this.axis = new Axis()
-    this.axis.create('.axis', this.containerSize, this.scopeProp)
-    this.drawAxis()
   },
 
   updated: function () {
     console.warn('Workspace updated')
     Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess)
-    this.drawAxis()
     this.redraw()
   },
 
@@ -479,23 +468,6 @@ export default {
       })
 
       this.fsm.start(idle)
-    },
-
-    drawAxis () {
-      let actorNames = this.processModel.cols.map(elem => elem.name)
-      let processData = this.processModel.shapes
-      let scale = this.containerScale
-
-      this.axis.setData('actorNames', actorNames)
-      this.axis.setData('processes', processData)
-      this.axis.setData('scale', scale)
-      this.axis.draw()
-      Benchmark.messure('addScopeProp', () => { Helper.addScopeProp(this.svgNode, this.scopeProp) })
-    },
-
-    resizeAxis () {
-      this.axis.setSize(this.containerSize)
-      this.axis.draw()
     },
 
     addConnection (sourceId, targetId) {
