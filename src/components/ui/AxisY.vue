@@ -43,7 +43,6 @@ export default {
     // d3 axis
     this.axis = new Axis()
     this.axis.create('.svg-axis-y', this.containerSize, this.scopeProp)
-    this.drawAxis()
   },
 
   updated: function () {
