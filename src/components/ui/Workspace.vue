@@ -64,6 +64,9 @@
         </svg>
       </div>
     </div>
+
+    <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
+
   </div>
 </template>
 
@@ -83,6 +86,7 @@ Vue.use(MdBackdrop);
 
 // Child components
 import ToolBar from './ToolBar.vue'
+import TimeChooser from './TimeChooser.vue'
 import HorizontalBar from './HorizontalBar.vue'
 import AxisX from './AxisX.vue'
 import AxisY from './AxisY.vue'
@@ -104,6 +108,7 @@ export default {
   name: 'Workspace',
   components: {
     'tool-bar': ToolBar,
+    'time-chooser': TimeChooser,
     'horizontal-bar': HorizontalBar,
     'axis-x': AxisX,
     'axis-y': AxisY
@@ -125,6 +130,7 @@ export default {
 
       svgNode: null,
 
+      timeFormat: 'days',
       timeRuler: null,
       tmpLine: null,
 
@@ -775,6 +781,12 @@ export default {
       this.containerScale.x = scaleData.x
       this.containerScale.y = scaleData.y
       this.applyTransform()
+    },
+
+    // Listener for time-chooser emits
+    applyTimeFormat (format) {
+      this.format = format
+      console.log('Workspace: timeFormat updated to: ' + this.format)
     },
 
     onContainerClick () {

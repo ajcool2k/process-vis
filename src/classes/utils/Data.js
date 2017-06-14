@@ -5,13 +5,13 @@ export class Data {
     let nodes = []
     let unsetPosition = { x: 0, y: 0 }
 
-    nodes.push({ id: 'head', p: new Process('head', 1, new Date(2017, 0, 1), new Date(2017, 0, 5), true), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition })
-    nodes.push({ id: 'n0', p: new Process('n0', 1, new Date(2017, 0, 6), new Date(2017, 0, 10)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n1', p: new Process('n1', 1, new Date(2017, 0, 11), new Date(2017, 0, 15)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n2', p: new Process('n2', 2, new Date(2017, 0, 16), new Date(2017, 0, 20)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n3', p: new Process('n3', 1, new Date(2017, 0, 21), new Date(2017, 0, 25)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'n4', p: new Process('n4', 2, new Date(2017, 0, 26), new Date(2017, 0, 30)), shape: 'roundrectangle', bgColor: '#F5A45D', position: unsetPosition })
-    nodes.push({ id: 'tail', p: new Process('tail', 1, new Date(2017, 0, 31), new Date(2017, 0, 35)), shape: 'ellipse', bgColor: '#aaa', position: unsetPosition })
+    nodes.push({ id: 'head', p: new Process('head', 1, new Date(2017, 0, 1), new Date(2017, 0, 5), true), position: unsetPosition })
+    nodes.push({ id: 'n0', p: new Process('n0', 1, new Date(2017, 0, 6), new Date(2017, 0, 10)), position: unsetPosition })
+    nodes.push({ id: 'n1', p: new Process('n1', 1, new Date(2017, 0, 11), new Date(2017, 0, 15)), position: unsetPosition })
+    nodes.push({ id: 'n2', p: new Process('n2', 2, new Date(2017, 0, 16), new Date(2017, 0, 20)), position: unsetPosition })
+    nodes.push({ id: 'n3', p: new Process('n3', 1, new Date(2017, 0, 21), new Date(2017, 0, 25)), position: unsetPosition })
+    nodes.push({ id: 'n4', p: new Process('n4', 2, new Date(2017, 0, 26), new Date(2017, 0, 30)), position: unsetPosition })
+    nodes.push({ id: 'tail', p: new Process('tail', 1, new Date(2017, 0, 31), new Date(2017, 0, 35)), position: unsetPosition })
 
     let edges = []
 
