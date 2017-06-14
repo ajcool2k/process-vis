@@ -23,6 +23,7 @@
 <script>
 
 // Node Dependencies
+import Vue from 'vue'
 import { _ } from 'underscore'
 
 // Classes
@@ -67,7 +68,7 @@ export default {
   },
 
   updated: function () {
-    console.log('App updated')
+    console.warn('App updated')
   },
 
   methods: {
@@ -94,12 +95,12 @@ export default {
 
     moveNode (shapeData) {
       let node = _.findWhere(this.mod.shapes, { id: shapeData.shapeId })
+
       if (node.p.participant === shapeData.laneId) {
         return
       }
 
       node.p.participant = shapeData.laneId
-      this.forceRedraw()
     },
 
     removeNode (shapeId) {
