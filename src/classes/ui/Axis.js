@@ -6,6 +6,7 @@
 import {select} from 'd3-selection'
 import {scaleLinear, scaleBand} from 'd3-scale'
 import {axisTop, axisLeft} from 'd3-axis'
+import dateFormat from 'dateformat'
 
 export class Axis {
   constructor () {
@@ -30,19 +31,18 @@ export class Axis {
     this.yAxis = null
 
     this.data = {
-      actorNames: [],
+      timeline: [],
+      processes: [],
       scale: { x: 1, y: 1 }
     }
   }
 
   setSize (size) {
     this.size = size
-    this.applySettings()
   }
 
   setData (type, data) {
     this.data[type] = data
-    this.applySettings()
   }
 
   create (selector, size, scopedProp) {
@@ -61,17 +61,22 @@ export class Axis {
     let scale = this.data.scale
 
     this.offsetAxisX = { x: 20 / scale.x, y: 10 + 10 / scale.x }
-    this.offsetAxisY = { x: 20 + 20 / scale.x, y: 40 }
+    this.offsetAxisY = { x: 90 / scale.x, y: 0 }
 
-    let data = [
-      { y: 0, start: 1, end: 5 },
-      { y: 300, start: 6, end: 10 },
-      { y: 600, start: 11, end: 15 },
-      { y: 900, start: 16, end: 20 },
-      { y: 1200, start: 21, end: 25 },
-      { y: 1500, start: 26, end: 30 }
-    ]
+    this.data.timeline = []
 
+    this.data.processes.map(elem => {
+      this.data.timeline.push(
+        {
+          y: elem.position.y,
+          start: dateFormat(elem.p.begin, 'dd. mm. yyyy'),
+          end: dateFormat(elem.defaultEndDate, 'dd. mm. yyyy'),
+          height: elem.height
+        }
+      )
+    })
+
+    let data = this.data.timeline
     let domainArray = []
     let rangeArray = []
 
@@ -79,7 +84,7 @@ export class Axis {
       domainArray.push(domainArray.length)
       domainArray.push(domainArray.length)
       rangeArray.push(elem.y)
-      rangeArray.push(elem.y + 200)
+      rangeArray.push(elem.y + elem.height)
     })
 
     this.yScale = d3.scaleLinear()
@@ -92,7 +97,7 @@ export class Axis {
         .tickFormat(function (d, i) {
           let vIndex = Math.floor(i / 2)
           let v = i % 2 === 0 ? data[vIndex].start : data[vIndex].end
-          return 'Tag ' + v
+          return '' + v
         })
   }
 
@@ -106,7 +111,7 @@ export class Axis {
   draw () {
     console.log('draw axis')
     this.clean()
-    let fontSize = Math.max(10, Math.floor(10 / this.data.scale.x))
+    let fontSize = '10pt' // Math.max(10, Math.floor(10 / this.data.scale.x))
 
     // Create an SVG group Element for the Axis elements and call the xAxis function
 

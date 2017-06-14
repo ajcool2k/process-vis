@@ -55,11 +55,11 @@ export default {
     drawAxis () {
       let actorNames = this.cols.map(elem => elem.name)
       let processData = this.shapes
-      // let scale = this.scale
 
       this.axis.setData('actorNames', actorNames)
       this.axis.setData('processes', processData)
       this.axis.setData('scale', { x: 1.0, y: 1.0 })
+      this.axis.applySettings()
       this.axis.draw()
       Benchmark.messure('addScopeProp', () => { Helper.addScopeProp(this.svgNode, this.scopeProp) })
     },
@@ -87,6 +87,10 @@ export default {
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
   box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
+}
+
+.tick {
+  font-style: normal
 }
 
 svg {

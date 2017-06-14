@@ -27,25 +27,59 @@ export class Calc {
   /**
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    */
-  static shapePosition (nodes, cols, containerSize, containerNode, startProcess) {
+  static shapePosition (nodes, cols, containerSize, containerNode, startProcess, timeFormat) {
     let colWidth = Calc.columnSize(containerSize, cols)
     let shapeWidth = Math.min(colWidth / 2, 100)
     nodes.forEach(function (elem, index) {
       let shape = containerNode.querySelector('.shape[data-id="' + elem.id + '"]')
       shape.style.width = shapeWidth + 'px'
 
+      let defaultEndDate = Calc.getEndDate(elem.p, timeFormat)
+
+      // calc height
+      let durationMillis = defaultEndDate - elem.p.begin
+      let durationDays = (durationMillis / 1000 / 60 / 60 / 24) + 1
+      elem.height = Math.max(Math.ceil(40 * durationDays), 16)
+      elem.defaultEndDate = defaultEndDate
+      console.log('Calc.shapePosition: ' + elem.id + ' - duration: ' + durationDays + ' - height: ' + elem.height)
+
+      // calc position
       let x = Math.floor((colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2))
-      let diff = elem.p.begin - startProcess.p.begin
-      diff = diff / 1000 / 60 / 60 / 24
+      let deltaStart = elem.p.begin - startProcess.p.begin
+      let deltaDays = deltaStart / 1000 / 60 / 60 / 24
       // 40px offset
       // 340 = 5 * x + 40 => 300 = 5x => x = 60       
-      let y = Math.floor(diff * 60 + 40)
+      let y = deltaDays * 60 + 40
 
       elem.position = {
         x: x,
         y: y
       }
     })
+  }
+
+  static getEndDate (process, timeFormat) {
+    if (process.end !== null && typeof process.end === 'object') return process.end
+
+    console.log('no enddate found')
+    let defaultEndDate = new Date(process.begin.getTime())  // if no endtime is set
+    switch (timeFormat) {
+      case 'hours':
+        defaultEndDate = defaultEndDate.setHours(process.begin.getHours() + 1)
+        break
+      case 'days':
+        defaultEndDate = defaultEndDate.setDate(process.begin.getDate() + 1)
+        break
+      case 'months':
+        defaultEndDate = defaultEndDate.setMonth(process.begin.getMonth() + 1)
+        break
+      default:
+        console.warn('Calc.shapePosition: incorrect timeFormat')
+        defaultEndDate = defaultEndDate.setDate(process.begin.getDate() + 1)
+        break
+    }
+    defaultEndDate = new Date(defaultEndDate)
+    return defaultEndDate
   }
 
   /**

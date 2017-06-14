@@ -34,7 +34,7 @@
         </template>
 
         <template v-for="(item, index) in processModel.shapes">
-          <div class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick">
+          <div class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick" :style="'height: ' + item.height + 'px'">
             <div class="content" :data-id="item.id">{{item.id}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
         </div>
@@ -196,7 +196,7 @@ export default {
     this.scopeProp = Helper.getScopeProp(this.svgNode)
 
     // prepare Container and Workspace
-    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess) // set position on the model
+    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat) // set position on the model
     this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols)  // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
@@ -331,7 +331,7 @@ export default {
   updated: function () {
     console.warn('Workspace updated')
     Animate.clear()
-    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess)
+    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
     this.redraw()
   },
 
@@ -1040,7 +1040,6 @@ marker {
   display: flex;
   left: 0;
   top: 0;
-  height: 200px;
   width: 100px;
   background-color: #29e;
   color: #fff;
