@@ -86,9 +86,14 @@ export default {
   justify-content: center;
 }
 
+.md-layout {
+  flex-wrap: nowrap  
+}
+
 .md-button {
   width: 100%;
   margin: 0;
+  min-width: 0
 }
 
 </style>
