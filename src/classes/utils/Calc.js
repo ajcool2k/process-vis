@@ -34,12 +34,12 @@ export class Calc {
       let shape = containerNode.querySelector('.shape[data-id="' + elem.id + '"]')
       shape.style.width = shapeWidth + 'px'
 
-      let x = (colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2)
+      let x = Math.floor((colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2))
       let diff = elem.p.begin - startProcess.p.begin
       diff = diff / 1000 / 60 / 60 / 24
       // 40px offset
       // 340 = 5 * x + 40 => 300 = 5x => x = 60       
-      let y = diff * 60 + 40
+      let y = Math.floor(diff * 60 + 40)
 
       elem.position = {
         x: x,
