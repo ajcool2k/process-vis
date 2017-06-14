@@ -505,9 +505,9 @@ export default {
         let domNode = this.redrawShapePosition(shape)
 
         // draw connection
-        let callback = () => { this.redrawConnection(shape); console.log('redraw shape: ' + shape.id) }
+        let callback = () => { this.redrawConnection(shape) }
         if (domNode) {
-          let animationName = '.shape[data-id="' + shape.id + '"]' + Math.random()
+          let animationName = '.shape[data-id="' + shape.id + '"]'
           Animate.afterTransition(domNode, animationName, callback)
           Animate.run(domNode, animationName, 'transform', 'ease-in', 0.2)
         } else {
@@ -526,9 +526,6 @@ export default {
         console.log('shape position not changed - skipping')
         return
       }
-      console.log('redrawShape: ' + shape.id)
-      console.log('storedX: ' + storedX + ' - shapePositionX: ' + shape.position.x)
-      console.log('storedY: ' + storedY + ' - shapePositionY: ' + shape.position.y)
 
       // store position
       source.setAttribute('data-x', shape.position.x)
