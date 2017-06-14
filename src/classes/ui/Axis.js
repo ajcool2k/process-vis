@@ -23,7 +23,7 @@ export class Axis {
 
     this.size = null
 
-    this.offsetAxisX = { x: 20, y: 40 }
+    this.offsetAxisX = { x: 120, y: 40 }
     this.offsetAxisY = { x: 60, y: 40 }
 
     this.yScale = null

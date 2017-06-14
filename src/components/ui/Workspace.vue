@@ -34,14 +34,12 @@
         </template>
 
         <template v-for="(item, index) in processModel.shapes">
-          <div class="shape draggable drag-drop"
-                :data-id="item.id"
-                @click.stop="onShapeClick">
+          <div class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick">
             <div class="content" :data-id="item.id">{{item.id}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
         </div>
         </template>
-        
+
         <svg class="svgNode">
           <defs>
             <marker id="marker-triangle"
@@ -94,6 +92,7 @@ import { _ } from 'underscore'
 
 import { Dialog } from '@/classes/ui/Dialog'
 import { StateMachine } from '@/classes/utils/StateMachine'
+import { Animate } from '@/classes/utils/Animate'
 import { TouchSupport } from '@/classes/utils/TouchSupport'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
@@ -325,6 +324,7 @@ export default {
 
   updated: function () {
     console.warn('Workspace updated')
+    Animate.clear()
     Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess)
     this.redraw()
   },
@@ -502,9 +502,17 @@ export default {
 
       this.processModel.shapes.forEach(shape => {
         // draw shape at correct position
-        this.redrawShapePosition(shape)
+        let domNode = this.redrawShapePosition(shape)
+
         // draw connection
-        this.redrawConnection(shape)
+        let callback = () => { this.redrawConnection(shape); console.log('redraw shape: ' + shape.id) }
+        if (domNode) {
+          let animationName = '.shape[data-id="' + shape.id + '"]' + Math.random()
+          Animate.afterTransition(domNode, animationName, callback)
+          Animate.run(domNode, animationName, 'transform', 'ease-in', 0.2)
+        } else {
+          callback()
+        }
       })
     },
 
@@ -518,14 +526,18 @@ export default {
         console.log('shape position not changed - skipping')
         return
       }
+      console.log('redrawShape: ' + shape.id)
+      console.log('storedX: ' + storedX + ' - shapePositionX: ' + shape.position.x)
+      console.log('storedY: ' + storedY + ' - shapePositionY: ' + shape.position.y)
 
       // store position
       source.setAttribute('data-x', shape.position.x)
       source.setAttribute('data-y', shape.position.y)
 
       // transform
-      source.style.webkitTransform =
-      source.style.transform = 'translate(' + shape.position.x + 'px ,' + shape.position.y + 'px)'
+      source.style.webkitTransform = source.style.transform = 'translate(' + shape.position.x + 'px ,' + shape.position.y + 'px)'
+
+      return source
     },
 
     redrawConnection (shape) {
@@ -763,7 +775,8 @@ export default {
 
     // Listener for tool-bar emits
     applyZoom (scaleData) {
-      this.containerScale = scaleData
+      this.containerScale.x = scaleData.x
+      this.containerScale.y = scaleData.y
       this.applyTransform()
     },
 
@@ -957,7 +970,7 @@ $bgColor: #eee;
   flex-wrap: nowrap;
   width: 1000px;
   height: 600px;
-  left: 0.5vw;
+  left: 200px;
   top: 120px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
@@ -972,13 +985,10 @@ svg {
   z-index: 1;
 }
 
-.svgNode path {
-  stroke: transparent !important;
-}
-
 .col {
   border-left: 2px dashed #ccc;
   text-align: center;
+  transition: all 1s;
 }
 
 .col0 {
