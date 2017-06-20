@@ -28,6 +28,9 @@ export class Calc {
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    */
   static shapePosition (nodes, cols, containerSize, containerNode, startProcess, timeFormat) {
+    let axisOffset = 40
+    let timeSlice = 60
+
     let colWidth = Calc.columnSize(containerSize, cols)
     let shapeWidth = Math.min(colWidth / 2, 100)
     nodes.forEach(function (elem, index) {
@@ -38,8 +41,8 @@ export class Calc {
 
       // calc height
       let durationMillis = defaultEndDate - elem.p.begin
-      let durationDays = (durationMillis / 1000 / 60 / 60 / 24) + 1
-      elem.height = Math.max(Math.ceil(40 * durationDays), 16)
+      let durationDays = (durationMillis / 1000 / 60 / 60 / 24)
+      elem.height = Math.max(Math.ceil(timeSlice * durationDays), 16)
       elem.defaultEndDate = defaultEndDate
       console.log('Calc.shapePosition: ' + elem.id + ' - duration: ' + durationDays + ' - height: ' + elem.height)
 
@@ -47,15 +50,19 @@ export class Calc {
       let x = Math.floor((colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2))
       let deltaStart = elem.p.begin - startProcess.p.begin
       let deltaDays = deltaStart / 1000 / 60 / 60 / 24
-      // 40px offset
-      // 340 = 5 * x + 40 => 300 = 5x => x = 60       
-      let y = deltaDays * 60 + 40
+      let y = deltaDays * timeSlice + axisOffset
 
       elem.position = {
         x: x,
         y: y
       }
     })
+  }
+
+  static addSpace () {
+    // prüfe ob elem.y + height ein anderes elem.y ergibt
+    // wenn vorhanden dann patche alle elemente >= elem.y (y+height) um einen offset
+
   }
 
   static getEndDate (process, timeFormat) {
