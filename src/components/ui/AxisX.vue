@@ -38,7 +38,7 @@ export default {
     return {
 
       // Dialogs
-      dialog: Dialog.useAll()
+      dialog: new Dialog()
 
     }
   },
@@ -64,7 +64,7 @@ export default {
       event.stopPropagation()
       let actionId = event.target.getAttribute('data-id')
       let a = _.findWhere(this.cols, { id: Helper.parse(actionId) })
-      Dialog.setActorDialog(a)
+      this.dialog.setActorDialog(a)
       this.$refs['showActorDialog'].open()
     },
 

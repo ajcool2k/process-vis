@@ -60,7 +60,7 @@ export class StateMachine {
     return typeof stateEvent === 'object'
   }
 
-  run (eventName, domEvent) {
+  async run (eventName, domEvent) {
     console.log('FSM: ' + eventName)
 
     // find state
@@ -77,21 +77,23 @@ export class StateMachine {
       return
     }
 
-    // do event action
-    let p = new Promise(function (resolve, reject) {
+    // define event action
+    const doAction = async function () {
       console.log('FSM: action for state ' + state.name + ' - ' + stateEvent.name)
-      stateEvent.action(domEvent)
-      resolve('Success!')
-    })
+      await stateEvent.action(domEvent)
+    }
 
-    // change state to next state
-    p.then(() => {
+    try {
+      // run and wait for event action to complete
+      await doAction()
       console.log('FSM: action done')
+
+      // change state to next state
       this.actualState = stateEvent.stateNext
       console.log('FSM: new state: ' + this.actualState.name)
-    }).catch(e => {
+    } catch (e) {
       console.error('FSM: could not execute action: ' + e)
-    })
+    }
   }
 
   getState () {
@@ -118,7 +120,6 @@ export class StateMachine {
         console.log('FSM: onMouseDownLeft - idle - action')
       }
     })
-
 
     this.addEvent(a1, a2, {
       name: 'onMouseDownLeft',

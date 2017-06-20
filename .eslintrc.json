@@ -1,5 +1,8 @@
 {
     "extends": "standard",
+    "parserOptions": {
+        "ecmaVersion": 2017
+    },    
     "plugins": [
         "standard",
         "promise",

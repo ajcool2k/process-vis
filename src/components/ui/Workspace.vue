@@ -151,7 +151,7 @@ export default {
       },
 
       // Dialogs
-      dialog: Dialog.useAll(),
+      dialog: new Dialog(),
 
       // Support
       hasTouchSupport: false,
@@ -452,7 +452,7 @@ export default {
         action: (event) => {
           this.actionId = event.target.getAttribute('data-id')
           let p = _.findWhere(this.processModel.shapes, { id: Helper.parse(this.actionId) })
-          Dialog.setNodeDialog(p)
+          this.dialog.setNodeDialog(p)
           this.$refs['showNodeDialog'].open()
         }
       })
