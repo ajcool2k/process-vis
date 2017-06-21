@@ -57,12 +57,38 @@ export class Calc {
         y: y
       }
     })
+
+    Calc.addSpace(nodes, timeSlice)
   }
 
-  static addSpace () {
+  /**
+   * Methode dient zum Setzen von Abständen zwischen Nodes
+   * Dieses Verhalten kann notwendig werden, wenn Y-Startpunkt einer Node mit einem Y-Endpunkt einer anderen Node kollidieren
+   * @param {Object} nodes  Objekt mit allen Shapes
+   * @param {Number} timeSlice Offset-Wert um den verschoben werden soll
+   */
+  static addSpace (nodes, timeSlice) {
     // prüfe ob elem.y + height ein anderes elem.y ergibt
     // wenn vorhanden dann patche alle elemente >= elem.y (y+height) um einen offset
+    let patched = false
 
+    do {
+      // prepare search
+      patched = false
+      const yEndList = nodes.map(elem => elem.position.y + elem.height)
+      console.log(yEndList)
+
+      nodes.forEach(function (node, index) {
+        let startPosition = node.position.y
+        if (yEndList.indexOf(startPosition) === -1) return  // next iteration
+
+        // actual startPosition found in an endPosition for another node
+        // increment all other nodes by 1
+        for (let i = index; i < nodes.length; i++) nodes[i].position.y += timeSlice
+
+        patched = true
+      })
+    } while (patched) // run as long as something got patched
   }
 
   static getEndDate (process, timeFormat) {
