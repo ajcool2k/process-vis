@@ -1,6 +1,12 @@
-# jsplumb
+# Process-Vis
 
-> A Vue.js project
+Diplomarbeit zum Thema Modellierung von Prozessabläufen.
+
+## Technologie
+
+- Projekt basierend auf Vue 2.0
+- Entwicklung auf Basis von Webpack 2
+- Einsatz eines [Vue Boilerplates](http://vuejs-templates.github.io/webpack/)
 
 ## Build Setup
 
@@ -16,6 +22,11 @@ npm run build
 
 # build for production and view the bundle analyzer report
 npm run build --report
-```
 
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+# debug project setup
+npm run dump
+
+# update project to latest compatible versions
+npm update
+
+```
