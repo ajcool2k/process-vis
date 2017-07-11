@@ -7,9 +7,12 @@ import router from './router'
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
-new Vue({
+let vm = new Vue({
   el: '#app',
   router,
   template: '<App/>',
   components: { App }
 })
+
+// store vm on global variable (debugging purpose)
+window.processvis = vm
