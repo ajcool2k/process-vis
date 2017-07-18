@@ -1,6 +1,6 @@
-import { Object } from './Object'
+import { BaseObject } from './BaseObject'
 
-export class Project extends Object {
+export class Project extends BaseObject {
   constructor (name) {
     super(name)
   }

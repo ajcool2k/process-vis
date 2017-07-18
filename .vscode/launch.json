@@ -1,22 +1,33 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "program": "${workspaceRoot}/build/dev-server.js",
-            "cwd": "${workspaceRoot}",
-            "outFiles": ["${workspaceRoot}/**/*.vue"],            
-            "sourceMaps": true
-        },
-        {
-            "type": "chrome",
-            "request": "attach",
-            "name": "Attach to Chrome",
-            "port": 9222,
-            "webRoot": "${workspaceRoot}"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [      
+    {
+      "name": "Launch Chrome against localhost",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceRoot}/build/dev-server.js",
+      "cwd": "${workspaceRoot}",
+      "outFiles": ["${workspaceRoot}/**/*.vue"],            
+      "sourceMaps": true
+    },
+    {
+      "name": "Attach to Chrome",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceRoot}"
+    },
+    {
+      "name": "Debug tests in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "port": 9222,
+      "sourceMaps": true,
+      "webRoot": "${workspaceRoot}",
+      "userDataDir": "${workspaceRoot}/.vscode/chrome",
+      "sourceMapPathOverrides": {
+         "webpack:///./*": "${workspaceRoot}/*"
+      }
+    }        
+  ]
 }

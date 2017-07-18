@@ -7,3 +7,4 @@ yarn-error.log*
 installed_modules.json
 test/e2e/reports/
 selenium-debug.log
+.vscode/chrome/

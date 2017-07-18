@@ -6,22 +6,42 @@ export class Calc {
    * @param {DOMElement} elementNode
    */
   static absolutePosition (elementNode) {
+    let offsetY = 0
+    let offsetX = 0
+
     let rect = elementNode.getBoundingClientRect() // forces reflow
 
+    if (typeof window !== 'undefined') {
+      offsetY = window.scrollY
+      offsetX = window.scrollX
+    } else {
+      console.warn('could not access window element')
+    }
+
     let data = {
-      left: Math.round(rect.left + window.scrollX),
-      top: Math.round(rect.top + window.scrollY),
+      left: Math.round(rect.left + offsetX),
+      top: Math.round(rect.top + offsetY),
       width: rect.width,
       height: rect.height,
-      bottom: Math.round(rect.top + window.scrollY) + rect.height,
-      right: Math.round(rect.left + window.scrollX) + rect.width
+      bottom: Math.round(rect.top + offsetY) + rect.height,
+      right: Math.round(rect.left + offsetX) + rect.width
     }
 
     return data
   }
 
   static columnSize (containerSize, cols) {
-    return containerSize.x / cols.length
+    if (typeof containerSize === 'undefined' || containerSize === null || !containerSize.hasOwnProperty('x')) {
+      console.warn('Calc.columnSize: param containerSize not correctly passed.')
+      return 0
+    }
+
+    if (typeof cols === 'undefined' || cols === null) {
+      console.warn('Calc.columnSize: param cols not correctly passed.')
+      return 0
+    }
+
+    return Math.floor(containerSize.x / cols.length)
   }
 
   /**
@@ -121,21 +141,22 @@ export class Calc {
    * @see addElementPosition
    */
   static containerSize (nodes, cols) {
-    let colWidth = 400
     let containerX = 0
     let containerY = 0
 
     // relative approch
     nodes.forEach(function (elem, index) {
       // store x / y for container size
-      containerX = Math.max(containerX, elem.position.x)
-      containerY = Math.max(containerY, elem.position.y + 300)
+      containerY = Math.max(containerY, elem.position.y + Calc.containerPaddingBottom)
     })
 
     // easy approch
-    containerX = cols.length * colWidth
+    containerX = cols.length * Calc.colWidth
 
     // return containerSize
     return { x: containerX, y: containerY }
   }
 }
+
+Calc.colWidth = 400
+Calc.containerPaddingBottom = 300

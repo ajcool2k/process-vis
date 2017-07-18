@@ -1,6 +1,6 @@
-import { Object } from './Object'
+import { BaseObject } from './BaseObject'
 
-export class Participant extends Object {
+export class Participant extends BaseObject {
   constructor (name) {
     super(name)
   }

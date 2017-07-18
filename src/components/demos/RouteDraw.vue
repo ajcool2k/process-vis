@@ -44,10 +44,10 @@ export default {
     graph.addNode('p4', p4);
     
     graph.addEdge('head', 'p1');
-    graph.addEdge('p1', 'p2', { weight: p1.getDuration() });
-    graph.addEdge('p2', 'p3', { weight: p2.getDuration() });
-    graph.addEdge('p3', 'p4', { weight: p3.getDuration() });
-    graph.addEdge('p4', 'tail', { weight: p4.getDuration() });
+    graph.addEdge('p1', 'p2', { weight: p1.duration });
+    graph.addEdge('p2', 'p3', { weight: p2.duration });
+    graph.addEdge('p3', 'p4', { weight: p3.duration });
+    graph.addEdge('p4', 'tail', { weight: p4.duration });
 
     this.graph = graph;
     this.route = graph.routes({ from: 'head', to: 'tail' })[0];
