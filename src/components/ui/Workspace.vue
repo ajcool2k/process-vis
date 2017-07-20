@@ -512,13 +512,9 @@ export default {
 
         // draw connection
         let callback = () => { this.redrawConnection(shape) }
-        if (domNode) {
-          let animationName = '.shape[data-id="' + shape.id + '"]'
-          Animate.afterTransition(domNode, animationName, callback)
-          Animate.run(domNode, animationName, 'transform', 'ease-in', 0.2)
-        } else {
-          callback()
-        }
+        let animationName = '.shape[data-id="' + shape.id + '"]'
+        Animate.afterTransition(domNode, animationName, callback)
+        Animate.start(domNode, animationName, 'transform', 'ease-in', 0.2)
       })
     },
 
@@ -530,7 +526,7 @@ export default {
 
       if (storedX === shape.position.x && storedY === shape.position.y) {
         console.log('shape position not changed - skipping')
-        return
+        return source
       }
 
       // store position
