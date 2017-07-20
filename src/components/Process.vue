@@ -95,12 +95,8 @@ export default {
 
     moveNode (shapeData) {
       let node = _.findWhere(this.mod.shapes, { id: shapeData.shapeId })
-
-      if (node.p.participant === shapeData.laneId) {
-        return
-      }
-
       node.p.participant = shapeData.laneId
+      this.forceRedraw()
     },
 
     removeNode (shapeId) {
