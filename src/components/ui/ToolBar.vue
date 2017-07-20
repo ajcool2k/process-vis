@@ -1,9 +1,14 @@
 <template>
   <div class="tool-bar">
-    <md-toolbar>
-      <h2 class="md-title" style="flex: 1">Visualisierung</h2>
-        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">zoomOut</md-button>
-        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">zoomIn</md-button>
+    <md-toolbar class="md-dense">
+      <h2 class="md-title" style="flex: 1">Prozess-Modellierung</h2>
+        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">
+          <md-icon>zoom_in</md-icon>
+        </md-button>
+
+        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">
+          <md-icon>zoom_out</md-icon>
+        </md-button>
     </md-toolbar>
   </div>
 </template>
@@ -14,13 +19,6 @@ import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 import VueMaterial from 'vue-material'
 Vue.use(VueMaterial)
-
-/*
-import { MdCore, MdToolbar, MdButton } from 'vue-material'
-Vue.use(MdCore)
-Vue.use(MdToolbar)
-Vue.use(MdButton)
-*/
 
 export default {
   name: 'ToolBar',
