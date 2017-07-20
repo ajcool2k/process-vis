@@ -57,7 +57,8 @@
           </defs>
 
           <template v-for="(item, index) in processModel.edges">
-            <polyline @click.stop="openRemoveConnectionDialog" class="connection" :data-id="item.id" points="" />
+            <polyline @click.stop="openRemoveConnectionDialog" class="connection-outline" :data-id="item.id" points="" />
+            <polyline class="connection" :data-id="item.id" points="" />
           </template>
           <polyline class="tmpConnection" points="" />
           <line class="timeRuler" />
@@ -556,6 +557,7 @@ export default {
       // console.log('updateConnection')
 
       let line = this.svgNode.querySelector('.connection[data-id="' + edge.id + '"]')
+      let outline = this.svgNode.querySelector('.connection-outline[data-id="' + edge.id + '"]')
 
       // ----------------------------------------------
       // source könnte ausgelagert werden, aber nicht performance kritisch
@@ -600,15 +602,15 @@ export default {
         x: targetPoint.x - (Math.round((targetPoint.x - sourcePoint.x) / 2) - Offset),
         y: targetAnchor.y
       }
-
-      line.setAttribute('points',
-         sourcePoint.x + ',' + sourcePoint.y + ' ' +
+      const attributes = sourcePoint.x + ',' + sourcePoint.y + ' ' +
         sourceAnchor.x + ',' + sourceAnchor.y + ' ' +
         middlePoint1.x + ',' + middlePoint1.y + ' ' +
         middlePoint2.x + ',' + middlePoint2.y + ' ' +
         targetAnchor.x + ',' + targetAnchor.y + ' ' +
          targetPoint.x + ',' + targetPoint.y
-        )
+
+      line.setAttribute('points', attributes)
+      outline.setAttribute('points', attributes)
     },
 
     activateEdgeConnect (event) {
@@ -792,6 +794,7 @@ export default {
     },
 
     openRemoveConnectionDialog (event) {
+      console.warn('TEST')
       if (!this.fsm.hasEvent('openRemoveConnectionDialog')) return
       this.fsm.run('openRemoveConnectionDialog', event)
 
@@ -954,12 +957,12 @@ $bgColor: #eee;
   position: fixed;
   width: 100vw;
   z-index: 9;
-  height: 64px;
+  height: 48px;
 }
 
 .workspace {
   position: relative;
-  top: 64px;
+  top: 48px;
   height: auto;
   width: auto;
   min-height: 100vh;
@@ -1017,12 +1020,25 @@ svg {
   stroke-width: 2;
   stroke-dasharray: 5,5;
   marker-end: url(#marker-triangle);
-  pointer-events: all;
+  pointer-events: none;
 }
 
-.connection:hover {
+.connection-outline {
+  fill: none;
+  stroke: red;
+  stroke-width: 50;
+  stroke-opacity: 0.01; 
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.connection-outline:hover {
+  opacity: 0.01;
+}
+
+.connection-outline:hover + .connection {
   stroke: #29e;
-  stroke-width: 3;
+  stroke-width: 3;  
 }
 
 marker {
