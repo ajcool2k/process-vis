@@ -16,6 +16,14 @@
       </md-dialog-confirm>
 
       <md-dialog-alert
+        :md-title="dialog.showTransitionDialog.title"
+        :md-content-html="dialog.showTransitionDialog.contentHtml"
+        :md-ok-text="dialog.showTransitionDialog.ok"
+        @close="onCloseTransitionDialog"
+        ref="showTransition">
+      </md-dialog-alert>
+
+      <md-dialog-alert
         :md-content-html="dialog.showNodeDialog.content"
         :md-ok-text="dialog.showNodeDialog.ok"
         @close="onCloseShowNodeDialog"
@@ -57,8 +65,15 @@
           </defs>
 
           <template v-for="(item, index) in processModel.edges">
-            <polyline @click.stop="openRemoveConnectionDialog" class="connection-outline" :data-id="item.id" points="" />
-            <polyline class="connection" :data-id="item.id" points="" />
+            <g class="connection" :data-id="item.id">
+              <polyline class="connection-outline" :data-id="item.id" points="" @click.stop="openRemoveConnectionDialog" />
+              <polyline class="connection-line" :data-id="item.id" points="" />
+              <g class="connection-transition" :data-id="item.id" @click.stop="openTransitionDialog">
+                <circle class="connection-transition-circle" r="20" />
+                <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transform}}</text>
+                <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
+              </g>
+            </g>
           </template>
           <polyline class="tmpConnection" points="" />
           <line class="timeRuler" />
@@ -357,6 +372,7 @@ export default {
       // Dialogs
       let showProcess = this.fsm.addState('showProcess')
       let showRemoveEdge = this.fsm.addState('showRemoveEdge')
+      let showTransition = this.fsm.addState('showTransition')
 
       this.fsm.addEvent(idle, drawEdge, {
         name: 'activateEdgeConnect',
@@ -474,6 +490,17 @@ export default {
         action: (event) => {}
       })
 
+      this.fsm.addEvent(idle, showTransition, {
+        name: 'openTransitionDialog',
+        action: (event) => {
+        }
+      })
+
+      this.fsm.addEvent(showTransition, idle, {
+        name: 'onCloseTransitionDialog',
+        action: (event) => {}
+      })
+
       this.fsm.start(idle)
     },
 
@@ -555,9 +582,10 @@ export default {
 
     updateConnection (edge) {
       // console.log('updateConnection')
-
-      let line = this.svgNode.querySelector('.connection[data-id="' + edge.id + '"]')
-      let outline = this.svgNode.querySelector('.connection-outline[data-id="' + edge.id + '"]')
+      let connectionGroup = this.svgNode.querySelector('.connection[data-id="' + edge.id + '"]')
+      let line = connectionGroup.querySelector('.connection-line[data-id="' + edge.id + '"]')
+      let outline = connectionGroup.querySelector('.connection-outline[data-id="' + edge.id + '"]')
+      let transition = connectionGroup.querySelector('.connection-transition[data-id="' + edge.id + '"]')
 
       // ----------------------------------------------
       // source könnte ausgelagert werden, aber nicht performance kritisch
@@ -611,6 +639,7 @@ export default {
 
       line.setAttribute('points', attributes)
       outline.setAttribute('points', attributes)
+      transition.setAttribute('transform', 'translate(' + middlePoint1.x + ',' + middlePoint1.y + ')')
     },
 
     activateEdgeConnect (event) {
@@ -794,7 +823,6 @@ export default {
     },
 
     openRemoveConnectionDialog (event) {
-      console.warn('TEST')
       if (!this.fsm.hasEvent('openRemoveConnectionDialog')) return
       this.fsm.run('openRemoveConnectionDialog', event)
 
@@ -810,6 +838,20 @@ export default {
 
       if (type === 'cancel') return
       this.removeConnection(this.actionId)
+    },
+
+    openTransitionDialog (event) {
+      console.warn('openTransitionDialog')
+      if (!this.fsm.hasEvent('openTransitionDialog')) return
+      this.fsm.run('openTransitionDialog', event)
+
+      this.actionId = event.currentTarget.getAttribute('data-id')
+      this.$refs['showTransition'].open()
+    },
+
+    onCloseTransitionDialog (type) {
+      if (!this.fsm.hasEvent('onCloseTransitionDialog')) return
+      this.fsm.run('onCloseTransitionDialog')
     },
 
     onCloseShowNodeDialog (type) {
@@ -1014,7 +1056,7 @@ svg {
 
 }
 
-.connection, .tmpConnection {
+.connection-line, .tmpConnection {
   fill: none;
   stroke: #888;
   stroke-width: 2;
@@ -1036,7 +1078,40 @@ svg {
   opacity: 0.01;
 }
 
-.connection-outline:hover + .connection {
+.connection-outline:hover + .connection-line {
+  stroke: #29e;
+  stroke-width: 3;  
+}
+
+
+.connection-transition {
+  pointer-events: all;
+  cursor: pointer; 
+}
+
+.connection-transition-circle {
+  fill: #eee;
+}
+
+.connection-transition-circle-outline {
+  fill: none;
+  stroke: #29e;
+  stroke-width: 2;
+  stroke-opacity: 0.5
+}
+
+.connection-transition-circle-outline:hover {
+  stroke: #29e;
+  stroke-width: 3;   
+}
+
+.connection-transition-text {
+  font-style: normal;
+  font-size: 28px;
+  fill: #888;
+}
+
+.connection-transition-text:hover + .connection-transition-circle-outline {
   stroke: #29e;
   stroke-width: 3;  
 }

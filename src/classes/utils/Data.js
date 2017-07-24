@@ -15,13 +15,13 @@ export class Data {
 
     let edges = []
 
-    edges.push({ id: 1, source: 'head', target: 'n0' })
-    edges.push({ id: 2, source: 'n0', target: 'n1' })
-    edges.push({ id: 3, source: 'n1', target: 'n2' })
-    edges.push({ id: 4, source: 'n1', target: 'n3' })
-    edges.push({ id: 5, source: 'n3', target: 'tail' })
-    edges.push({ id: 6, source: 'n2', target: 'n4' })
-    edges.push({ id: 7, source: 'n4', target: 'n3' })
+    edges.push({ id: 1, source: 'head', target: 'n0', transform: '=' })
+    edges.push({ id: 2, source: 'n0', target: 'n1', transform: '+' })
+    edges.push({ id: 3, source: 'n1', target: 'n2', transform: '+' })
+    edges.push({ id: 4, source: 'n1', target: 'n3', transform: '+' })
+    edges.push({ id: 5, source: 'n3', target: 'tail', transform: '=' })
+    edges.push({ id: 6, source: 'n2', target: 'n4', transform: '-' })
+    edges.push({ id: 7, source: 'n4', target: 'n3', transform: '-' })
 
     let participants = []
 

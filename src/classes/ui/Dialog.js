@@ -9,6 +9,14 @@ export class Dialog {
       value: ''
     }
 
+    this.showTransitionDialog = {
+      ref: 'showTransition',
+      title: 'Aktion',
+      ok: 'Ausblenden',
+      contentHtml: 'Es handelt sich um eine eine Transformation...',
+      value: ''
+    }
+
     this.showNodeDialog = {
       ref: 'showNodeDialog',
       content: 'content',
