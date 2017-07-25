@@ -292,7 +292,7 @@ export default {
       .resizable({
         preserveAspectRatio: false,
         restrict: { /* restrict options */ },
-        edges: { left: true, right: true, bottom: true, top: true }
+        edges: { left: false, right: false, bottom: true, top: true }
       })
       .on('resizestart', event => {
         if (!this.fsm.hasEvent('resizeShapeStart')) return
