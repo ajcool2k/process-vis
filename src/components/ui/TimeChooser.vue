@@ -9,7 +9,7 @@
 
       <md-button @click.native="setTimeFormat('hours')" class="md-fab md-mini md-clean">S</md-button>
       <md-button @click.native="setTimeFormat('days')" class="md-fab md-mini md-clean">T</md-button>
-      <md-button @click.native="setTimeFormat('month')" class="md-fab md-mini md-clean">M</md-button>
+      <md-button @click.native="setTimeFormat('months')" class="md-fab md-mini md-clean">M</md-button>
 
     </md-speed-dial>
   </div>
