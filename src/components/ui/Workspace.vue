@@ -250,8 +250,9 @@ export default {
       .on('resizeend', event => {
         console.log('resizeend')
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
-        this.updateContainerSize(dragDelta) // forces reflow
-        this.updateWorkspaceSize(dragDelta)  // forces reflow
+        let scaledDragDelta = { x: Math.floor(dragDelta.x / this.containerScale.x), y: Math.floor(dragDelta.y / this.containerScale.y) }
+        this.updateContainerSize(scaledDragDelta) // forces reflow
+        this.updateWorkspaceSize(scaledDragDelta)  // forces reflow
       })
 
     interact('.shape')
@@ -956,6 +957,7 @@ export default {
       if (this.options.isContainerResizeable === false) return
 
       // update position in model
+      console.log(event)
       this.resizeElement(event)
 
       // update view by model
