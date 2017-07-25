@@ -9,7 +9,6 @@
 
         v-on:addNode="addNode" 
         v-on:moveNode="moveNode" 
-
         v-on:removeNode="removeNode" 
 
         v-on:addLane="addLane" 
