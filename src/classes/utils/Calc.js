@@ -48,11 +48,36 @@ export class Calc {
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    */
   static shapePosition (nodes, cols, containerSize, containerNode, startProcess, timeFormat) {
-    let axisOffset = 40
-    let timeSlice = 60
+    const axisOffset = 40
+    const timeSlice = Calc.timeSlice
 
     let colWidth = Calc.columnSize(containerSize, cols)
     let shapeWidth = Math.min(colWidth / 2, 100)
+
+    let quotientHours = 1000 * 60 * 60
+    let quotientDays = 1000 * 60 * 60 * 24
+    let quotientMonths = 1000 * 60 * 60 * 24 * 30
+
+    let quotient = 1
+    switch (timeFormat) {
+      case 'hours':
+        quotient = quotientHours
+        break
+
+      case 'days':
+        quotient = quotientDays
+        break
+
+      case 'months':
+        quotient = quotientMonths
+        break
+
+      default:
+        console.warn('Calc.shapePosition: unknown timeFormat ' + timeFormat)
+        quotient = quotientDays
+        break
+    }
+
     nodes.forEach(function (elem, index) {
       let shape = containerNode.querySelector('.shape[data-id="' + elem.id + '"]')
       shape.style.width = shapeWidth + 'px'
@@ -61,16 +86,17 @@ export class Calc {
 
       // calc height
       let durationMillis = defaultEndDate - elem.p.begin
-      let durationDays = (durationMillis / 1000 / 60 / 60 / 24)
-      elem.height = Math.max(Math.ceil(timeSlice * durationDays), 16)
+      let duration = durationMillis / quotient
+
+      elem.height = Math.max(Math.ceil(timeSlice * duration), timeSlice)
       elem.defaultEndDate = defaultEndDate
-      console.log('Calc.shapePosition: ' + elem.id + ' - duration: ' + durationDays + ' - height: ' + elem.height)
+      console.log('Calc.shapePosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem.height)
 
       // calc position
       let x = Math.floor((colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2))
       let deltaStart = elem.p.begin - startProcess.p.begin
-      let deltaDays = deltaStart / 1000 / 60 / 60 / 24
-      let y = deltaDays * timeSlice + axisOffset
+      let deltaTime = deltaStart / quotient
+      let y = Math.ceil(deltaTime * timeSlice) + axisOffset
 
       elem.position = {
         x: x,
@@ -100,7 +126,11 @@ export class Calc {
 
       nodes.forEach(function (node, index) {
         let startPosition = node.position.y
-        if (yEndList.indexOf(startPosition) === -1) return  // next iteration
+        if (yEndList.findIndex((pos) => { 
+          let a = (startPosition >= pos)
+          let b = (startPosition < pos + timeSlice) 
+          return (startPosition >= pos) && (startPosition < pos + timeSlice) 
+        }) === -1) return // next iteration
 
         // actual startPosition found in an endPosition for another node
         // increment all other nodes by 1
@@ -158,5 +188,6 @@ export class Calc {
   }
 }
 
+Calc.timeSlice = 60
 Calc.colWidth = 400
 Calc.containerPaddingBottom = 300

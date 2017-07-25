@@ -31,10 +31,11 @@
       </md-dialog-alert>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
-        <!-- child component -->
-        <horizontal-bar :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
-        <axis-x :cols="processModel.cols" :scale="containerScale"></axis-x>
-        <axis-y :cols="processModel.cols" :shapes="processModel.shapes" :scale="containerScale" :containerSize="containerSize"></axis-y>
+      <!-- child components -->
+        <horizontal-bar class="ignore-container-events" :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
+        <axis-x class="ignore-container-events" :cols="processModel.cols" :scale="containerScale"></axis-x>
+        <input type="range" class="range-timeSlice ignore-container-events" :value="timeSlice" min="1" max="100" @change.stop="onRangeChange">
+        <axis-y class="ignore-container-events" :cols="processModel.cols" :shapes="processModel.shapes" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
         <template v-for="(item, index) in processModel.cols">
           <div :class="'col col' + index" :data-id="item.id" :style="'width: ' + ( containerSize.x / processModel.cols.length ) + 'px'">
@@ -43,7 +44,7 @@
 
         <template v-for="(item, index) in processModel.shapes">
           <div class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick" :style="'height: ' + item.height + 'px'">
-            <div class="content" :data-id="item.id">{{item.id}}</div>
+            <div class="content" :data-id="item.id">{{item.id}} - {{item.height}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
         </div>
         </template>
@@ -147,6 +148,7 @@ export default {
       svgNode: null,
 
       timeFormat: 'days',
+      timeSlice: 60,
       timeRuler: null,
       tmpLine: null,
 
@@ -225,6 +227,7 @@ export default {
     // add new event handlers
     interact('.processContainer')
       .draggable({})
+      .ignoreFrom('.ignore-container-events')
       .on('dragstart', event => {
         console.warn('dragstart container')
         this.actionPosition = { x: event.pageX, y: event.pageY }
@@ -238,6 +241,7 @@ export default {
         preserveAspectRatio: false,
         edges: { left: true, right: true, bottom: true, top: true }
       })
+      .ignoreFrom('.ignore-container-events')
       .on('resizestart', event => {
         console.log('resizestart')
         this.actionPosition = { x: event.pageX, y: event.pageY }
@@ -347,7 +351,9 @@ export default {
   updated: function () {
     console.warn('Workspace updated')
     Animate.clear()
+    console.log(this.processModel.shapes)
     Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
+    console.log(this.processModel.shapes)
     this.redraw()
   },
 
@@ -812,8 +818,9 @@ export default {
 
     // Listener for time-chooser emits
     applyTimeFormat (format) {
-      this.format = format
-      console.log('Workspace: timeFormat updated to: ' + this.format)
+      this.timeFormat = format
+      console.log('Workspace: timeFormat updated to: ' + this.timeFormat)
+      Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
     },
 
     onContainerClick () {
@@ -918,6 +925,13 @@ export default {
 
       // update connections of the shape
       this.redrawConnection(shapeId)
+    },
+
+    onRangeChange (event) {
+      console.log('onRangeChange')
+      this.timeSlice = Helper.parse(event.currentTarget.value)
+      Calc.timeSlice = this.timeSlice
+      Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
     },
 
     onContainerDrag (event) {
@@ -1172,5 +1186,11 @@ $anchorSize: 20px;
   opacity: 0.3;
 }
 
+.range-timeSlice {
+  position: absolute;
+  margin-left: -120px;
+  margin-top: -40px;
+  width: 100px;
+}
 
 </style>
