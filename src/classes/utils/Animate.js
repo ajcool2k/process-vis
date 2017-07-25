@@ -40,6 +40,8 @@ export class Animate {
   }
 
   static removeTransitionHandler (handlerId) {
+    if (!Animate.handler.hasOwnProperty(handlerId)) return
+
     let node = Animate.handler[handlerId].node
     node.removeEventListener('transitionend', Animate.handler[handlerId].fnAfter, false)
     delete Animate.handler[handlerId]
@@ -67,7 +69,6 @@ export class Animate {
       let node = Animate.removeTransitionHandler(handlerId)
       Animate.clearAnimation(node)
     }
-    console.log(Animate)
   }
 }
 
