@@ -2,10 +2,17 @@ export class Calc {
   /**
    * Methode liefert die absoluten Werte eines HTML-Dom Elements zurück.
    * getBoundingClientRect liefert nur im sichtbaren Bereich. Sobald Elemente außerhalb liegen, werden die Daten nicht mehr korrekt erfasst.
+   * Da getBoundingClientRect erst nach Transformationen berechnet werden kann, werden diese nachträglich wieder herausgerechnet.
    * Diese Methode erzeugt einen reflow und sollte nur so oft wie nötig aufgerufen werden
    * @param {DOMElement} elementNode
+   * @param {Object} translate Object mit {x,y} Information zur Translation eines Objekts
    */
-  static absolutePosition (elementNode) {
+  static absolutePosition (elementNode, translate) {
+    if (typeof translate === 'undefined') {
+      translate = { x: 0, y: 0 }
+      console.warn('translate not applied to function - use absolutePosition')
+    }
+
     let offsetY = 0
     let offsetX = 0
 
@@ -19,8 +26,8 @@ export class Calc {
     }
 
     let data = {
-      left: Math.round(rect.left + offsetX),
-      top: Math.round(rect.top + offsetY),
+      left: Math.round(rect.left + offsetX) - translate.x,
+      top: Math.round(rect.top + offsetY) - translate.y,
       width: rect.width,
       height: rect.height,
       bottom: Math.round(rect.top + offsetY) + rect.height,
@@ -126,9 +133,7 @@ export class Calc {
 
       nodes.forEach(function (node, index) {
         let startPosition = node.position.y
-        if (yEndList.findIndex((pos) => { 
-          let a = (startPosition >= pos)
-          let b = (startPosition < pos + timeSlice) 
+        if (yEndList.findIndex((pos) => {
           return (startPosition >= pos) && (startPosition < pos + timeSlice) 
         }) === -1) return // next iteration
 

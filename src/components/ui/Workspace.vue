@@ -235,7 +235,8 @@ export default {
       .on('dragmove', this.onContainerDrag)
       .on('dragend', event => {
         console.warn('dragend container')
-        this.updateWorkspaceSize({ x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }) // forces reflow
+        let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
+        this.updateWorkspaceSize(dragDelta) // forces reflow
       })
       .resizable({
         preserveAspectRatio: false,
@@ -599,21 +600,21 @@ export default {
       let source = this.containerNode.querySelector('.shape[data-id="' + edge.source + '"]')
       let target = this.containerNode.querySelector('.shape[data-id="' + edge.target + '"]')
 
-      let sourceRect = Calc.absolutePosition(source)  // forces reflow
-      let targetRect = Calc.absolutePosition(target)  // forces reflow
+      let sourceRect = Calc.absolutePosition(source, this.containerTranslation)  // forces reflow
+      let targetRect = Calc.absolutePosition(target, this.containerTranslation)  // forces reflow
       // ----------------------------------------------
 
       let markerOffset = 2
       let anchorOffset = 20
 
       let sourcePoint = {
-        x: Math.round((-this.containerTranslation.x - this.containerOffset.left + sourceRect.left + sourceRect.width / 2) / this.containerScale.x),
-        y: Math.round((-this.containerTranslation.y - this.containerOffset.top + sourceRect.bottom) / this.containerScale.y)
+        x: Math.round((-this.containerOffset.left + sourceRect.left + sourceRect.width / 2) / this.containerScale.x),
+        y: Math.round((-this.containerOffset.top + sourceRect.bottom) / this.containerScale.y)
       }
 
       let targetPoint = {
-        x: Math.round((-this.containerTranslation.x - this.containerOffset.left + targetRect.left + targetRect.width / 2) / this.containerScale.x),
-        y: Math.round((-this.containerTranslation.y - this.containerOffset.top - markerOffset + targetRect.top) / this.containerScale.y)
+        x: Math.round((-this.containerOffset.left + targetRect.left + targetRect.width / 2) / this.containerScale.x),
+        y: Math.round((-this.containerOffset.top - markerOffset + targetRect.top) / this.containerScale.y)
       }
 
       let Offset = 0 // (sourcePoint.x < targetPoint.x) ? -20 : 0
@@ -658,11 +659,11 @@ export default {
       console.log('activateEdgeConnect: ' + event.type)
 
       let source = event.target
-      let sourceRect = Calc.absolutePosition(source) // forces reflow
+      let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
 
       let sourcePoint = {
-        x: Math.round((-this.containerTranslation.x + sourceRect.left + (sourceRect.width / 2) - this.containerOffset.left) / this.containerScale.x),
-        y: Math.round((-this.containerTranslation.y + sourceRect.top + (sourceRect.height / 2) - this.containerOffset.top) / this.containerScale.y)
+        x: Math.round((sourceRect.left + (sourceRect.width / 2) - this.containerOffset.left) / this.containerScale.x),
+        y: Math.round((sourceRect.top + (sourceRect.height / 2) - this.containerOffset.top) / this.containerScale.y)
       }
 
       this.actionPosition = sourcePoint
@@ -730,7 +731,7 @@ export default {
       this.containerSize = { x: this.containerSize.x + delta.x, y: this.containerSize.y + delta.y }
       this.containerNode.style.width = this.containerSize.x + 'px' // forces reflow
       this.containerNode.style.height = this.containerSize.y + 'px' // forces reflow
-      this.containerOffset = Calc.absolutePosition(this.containerNode) // forces reflow
+      this.containerOffset = Calc.absolutePosition(this.containerNode, this.containerTranslation) // forces reflow
       this.initRuler()
     },
 
