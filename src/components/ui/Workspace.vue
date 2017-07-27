@@ -23,12 +23,7 @@
         ref="showTransition">
       </md-dialog-alert>
 
-      <md-dialog-alert
-        :md-content-html="dialog.showNodeDialog.content"
-        :md-ok-text="dialog.showNodeDialog.ok"
-        @close="onCloseShowNodeDialog"
-        ref="showNodeDialog">
-      </md-dialog-alert>
+      <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
       <!-- child components -->
@@ -88,7 +83,6 @@
 </template>
 
 <script>
-
 import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 
@@ -107,6 +101,8 @@ import TimeChooser from './TimeChooser.vue'
 import HorizontalBar from './HorizontalBar.vue'
 import AxisX from './AxisX.vue'
 import AxisY from './AxisY.vue'
+
+import DialogProcess from './DialogProcess.vue'
 
 import { interact } from 'interactjs'
 import { _ } from 'underscore'
@@ -128,13 +124,14 @@ export default {
     'time-chooser': TimeChooser,
     'horizontal-bar': HorizontalBar,
     'axis-x': AxisX,
-    'axis-y': AxisY
+    'axis-y': AxisY,
+    'dialog-process': DialogProcess
   },
   props: [ 'processModel', 'changes' ],
 
   data: function () {
     return {
-      fsm: null,  // finite state machine
+      fsm: null, // finite state machine
       workspaceNode: null,
       workspaceSize: { x: 1000, y: 1000 },
       containerNode: null,
@@ -215,7 +212,7 @@ export default {
 
     // prepare Container and Workspace
     Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat) // set position on the model
-    this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols)  // calc layout based on model
+    this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols) // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
     this.updateWorkspaceSize() // forces reflow
@@ -253,7 +250,7 @@ export default {
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         let scaledDragDelta = { x: Math.floor(dragDelta.x / this.containerScale.x), y: Math.floor(dragDelta.y / this.containerScale.y) }
         this.updateContainerSize(scaledDragDelta) // forces reflow
-        this.updateWorkspaceSize(scaledDragDelta)  // forces reflow
+        this.updateWorkspaceSize(scaledDragDelta) // forces reflow
       })
 
     interact('.shape')
@@ -477,14 +474,16 @@ export default {
         action: (event) => {
           this.actionId = event.target.getAttribute('data-id')
           let p = _.findWhere(this.processModel.shapes, { id: Helper.parse(this.actionId) })
-          this.dialog.setNodeDialog(p)
-          this.$refs['showNodeDialog'].open()
+          this.$refs['dialog-process'].open(p.p)
         }
       })
 
       this.fsm.addEvent(showProcess, idle, {
-        name: 'onCloseShowNodeDialog',
-        action: (event) => {}
+        name: 'onCloseProcessDialog',
+        action: (event) => {
+          Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
+          this.$emit('updateNode', event)
+        }
       })
 
       this.fsm.addEvent(idle, showRemoveEdge, {
@@ -600,8 +599,8 @@ export default {
       let source = this.containerNode.querySelector('.shape[data-id="' + edge.source + '"]')
       let target = this.containerNode.querySelector('.shape[data-id="' + edge.target + '"]')
 
-      let sourceRect = Calc.absolutePosition(source, this.containerTranslation)  // forces reflow
-      let targetRect = Calc.absolutePosition(target, this.containerTranslation)  // forces reflow
+      let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
+      let targetRect = Calc.absolutePosition(target, this.containerTranslation) // forces reflow
       // ----------------------------------------------
 
       let markerOffset = 2
@@ -709,9 +708,9 @@ export default {
       console.log(this.tmpLine)
       */
       this.tmpLine.setAttribute('points',
-          this.actionPosition.x + ',' + this.actionPosition.y + ' ' +
-          this.mousePosition.x + ',' + this.mousePosition.y
-        )
+        this.actionPosition.x + ',' + this.actionPosition.y + ' ' +
+        this.mousePosition.x + ',' + this.mousePosition.y
+      )
       // console.log('works!!')
       Events.scheduledAnimationFrame['drawLine'] = false
     },
@@ -747,9 +746,9 @@ export default {
       let y = (parseFloat(this.timeRuler.getAttribute('data-y')) || 0)
 
       // update model
-        // translate when resizing from top or left edges
+      // translate when resizing from top or left edges
       y += Math.round(event.dy / this.containerScale.y)
-        // store position
+      // store position
       this.timeRuler.setAttribute('data-y', y)
 
       // update view
@@ -768,10 +767,10 @@ export default {
       let height = Math.round(this.containerScale.x * this.workspaceSize.y)
 
       let displayValue = this.workspaceNode.style.display
-      this.workspaceNode.style.display = 'none'        // avoid reflows by multiple style changes
+      this.workspaceNode.style.display = 'none' // avoid reflows by multiple style changes
       this.workspaceNode.style.width = width + 'px'
       this.workspaceNode.style.height = height + 'px'
-      this.workspaceNode.style.display = displayValue  // set active again
+      this.workspaceNode.style.display = displayValue // set active again
     },
 
     applyTransform () {
@@ -863,9 +862,11 @@ export default {
       this.fsm.run('onCloseTransitionDialog')
     },
 
-    onCloseShowNodeDialog (type) {
-      if (!this.fsm.hasEvent('onCloseShowNodeDialog')) return
-      this.fsm.run('onCloseShowNodeDialog')
+    onCloseProcessDialog (type) {
+      console.log('onCloseProcessDialog called')
+      if (!this.fsm.hasEvent('onCloseProcessDialog')) return
+      this.fsm.run('onCloseProcessDialog')
+      console.log('onCloseProcessDialog run!')
     },
 
     resizeElement (event) {
@@ -876,21 +877,21 @@ export default {
       let y = (parseFloat(event.target.getAttribute('data-y')) || 0)
 
       // update model
-        // translate when resizing from top or left edges
+      // translate when resizing from top or left edges
       x += event.deltaRect.left
       y += event.deltaRect.top
-        // store position
+      // store position
       event.target.setAttribute('data-x', x)
       event.target.setAttribute('data-y', y)
 
       // update view
       let displayValue = event.target.style.display
-      event.target.style.display = 'none'  // avoid reflows by multiple style changes
+      event.target.style.display = 'none' // avoid reflows by multiple style changes
 
-        // update the element's style
+      // update the element's style
       event.target.style.width = Math.round(event.rect.width / this.containerScale.x) + 'px'
       event.target.style.height = Math.round(event.rect.height / this.containerScale.y) + 'px'
-        // translate when resizing from top or left edges
+      // translate when resizing from top or left edges
       event.target.style.webkitTransform =
       event.target.style.transform =
           'translate(' + x + 'px,' + y + 'px)'
@@ -979,7 +980,6 @@ export default {
     }
   }
 }
-
 </script>
 
 <style lang="scss" scoped>

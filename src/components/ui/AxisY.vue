@@ -1,5 +1,5 @@
 <template>
-  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-timeSlice="this.timeSlice" :data-cols="this.cols.length" :data-scale="this.scale" :data-containerSize="this.containerSize">
+  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-timeSlice="this.timeSlice" :data-shapes="this.shapes.length" :data-cols="this.cols.length" :data-scale="this.scale" :data-containerSize="this.containerSize">
     <svg>
       <g class="svg-axis-y"></g>
     </svg>
@@ -7,7 +7,6 @@
 </template>
 
 <script>
-
 import { Axis } from '@/classes/ui/Axis'
 import { Helper } from '@/classes/utils/Helper'
 import { Benchmark } from '@/classes/utils/Benchmark'
@@ -73,7 +72,6 @@ export default {
     }
   }
 }
-
 </script>
 
 <style lang="scss" scoped>

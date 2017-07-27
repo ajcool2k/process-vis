@@ -4,15 +4,15 @@ export class Process extends BaseObject {
   constructor (name, participant, begin, end, startProcess) {
     super(name)
 
-    this._duration = 0  // will be calculated by begin and end
+    this._duration = 0 // will be calculated by begin and end
 
-    this.begin = begin  // time of process begin
-    this.end = end  // time of process end
+    this.begin = begin // time of process begin
+    this.end = end // time of process end
 
     this.participant = participant
     this.startProcess = startProcess
 
-    this.access = 'closed'  // externe Beteiligung
+    this.access = 'closed' // externe Beteiligung
   }
 
   get access () { return this._access }

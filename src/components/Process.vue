@@ -10,6 +10,7 @@
         v-on:addNode="addNode" 
         v-on:moveNode="moveNode" 
         v-on:removeNode="removeNode" 
+        v-on:updateNode="updateNode" 
 
         v-on:addLane="addLane" 
         v-on:removeLane="removeLane" 
@@ -20,9 +21,7 @@
 </template>
 
 <script>
-
 // Node Dependencies
-import Vue from 'vue'
 import { _ } from 'underscore'
 
 // Classes
@@ -102,6 +101,10 @@ export default {
       this.mod.shapes = _.reject(this.mod.shapes, (shape) => shape.id === shapeId)
     },
 
+    updateNode () {
+      this.mod.shapes = this.mod.shapes.map((elem) => elem)
+    },
+
     addConnection (edgeData) {
       let newId = Helper.nextId(this.mod.edges)
 
@@ -156,7 +159,6 @@ export default {
 
   }
 }
-
 </script>
 
 <style lang="scss" scoped>
