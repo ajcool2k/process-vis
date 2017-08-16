@@ -7,6 +7,10 @@ export class Helper {
     return Number.isNaN(parseInt(x)) ? x : Number.parseInt(x)
   }
 
+  static copy (elem) {
+    return Object.assign({}, elem)
+  }
+
   /**
    * Methode liefert eine neue Id.
    * Es werden alle Objekte nach dem Attribute id durchsucht und die höchste Id um eins inkrementiert.
@@ -18,7 +22,7 @@ export class Helper {
     }
 
     let idList = x.map(elem => elem.id)
-    let highestId = Math.max(...idList) + 1   // Math.max.apply(null, idList) + 1
+    let highestId = Math.max(...idList) + 1 // Math.max.apply(null, idList) + 1
     return highestId
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-timeSlice="this.timeSlice" :data-shapes="this.shapes.length" :data-cols="this.cols.length" :data-scale="this.scale" :data-containerSize="this.containerSize">
+  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-timeSlice="this.timeSlice" :data-scale="this.scale" :data-containerSize="this.containerSize">
     <svg>
       <g class="svg-axis-y"></g>
     </svg>
@@ -52,6 +52,7 @@ export default {
   methods: {
 
     drawAxis () {
+      console.warn('AxisY drawAxis')
       let actorNames = this.cols.map(elem => elem.name)
       let processData = this.shapes
       let timeFormat = this.timeFormat

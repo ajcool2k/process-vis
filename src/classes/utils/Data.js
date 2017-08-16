@@ -3,25 +3,24 @@ import { Process } from '@/classes/Process'
 export class Data {
   static generateData () {
     let nodes = []
-    let unsetPosition = { x: 0, y: 0 }
 
-    nodes.push({ id: 'head', p: new Process('head', 1, new Date(2017, 0, 1), null, true), position: unsetPosition })
-    nodes.push({ id: 'n0', p: new Process('n0', 1, new Date(2017, 0, 6), new Date(2017, 0, 11)), position: unsetPosition })
-    nodes.push({ id: 'n1', p: new Process('n1', 1, new Date(2017, 0, 11), new Date(2017, 0, 15)), position: unsetPosition })
-    nodes.push({ id: 'n2', p: new Process('n2', 2, new Date(2017, 0, 16), new Date(2017, 0, 24)), position: unsetPosition })
-    nodes.push({ id: 'n3', p: new Process('n3', 1, new Date(2017, 0, 21), new Date(2017, 0, 25)), position: unsetPosition })
-    nodes.push({ id: 'n4', p: new Process('n4', 2, new Date(2017, 0, 26), new Date(2017, 0, 30)), position: unsetPosition })
-    nodes.push({ id: 'tail', p: new Process('tail', 1, new Date(2017, 0, 31), new Date(2017, 0, 35)), position: unsetPosition })
+    nodes.push({ id: 0, p: new Process(0, 1, new Date(2017, 0, 1), null, true), position: { x: 0, y: 0 } })
+    nodes.push({ id: 1, p: new Process(1, 1, new Date(2017, 0, 6), new Date(2017, 0, 11)), position: { x: 0, y: 0 } })
+    nodes.push({ id: 2, p: new Process(2, 1, new Date(2017, 0, 11), new Date(2017, 0, 15)), position: { x: 0, y: 0 } })
+    nodes.push({ id: 3, p: new Process(3, 2, new Date(2017, 0, 16), new Date(2017, 0, 24)), position: { x: 0, y: 0 } })
+    nodes.push({ id: 4, p: new Process(4, 1, new Date(2017, 0, 21), new Date(2017, 0, 25)), position: { x: 0, y: 0 } })
+    nodes.push({ id: 5, p: new Process(5, 2, new Date(2017, 0, 26), new Date(2017, 0, 30)), position: { x: 0, y: 0 } })
+    nodes.push({ id: 6, p: new Process(6, 1, new Date(2017, 0, 31), new Date(2017, 0, 35)), position: { x: 0, y: 0 } })
 
     let edges = []
 
-    edges.push({ id: 1, source: 'head', target: 'n0', transform: '=' })
-    edges.push({ id: 2, source: 'n0', target: 'n1', transform: '+' })
-    edges.push({ id: 3, source: 'n1', target: 'n2', transform: '+' })
-    edges.push({ id: 4, source: 'n1', target: 'n3', transform: '+' })
-    edges.push({ id: 5, source: 'n3', target: 'tail', transform: '=' })
-    edges.push({ id: 6, source: 'n2', target: 'n4', transform: '-' })
-    edges.push({ id: 7, source: 'n4', target: 'n3', transform: '-' })
+    edges.push({ id: 1, source: 0, target: 1, transform: '=' })
+    edges.push({ id: 2, source: 1, target: 2, transform: '+' })
+    edges.push({ id: 3, source: 2, target: 3, transform: '+' })
+    edges.push({ id: 4, source: 2, target: 4, transform: '+' })
+    edges.push({ id: 5, source: 4, target: 6, transform: '=' })
+    edges.push({ id: 6, source: 3, target: 5, transform: '-' })
+    edges.push({ id: 7, source: 5, target: 4, transform: '-' })
 
     let participants = []
 

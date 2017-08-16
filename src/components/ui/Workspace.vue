@@ -41,7 +41,7 @@
           <div class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick" :style="'height: ' + item.height + 'px'">
             <div class="content" :data-id="item.id">{{item.id}} - {{item.height}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
-        </div>
+          </div>
         </template>
 
         <svg class="svgNode">
@@ -78,6 +78,7 @@
     </div>
 
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
+    <item-chooser v-on:onProcessCreate="processCreate"></item-chooser>
 
   </div>
 </template>
@@ -97,6 +98,7 @@ Vue.use(MdBackdrop);
 
 // Child components
 import ToolBar from './ToolBar.vue'
+import ItemChooser from './ItemChooser.vue'
 import TimeChooser from './TimeChooser.vue'
 import HorizontalBar from './HorizontalBar.vue'
 import AxisX from './AxisX.vue'
@@ -121,6 +123,7 @@ export default {
   name: 'Workspace',
   components: {
     'tool-bar': ToolBar,
+    'item-chooser': ItemChooser,
     'time-chooser': TimeChooser,
     'horizontal-bar': HorizontalBar,
     'axis-x': AxisX,
@@ -277,16 +280,6 @@ export default {
       .on('dragmove', this.onShapeDrag)
       .on('dragend', event => {
         console.warn('dragend shape')
-        if (!this.fsm.hasEvent('dragend')) return
-        this.fsm.run('dragend')
-
-        // store drag movement in model
-        let shapeId = event.target.getAttribute('data-id')
-        let shape = _.findWhere(this.processModel.shapes, {id: shapeId})
-        let x = (parseFloat(event.target.getAttribute('data-x')) || 0)
-        let y = (parseFloat(event.target.getAttribute('data-y')) || 0)
-
-        shape.position = { x: x, y: y }
       })
       .resizable({
         preserveAspectRatio: false,
@@ -347,12 +340,14 @@ export default {
       })
   },
 
+  beforeUpdate: function () {
+    console.log('Workspace updating ...')
+    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
+  },
+
   updated: function () {
     console.warn('Workspace updated')
     Animate.clear()
-    console.log(this.processModel.shapes)
-    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
-    console.log(this.processModel.shapes)
     this.redraw()
   },
 
@@ -474,7 +469,7 @@ export default {
         action: (event) => {
           this.actionId = event.target.getAttribute('data-id')
           let p = _.findWhere(this.processModel.shapes, { id: Helper.parse(this.actionId) })
-          this.$refs['dialog-process'].open(p.p)
+          this.$refs['dialog-process'].open(p.p, this.processModel.cols)
         }
       })
 
@@ -575,7 +570,7 @@ export default {
     },
 
     redrawConnection (shape) {
-      if (typeof shape === 'string') shape = _.findWhere(this.processModel.shapes, {id: shape})
+      if (typeof shape === 'string') shape = _.findWhere(this.processModel.shapes, {id: Helper.parse(shape)})
 
       let conSources = _.where(this.processModel.edges, {source: shape.id})
       let conTargets = _.where(this.processModel.edges, {target: shape.id})
@@ -822,6 +817,11 @@ export default {
       this.timeFormat = format
       console.log('Workspace: timeFormat updated to: ' + this.timeFormat)
       Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
+    },
+
+    processCreate () {
+      console.log('processCreate')
+      this.$emit('addNode', {})
     },
 
     onContainerClick () {

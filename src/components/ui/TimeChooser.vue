@@ -70,8 +70,6 @@ export default {
 
 .md-speed-dial {
   position: fixed;
-  left: 2vw;
-  bottom: 24px;
   margin-top: -100px
 }
 

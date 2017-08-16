@@ -18,6 +18,15 @@
         </md-input-container>
 
         <md-input-container>
+          <label for="participant">Verantwortlicher</label>
+          <md-select name="participant" id="participant" v-model="process.participant">
+            <template v-for="(item, index) in cols">
+              <md-option :value="item.id">{{ item.name }}</md-option>
+            </template>
+          </md-select>
+        </md-input-container>
+
+        <md-input-container>
           <label>Partizipation</label>
           <md-input type="text" v-model="process.access"></md-input>
         </md-input-container>
@@ -51,6 +60,7 @@ export default {
   data: function () {
     return {
       process: {},
+      cols: {},
       info: {
         begin: '',
         end: ''
@@ -74,10 +84,12 @@ export default {
   },
 
   methods: {
-    open (p) {
+    open (p, c) {
       console.log('DialogProcess open()')
       console.log(p)
       this.process = p
+      this.cols = c
+
       this.info.begin = typeof p.begin !== 'undefined' ? dateFormat(p.begin, 'yyyy-mm-dd') : ''
       this.info.end = typeof p.end !== 'undefined' ? dateFormat(p.end, 'yyyy-mm-dd') : ''
       this.$refs['dialog'].open()

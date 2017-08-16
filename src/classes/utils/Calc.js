@@ -1,3 +1,5 @@
+import { Helper } from '@/classes/utils/Helper'
+
 export class Calc {
   /**
    * Methode liefert die absoluten Werte eines HTML-Dom Elements zurück.
@@ -54,7 +56,10 @@ export class Calc {
   /**
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    */
-  static shapePosition (nodes, cols, containerSize, containerNode, startProcess, timeFormat) {
+  static shapePosition (nodesOrig, cols, containerSize, containerNode, startProcess, timeFormat) {
+    // create copy of nodes to work with
+    let nodes = nodesOrig.map(elem => Helper.copy(elem))
+
     const axisOffset = 40
     const timeSlice = Calc.timeSlice
 
@@ -86,9 +91,6 @@ export class Calc {
     }
 
     nodes.forEach(function (elem, index) {
-      let shape = containerNode.querySelector('.shape[data-id="' + elem.id + '"]')
-      shape.style.width = shapeWidth + 'px'
-
       let defaultEndDate = Calc.getEndDate(elem.p, timeFormat)
 
       // calc height
@@ -96,6 +98,7 @@ export class Calc {
       let duration = durationMillis / quotient
 
       elem.height = Math.max(Math.ceil(timeSlice * duration), timeSlice)
+
       elem.defaultEndDate = defaultEndDate
       console.log('Calc.shapePosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem.height)
 
@@ -112,6 +115,17 @@ export class Calc {
     })
 
     Calc.addSpace(nodes, timeSlice)
+
+    // copy back values on originals (avoid reactivity if no values changes)
+
+    for (let i = 0; i < nodesOrig.length; i++) {
+      nodesOrig[i].position.x = nodes[i].position.x
+      nodesOrig[i].position.y = nodes[i].position.y
+      nodesOrig[i].height = nodes[i].height
+    }
+
+    console.log('NEW')
+    console.log(nodesOrig.map(elem => elem.position.y + elem.height))
   }
 
   /**
@@ -134,7 +148,7 @@ export class Calc {
       nodes.forEach(function (node, index) {
         let startPosition = node.position.y
         if (yEndList.findIndex((pos) => {
-          return (startPosition >= pos) && (startPosition < pos + timeSlice) 
+          return (startPosition >= pos) && (startPosition < pos + timeSlice)
         }) === -1) return // next iteration
 
         // actual startPosition found in an endPosition for another node
@@ -150,7 +164,7 @@ export class Calc {
     if (process.end !== null && typeof process.end === 'object') return process.end
 
     console.log('no enddate found')
-    let defaultEndDate = new Date(process.begin.getTime())  // if no endtime is set
+    let defaultEndDate = new Date(process.begin.getTime()) // if no endtime is set
     switch (timeFormat) {
       case 'hours':
         defaultEndDate = defaultEndDate.setHours(process.begin.getHours() + 1)

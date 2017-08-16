@@ -27,6 +27,7 @@ import { _ } from 'underscore'
 // Classes
 import { Helper } from '@/classes/utils/Helper'
 import { Data } from '@/classes/utils/Data'
+import { Process } from '@/classes/Process'
 
 // Child components
 import Workspace from './ui/Workspace.vue'
@@ -86,8 +87,10 @@ export default {
     },
 
     addNode () {
-      var newId = Helper.nextId(this.mod.shapes)
-      var shape = { id: newId, name: 'p' + newId }
+      let id = Helper.nextId(this.mod.shapes)
+      let position = { x: 0, y: 0 }
+      let process = new Process(id, 1, new Date(2017, 0, 6), new Date(2017, 0, 11))
+      let shape = { id: id, name: id, p: process, position: position }
       this.mod.shapes.push(shape)
     },
 
