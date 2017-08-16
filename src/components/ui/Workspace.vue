@@ -38,7 +38,7 @@
         </template>
 
         <template v-for="(item, index) in processModel.shapes">
-          <div class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick" :style="'height: ' + item.height + 'px'">
+          <div class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick" :style="'height: ' + item.height + 'px; width: ' + item.width + 'px'">
             <div class="content" :data-id="item.id">{{item.id}} - {{item.height}}</div>
             <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
           </div>
@@ -476,7 +476,6 @@ export default {
       this.fsm.addEvent(showProcess, idle, {
         name: 'onCloseProcessDialog',
         action: (event) => {
-          Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
           this.$emit('updateNode', event)
         }
       })
@@ -816,7 +815,6 @@ export default {
     applyTimeFormat (format) {
       this.timeFormat = format
       console.log('Workspace: timeFormat updated to: ' + this.timeFormat)
-      Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
     },
 
     processCreate () {
@@ -934,7 +932,6 @@ export default {
       console.log('onRangeChange')
       this.timeSlice = Helper.parse(event.currentTarget.value)
       Calc.timeSlice = this.timeSlice
-      Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
     },
 
     onContainerDrag (event) {

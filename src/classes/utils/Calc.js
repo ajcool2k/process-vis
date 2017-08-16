@@ -98,6 +98,7 @@ export class Calc {
       let duration = durationMillis / quotient
 
       elem.height = Math.max(Math.ceil(timeSlice * duration), timeSlice)
+      elem.width = shapeWidth
 
       elem.defaultEndDate = defaultEndDate
       console.log('Calc.shapePosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem.height)
@@ -122,6 +123,7 @@ export class Calc {
       nodesOrig[i].position.x = nodes[i].position.x
       nodesOrig[i].position.y = nodes[i].position.y
       nodesOrig[i].height = nodes[i].height
+      nodesOrig[i].width = nodes[i].width
     }
 
     console.log('NEW')
