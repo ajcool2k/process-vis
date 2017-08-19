@@ -54,6 +54,20 @@ export class Calc {
   }
 
   /**
+  * Methode zum Verändern des End-Datums, basiernd auf einem Duration-Faktors
+  * @param {Object} shape Datenobj
+  * @param {Number} factor Faktor zur Veränderung der Duration
+  */
+  static endDateByChange (shape, factor) {
+    let process = shape.p
+    let durationMillis = shape.defaultEndDate - process.begin
+    let durationMillisChanged = Math.floor(durationMillis * factor)
+    let endDate = new Date(process.begin.getTime() + durationMillisChanged)
+    process.end = endDate
+    shape.defaultEndDate = endDate
+  }
+
+  /**
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    */
   static shapePosition (nodesOrig, cols, containerSize, containerNode, startProcess, timeFormat) {
@@ -101,7 +115,7 @@ export class Calc {
       elem.width = shapeWidth
 
       elem.defaultEndDate = defaultEndDate
-      console.log('Calc.shapePosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem.height)
+      // console.log('Calc.shapePosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem.height)
 
       // calc position
       let x = Math.floor((colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2))
@@ -127,8 +141,7 @@ export class Calc {
       nodesOrig[i].defaultEndDate = nodes[i].defaultEndDate
     }
 
-    console.log('NEW')
-    console.log(nodesOrig.map(elem => elem.position.y + elem.height))
+    // console.log(nodesOrig.map(elem => elem.position.y + elem.height))
   }
 
   /**
@@ -146,7 +159,7 @@ export class Calc {
       // prepare search
       patched = false
       const yEndList = nodes.map(elem => elem.position.y + elem.height)
-      console.log(yEndList)
+      // console.log(yEndList)
 
       nodes.forEach(function (node, index) {
         let startPosition = node.position.y
@@ -166,7 +179,7 @@ export class Calc {
   static getEndDate (process, timeFormat) {
     if (process.end !== null && typeof process.end === 'object') return process.end
 
-    console.log('no enddate found')
+    // console.log('no enddate found')
     let defaultEndDate = new Date(process.begin.getTime()) // if no endtime is set
     switch (timeFormat) {
       case 'hours':

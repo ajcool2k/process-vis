@@ -2,18 +2,18 @@
   <div id="Process">
 
     <!-- child component -->
-    <workspace :processModel="mod" :changes="changes" 
+    <workspace :processModel="mod" :changes="changes"
 
-        v-on:addConnection="addConnection" 
-        v-on:removeConnection="removeConnection" 
+        v-on:addConnection="addConnection"
+        v-on:removeConnection="removeConnection"
 
-        v-on:addNode="addNode" 
-        v-on:moveNode="moveNode" 
-        v-on:removeNode="removeNode" 
-        v-on:updateNode="updateNode" 
+        v-on:addNode="addNode"
+        v-on:moveNode="moveNode"
+        v-on:removeNode="removeNode"
+        v-on:updateNode="updateNode"
 
-        v-on:addLane="addLane" 
-        v-on:removeLane="removeLane" 
+        v-on:addLane="addLane"
+        v-on:removeLane="removeLane"
 
     ></workspace>
 
@@ -27,7 +27,6 @@ import { _ } from 'underscore'
 // Classes
 import { Helper } from '@/classes/utils/Helper'
 import { Data } from '@/classes/utils/Data'
-import { Process } from '@/classes/Process'
 
 // Child components
 import Workspace from './ui/Workspace.vue'
@@ -125,7 +124,8 @@ export default {
       let edge = {
         id: newId,
         source: edgeData.source,
-        target: edgeData.target
+        target: edgeData.target,
+        transform: '='
       }
 
       this.mod.edges.push(edge)

@@ -285,7 +285,7 @@ export default {
       .resizable({
         preserveAspectRatio: false,
         restrict: { /* restrict options */ },
-        edges: { left: false, right: false, bottom: true, top: true }
+        edges: { left: false, right: false, bottom: true, top: false }
       })
       .on('resizestart', event => {
         if (!this.fsm.hasEvent('resizeShapeStart')) return
@@ -297,7 +297,7 @@ export default {
       })
       .on('resizeend', event => {
         if (!this.fsm.hasEvent('resizeShapeFinished')) return
-        this.fsm.run('resizeShapeFinished')
+        this.fsm.run('resizeShapeFinished', event)
       })
 
     interact('.col')
@@ -430,6 +430,13 @@ export default {
         name: 'resizeShapeFinished',
         action: (event) => {
           this.timeRuler.style.display = 'none'
+          let shapeId = event.target.getAttribute('data-id')
+          let shape = _.findWhere(this.processModel.shapes, { id: Helper.parse(shapeId) })
+          let resizeDelta = { x: Math.floor(event.dx / this.containerScale.x), y: Math.floor(event.dy / this.containerScale.y) }
+          let factor = (shape.height + resizeDelta.y) / shape.height
+          Calc.endDateByChange(shape, factor)
+          shape.height = shape.height + resizeDelta.y
+          this.$emit('updateNode', shape.id)
         }
       })
 
@@ -1094,7 +1101,7 @@ svg {
   fill: none;
   stroke: red;
   stroke-width: 50;
-  stroke-opacity: 0.01; 
+  stroke-opacity: 0.01;
   pointer-events: all;
   cursor: pointer;
 }
@@ -1105,13 +1112,13 @@ svg {
 
 .connection-outline:hover + .connection-line {
   stroke: #29e;
-  stroke-width: 3;  
+  stroke-width: 3;
 }
 
 
 .connection-transition {
   pointer-events: all;
-  cursor: pointer; 
+  cursor: pointer;
 }
 
 .connection-transition-circle {
@@ -1127,7 +1134,7 @@ svg {
 
 .connection-transition-circle-outline:hover {
   stroke: #29e;
-  stroke-width: 3;   
+  stroke-width: 3;
 }
 
 .connection-transition-text {
@@ -1138,7 +1145,7 @@ svg {
 
 .connection-transition-text:hover + .connection-transition-circle-outline {
   stroke: #29e;
-  stroke-width: 3;  
+  stroke-width: 3;
 }
 
 marker {
