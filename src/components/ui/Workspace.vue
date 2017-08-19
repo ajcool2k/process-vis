@@ -23,7 +23,7 @@
         ref="showTransition">
       </md-dialog-alert>
 
-      <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
+      <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog" ></dialog-process>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
       <!-- child components -->
@@ -116,6 +116,7 @@ import { TouchSupport } from '@/classes/utils/TouchSupport'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
+import { Data } from '@/classes/utils/Data'
 
 Vue.use(VueMaterial)
 
@@ -469,14 +470,22 @@ export default {
         action: (event) => {
           this.actionId = event.target.getAttribute('data-id')
           let p = _.findWhere(this.processModel.shapes, { id: Helper.parse(this.actionId) })
-          this.$refs['dialog-process'].open(p.p, this.processModel.cols)
+          this.$refs['dialog-process'].open(p.p, this.processModel.cols, 'update')
         }
       })
 
       this.fsm.addEvent(showProcess, idle, {
         name: 'onCloseProcessDialog',
         action: (event) => {
-          this.$emit('updateNode', event)
+          console.log('EVENT', event)
+          switch (event.response) {
+            case 'update':
+              this.$emit('updateNode', event.id)
+              break
+            case 'remove':
+              this.$emit('removeNode', event.id)
+              break
+          }
         }
       })
 
@@ -819,7 +828,9 @@ export default {
 
     processCreate () {
       console.log('processCreate')
-      this.$emit('addNode', {})
+      let process = Data.getEmptyProcess()
+      this.$emit('addNode', process)
+      this.$refs['dialog-process'].open(process, this.processModel.cols, 'create')
     },
 
     onContainerClick () {
@@ -860,10 +871,10 @@ export default {
       this.fsm.run('onCloseTransitionDialog')
     },
 
-    onCloseProcessDialog (type) {
+    onCloseProcessDialog (data) {
       console.log('onCloseProcessDialog called')
       if (!this.fsm.hasEvent('onCloseProcessDialog')) return
-      this.fsm.run('onCloseProcessDialog')
+      this.fsm.run('onCloseProcessDialog', data)
       console.log('onCloseProcessDialog run!')
     },
 

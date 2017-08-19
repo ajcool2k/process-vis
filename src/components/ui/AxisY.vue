@@ -1,5 +1,5 @@
 <template>
-  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-timeSlice="this.timeSlice" :data-scale="this.scale" :data-containerSize="this.containerSize">
+  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-timeSlice="this.timeSlice" :data-shapes="this.shapes" :data-scale="this.scale" :data-containerSize="this.containerSize">
     <svg>
       <g class="svg-axis-y"></g>
     </svg>

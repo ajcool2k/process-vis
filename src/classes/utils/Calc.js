@@ -124,6 +124,7 @@ export class Calc {
       nodesOrig[i].position.y = nodes[i].position.y
       nodesOrig[i].height = nodes[i].height
       nodesOrig[i].width = nodes[i].width
+      nodesOrig[i].defaultEndDate = nodes[i].defaultEndDate
     }
 
     console.log('NEW')

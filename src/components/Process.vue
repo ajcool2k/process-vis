@@ -86,10 +86,10 @@ export default {
       this.mod.startProcess = startProcess.length === 1 ? startProcess[0] : null
     },
 
-    addNode () {
+    addNode (process) {
       let id = Helper.nextId(this.mod.shapes)
+      process.id = id
       let position = { x: 0, y: 0 }
-      let process = new Process(id, 1, new Date(2017, 0, 6), new Date(2017, 0, 11))
       let shape = { id: id, name: id, p: process, position: position }
       this.mod.shapes.push(shape)
     },
@@ -101,10 +101,21 @@ export default {
     },
 
     removeNode (shapeId) {
+      console.log('Process (removeNode): ' + shapeId)
+
+      // remove Connection
+      let unneededEdges = this.mod.edges.filter(edge => edge.source === shapeId || edge.target === shapeId)
+      unneededEdges.forEach((edge) => {
+        this.removeConnection(edge.id)
+      })
+
+      // remove Node
+      console.log(this.mod.shapes)
       this.mod.shapes = _.reject(this.mod.shapes, (shape) => shape.id === shapeId)
+      console.log(this.mod.shapes)
     },
 
-    updateNode () {
+    updateNode (shapeId) {
       this.mod.shapes = this.mod.shapes.map((elem) => elem)
     },
 
