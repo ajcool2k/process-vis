@@ -27,8 +27,7 @@
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
       <!-- child components -->
-        <horizontal-bar class="ignore-container-events" :cols="processModel.cols" v-on:laneChange="applyLaneChange"></horizontal-bar>
-        <axis-x class="ignore-container-events" :cols="processModel.cols" :scale="containerScale"></axis-x>
+        <axis-x class="ignore-container-events" :cols="processModel.cols" :scale="containerScale" v-on:closeDialog="onCloseParticipantDialog"></axis-x>
         <input type="range" class="range-timeSlice ignore-container-events" :value="timeSlice" min="1" max="100" @change.stop="onRangeChange">
         <axis-y class="ignore-container-events" :cols="processModel.cols" :shapes="processModel.shapes" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
@@ -78,7 +77,7 @@
     </div>
 
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
-    <item-chooser v-on:onProcessCreate="processCreate"></item-chooser>
+    <item-chooser v-on:onProcessCreate="processCreate" v-on:laneChange="applyLaneChange"></item-chooser>
 
   </div>
 </template>
@@ -100,11 +99,10 @@ Vue.use(MdBackdrop);
 import ToolBar from './ToolBar.vue'
 import ItemChooser from './ItemChooser.vue'
 import TimeChooser from './TimeChooser.vue'
-import HorizontalBar from './HorizontalBar.vue'
 import AxisX from './AxisX.vue'
 import AxisY from './AxisY.vue'
 
-import DialogProcess from './DialogProcess.vue'
+import DialogProcess from './dialog/DialogProcess.vue'
 
 import { interact } from 'interactjs'
 import { _ } from 'underscore'
@@ -126,7 +124,6 @@ export default {
     'tool-bar': ToolBar,
     'item-chooser': ItemChooser,
     'time-chooser': TimeChooser,
-    'horizontal-bar': HorizontalBar,
     'axis-x': AxisX,
     'axis-y': AxisY,
     'dialog-process': DialogProcess
@@ -806,20 +803,6 @@ export default {
       this.containerScale = {x: this.containerScale.x * multX, y: this.containerScale.y * multY}
     },
 
-    // Listener for horizontal-bar emits
-    applyLaneChange (laneData) {
-      switch (laneData) {
-        case 'add':
-          this.$emit('addLane')
-          return
-        case 'remove':
-          this.$emit('removeLane')
-          return
-        default:
-          console.warn('laneData has unexpected information')
-      }
-    },
-
     // Listener for tool-bar emits
     applyZoom (scaleData) {
       this.containerScale.x = scaleData.x
@@ -883,6 +866,18 @@ export default {
       if (!this.fsm.hasEvent('onCloseProcessDialog')) return
       this.fsm.run('onCloseProcessDialog', data)
       console.log('onCloseProcessDialog run!')
+    },
+
+    onCloseParticipantDialog (data) {
+      console.log('onCloseParticipantDialog called')
+      switch (data.response) {
+        case 'update':
+          this.$emit('updateLane', data.id)
+          break
+        case 'remove':
+          this.$emit('removeLane', data.id)
+          break
+      }
     },
 
     resizeElement (event) {
@@ -1013,10 +1008,6 @@ $bgColor: #eee;
     }
 
     .tool-bar {
-      display: none
-    }
-
-    .horizontal-bar {
       display: none
     }
   }

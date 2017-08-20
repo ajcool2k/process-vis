@@ -50,7 +50,7 @@ export default {
     },
 
     addLane () {
-      console.log('add new lane (not implemented yet)')
+      this.$emit('laneChange', 'add')
     }
   }
 }

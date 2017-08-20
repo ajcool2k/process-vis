@@ -142,14 +142,25 @@ export default {
       this.mod.cols.push({ id: newId, name: 'A' + newId })
     },
 
-    removeLane () {
+    removeLane (participantId) {
       console.log('remove lane')
-      let that = this
+
+      if (typeof participantId === 'undefined' || participantId.length < 1) {
+        console.warn('Could not remove participant, id missing')
+        return
+      }
+
+      // check if id exists
+      let used = this.mod.cols.filter(col => col.id === participantId)
+      if (used.length < 1) {
+        console.warn('Could not remove participant, id not found')
+        return
+      }
 
       // avoid if shapes are on this lane to keep them in container
-      var shapes = _.find(that.mod.shapes, shape => shape.p.participant === that.mod.cols.length)
+      var shapes = this.mod.shapes.filter(shape => shape.p.participant === participantId)
 
-      if (shapes) {
+      if (shapes.length > 0) {
         console.warn('Could not remove lane, there are still processes applied')
         return
       }
@@ -160,7 +171,8 @@ export default {
         return
       }
 
-      this.mod.cols.splice(-1, 1)
+      // remove id from model
+      this.mod.cols = this.mod.cols.filter(col => col.id !== participantId)
     },
 
     forceRedraw () {

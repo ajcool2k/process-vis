@@ -1,38 +1,36 @@
 <template>
   <div class="axis-x">
-    
-    <md-layout :md-gutter="this.cols.length">
 
+    <dialog-participant ref="dialog-participant" v-on:closeDialog="onCloseDialog"></dialog-participant>
+
+    <md-layout :md-gutter="this.cols.length">
         <template v-for="(item, index) in this.cols">
           <md-layout md-align="center">
             <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item.id">{{ item.name }}</md-button>
           </md-layout>
         </template>
-    
+
     </md-layout>
 
-      <md-dialog-alert
-        :md-content-html="dialog.showActorDialog.content"
-        :md-ok-text="dialog.showActorDialog.ok"
-        @close="onCloseShowActorDialog"
-        ref="showActorDialog">
-      </md-dialog-alert>
   </div>
 </template>
 
 <script>
-
 import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 import VueMaterial from 'vue-material'
 import { _ } from 'underscore'
 import { Dialog } from '@/classes/ui/Dialog'
 import { Helper } from '@/classes/utils/Helper'
+import DialogParticipant from './dialog/DialogParticipant.vue'
 
 Vue.use(VueMaterial)
 
 export default {
   name: 'AxisX',
+  components: {
+    'dialog-participant': DialogParticipant
+  },
   props: ['cols', 'scale'],
   data: function () {
     return {
@@ -63,16 +61,15 @@ export default {
       console.log('onShowActorDialog')
       event.stopPropagation()
       let actionId = event.target.getAttribute('data-id')
-      let a = _.findWhere(this.cols, { id: Helper.parse(actionId) })
-      this.dialog.setActorDialog(a)
-      this.$refs['showActorDialog'].open()
+      let participant = _.findWhere(this.cols, { id: Helper.parse(actionId) })
+      this.$refs['dialog-participant'].open(participant, 'update')
     },
 
-    onCloseShowActorDialog (type) {}
-
+    onCloseDialog (data) {
+      this.$emit('closeDialog', data)
+    }
   }
 }
-
 </script>
 
 <style lang="scss" scoped>
@@ -87,7 +84,7 @@ export default {
 }
 
 .md-layout {
-  flex-wrap: nowrap  
+  flex-wrap: nowrap
 }
 
 .md-button {
