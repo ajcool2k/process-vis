@@ -803,6 +803,20 @@ export default {
       this.containerScale = {x: this.containerScale.x * multX, y: this.containerScale.y * multY}
     },
 
+    // Listener for horizontal-bar emits
+    applyLaneChange (laneData) {
+      switch (laneData) {
+        case 'add':
+          this.$emit('addLane')
+          return
+        case 'remove':
+          this.$emit('removeLane')
+          return
+        default:
+          console.warn('laneData has unexpected information')
+      }
+    },
+
     // Listener for tool-bar emits
     applyZoom (scaleData) {
       this.containerScale.x = scaleData.x
