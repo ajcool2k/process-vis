@@ -81,8 +81,7 @@ export default {
       this.mod.shapes = data.nodes
       this.mod.edges = data.edges
       this.mod.cols = data.participants
-      let startProcess = data.nodes.filter(node => node.p.startProcess === true)
-      this.mod.startProcess = startProcess.length === 1 ? startProcess[0] : null
+      this.mod.startProcess = this.startProcess(data.nodes)
     },
 
     addNode (process) {
@@ -173,6 +172,23 @@ export default {
 
       // remove id from model
       this.mod.cols = this.mod.cols.filter(col => col.id !== participantId)
+    },
+
+    startProcess (nodes) {
+      if (nodes instanceof Array !== true) {
+        console.warn('Could not parse startProcess: Processes not available')
+        return
+      }
+
+      if (nodes.length === 0) {
+        return null
+      }
+
+      // get begin times of each process
+      const processBegin = nodes.map(node => node.p.begin)
+      let smallestDate = _.min(processBegin)
+      let processes = nodes.filter(node => node.p.begin === smallestDate) // find all processes containing this date
+      return processes[0] // return first
     },
 
     forceRedraw () {
