@@ -1058,7 +1058,7 @@ $bgColor: #eee;
   width: 1000px;
   height: 600px;
   left: 200px;
-  top: 120px;
+  top: 80px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
