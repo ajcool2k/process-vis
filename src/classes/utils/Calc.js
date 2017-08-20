@@ -104,6 +104,8 @@ export class Calc {
         break
     }
 
+    const lanes = cols.map(elem => elem.id)
+
     nodes.forEach(function (elem, index) {
       let defaultEndDate = Calc.getEndDate(elem.p, timeFormat)
 
@@ -117,8 +119,15 @@ export class Calc {
       elem.defaultEndDate = defaultEndDate
       // console.log('Calc.shapePosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem.height)
 
+      // find workspace lane
+      let laneNumber = lanes.indexOf(elem.p.participant) + 1
+
+      if (laneNumber === 0) {
+        console.warn('Calc.shapePosition: Process is not applied to any lane')
+      }
+
       // calc position
-      let x = Math.floor((colWidth * elem.p.participant) - (colWidth / 2) - (shapeWidth / 2))
+      let x = Math.floor((colWidth * laneNumber) - (colWidth / 2) - (shapeWidth / 2))
       let deltaStart = elem.p.begin - startProcess.p.begin
       let deltaTime = deltaStart / quotient
       let y = Math.ceil(deltaTime * timeSlice) + axisOffset
@@ -127,7 +136,7 @@ export class Calc {
         x: x,
         y: y
       }
-    })
+    }, lanes)
 
     Calc.addSpace(nodes, timeSlice)
 
