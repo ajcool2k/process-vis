@@ -1,5 +1,6 @@
 {
   "system": {
+    "_comment": "Es handelt sich um die Systembeschreibung",
     "id": "https://oproc.dresden.org/",
     "type": "https://schema.oproc.org/0.1/system",
     "entrypoints": "https://process.stadt.de/process/",
@@ -9,6 +10,7 @@
     "website": "http://www.stadt.de/"
   },
   "entrypoint": {
+    "_comment": "Es handelt sich um die obersten Einstiegspunkte",
     "type": "https://process.stadt.de/entrypoint/",
     "list": [
       "https://process.stadt.de/process/1"
@@ -17,98 +19,106 @@
     "modified": "2012-11-11T11:11:00+01:00"
   },
   "process": {
-    "id": "https://process.stadt.de/process/11",
-    "reference (optional)": "AZ1337/11",
-    "initiator": {
-      "id": "https://process.stadt.de/stakeholder/55",
-      "name": "Jane Doe",
-      "type": "individual",
-      "contact (optional)": {
-        "contactPerson  (optional)": "Jane Doe",
-        "postAddress (optional)": "Somewhere over the rainbow 7",
-        "phone (optional)": "0190 423409",
-        "telefax (optional)": "0190 42343290",
-        "email  (optional)": "foo@kulturpalast.de",
-        "website  (optional)": "https://kulturpalast.de"
-      }
-    },
+    "_comment": "",
+    "id": "",
+    "reference (optional)": "",
+    "initiator": "",
     "connection": {
       "from": [],
-      "to": [
-        "https://process.stadt.de/process/12"
-      ]
+      "to": []
     },
-    "parent": "https://process.stadt.de/process/1",
-    "childs": [
-      {
-        "process": "https://process.stadt.de/process/111"
-      },
-      {
-        "process": "https://process.stadt.de/process/112"
-      },
-      {
-        "process": "https://process.stadt.de/process/113"
-      },
-      {
-        "process": "https://process.stadt.de/process/114"
-      }
-    ],
-    "name": "Bau der Waldschlößchenbrücke",
-    "description": "Es handelt sich um das Bauvorhaben um die Waldschlösschenbrücke",
-    "location": [
-      {
-        "id": "https://process.stadt.de/location/1",
-        "address": "Friedrich-List-Platz 1",
-        "zip": "01069",
-        "city": "Dresden",
-        "room (optional)": "113 (Hinterhof)",
-        "geoCoords (optional)": {
-          "lat": "51.050407",
-          "lng": "13.737262"
-        }
-      }
-    ],
-    "start": "2011-11-11T11:11:00+01:00",
-    "end (optional)": "2011-11-11T11:11:00+01:00",
-    "participation": {
-      "id": "https://process.stadt.de/participation/1",
-      "type": "closed"
-    },
+    "parent": "",
+    "name": "",
+    "description": "",
+    "location": [],
+    "start": "",
+    "end (optional)": "",
+    "participation": "",
+    "participants": [],
     "transformation": {
-      "id": "https://process.stadt.de/transformation/11",
       "type": "=",
-      "info": "Überprüfung des aktuellen Stands"
+      "info": "",
+      "decision": ""
     },
     "results (optional)": [
       {
-        "id": "https://process.stadt.de/results/1112",
-        "name": "Ergebnisse Sitzung 2",
-        "description": "Es handelt sich um eime Zusammenfassung ...",
+        "id": "",
+        "name": "",
+        "description": "",
         "copyright (optional)": "",
         "text (optional)": "",
-        "files (optional)": [
-          {
-            "id": "https://process.stadt.de/files/373hdk22",
-            "name": "Sitzung2.pdf",
-            "mineType": "application/pdf",
-            "size": 1136575
-          }
-        ],
-        "created": "2011-11-11T11:11:00+01:00",
-        "modified": "2012-11-11T11:11:00+01:00"
-      },
-      {
-        "id": "https://process.stadt.de/result/33311",
-        "name": "Ergebnisse Sitzung 2 info",
-        "description": "Es handelt sich um eime Zusammenfassung ...",
-        "copyright (optional)": "Jane Done",
-        "text (optional)": "Anstatt einer Datei kann auch Text verwendet werden.. Praktisch!",
         "files (optional)": [],
-        "created": "2011-11-11T11:11:00+01:00",
-        "modified": "2012-11-11T11:11:00+01:00"
+        "created": "",
+        "modified": ""
       }
     ],
-    "created": "2011-11-11T11:11:00+01:00",
-    "modified": "2012-11-11T11:11:00+01:00"
+    "childs": [
+      {
+        "id": "https://process.stadt.de/process/11",
+        "reference (optional)": "",
+        "initiator": "",
+        "connection": {
+          "from": [],
+          "to": []
+        },
+        "parent": "",
+        "childs": [],
+        "name": "",
+        "description": "",
+        "location": [],
+        "start": "",
+        "end (optional)": "",
+        "participation": "",
+        "participants": [],
+        "transformation": {
+          "type": "",
+          "info": "",
+          "decision": ""
+        },
+        "results (optional)": [
+          {
+            "id": "",
+            "name": "",
+            "description": "",
+            "copyright (optional)": "",
+            "text (optional)": "",
+            "files (optional)": [],
+            "created": "",
+            "modified": ""
+          }
+        ]
+      }
+    ],
+    "stakeholder": [
+      {
+        "id": "",
+        "name": "",
+        "type": "",
+        "contact (optional)": {
+          "contactPerson  (optional)": "",
+          "postAddress (optional)": "",
+          "phone (optional)": "",
+          "telefax (optional)": "",
+          "email  (optional)": "",
+          "website  (optional)": ""
+        },
+		"participated": []
+      }
+    ],
+    "locations": [
+      {
+        "id": "",
+        "address": "",
+        "zip": "",
+        "city": "",
+        "room (optional)": "",
+        "geoCoords (optional)": {
+          "lat": "",
+          "lng": ""
+        }
+      }
+    ],
+    "created": "",
+    "modified": ""
   }
 }
