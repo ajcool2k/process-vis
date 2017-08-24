@@ -71,6 +71,8 @@ export class Calc {
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    */
   static shapePosition (nodesOrig, cols, containerSize, containerNode, startProcess, timeFormat) {
+    console.warn('shapePosition')
+    console.log(startProcess.id)
     // create copy of nodes to work with
     let nodes = nodesOrig.map(elem => Helper.copy(elem))
 

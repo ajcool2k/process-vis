@@ -69,6 +69,13 @@ export default {
     console.warn('App updated')
   },
 
+  watch: {
+    // whenever question changes, this function will run
+    'mod.shapes': function (newShapes) {
+      this.mod.startProcess = this.startProcess(this.mod.shapes)
+      console.log('new startingProcess: ', this.mod.startProcess.id)
+    }
+  },
   methods: {
 
     addData () {
@@ -81,7 +88,7 @@ export default {
       this.mod.shapes = data.nodes
       this.mod.edges = data.edges
       this.mod.cols = data.participants
-      this.mod.startProcess = this.startProcess(data.nodes)
+      this.mod.startProcess = this.startProcess(this.mod.shapes)
     },
 
     addNode (process) {
@@ -180,14 +187,18 @@ export default {
         return
       }
 
-      if (nodes.length === 0) {
-        return null
-      }
+      if (nodes.length === 0) return null
 
       // get begin times of each process
       const processBegin = nodes.map(node => node.p.begin)
       let smallestDate = _.min(processBegin)
       let processes = nodes.filter(node => node.p.begin === smallestDate) // find all processes containing this date
+
+      if (processes.length < 1) {
+        console.warn('Could not find target Date')
+        return null
+      }
+      console.log('startProcess', processes[0])
       return processes[0] // return first
     },
 
