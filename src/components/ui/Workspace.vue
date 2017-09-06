@@ -36,13 +36,6 @@
           </div>
         </template>
 
-        <template v-for="(item, index) in processModel.shapes">
-          <div class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick" :style="'height: ' + item.height + 'px; width: ' + item.width + 'px'">
-            <div class="content" :data-id="item.id">{{item.id}} - {{item.height}}</div>
-            <div class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect"></div>
-          </div>
-        </template>
-
         <svg class="svgNode">
           <defs>
             <marker id="marker-triangle"
@@ -58,6 +51,14 @@
             </marker>
 
           </defs>
+
+          <template v-for="(item, index) in processModel.shapes">
+            <g class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick">
+              <rect class="content" :data-id="item.id" :style="'height: ' + item.height + 'px; width: ' + item.width + 'px'"></rect>
+              <circle class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect" r="10" :style="'cy: ' + (item.height - 40 / 2) + '; cx: '+ (item.width / 2 ) + ';'"></circle>
+              <text :x="(item.width / 2)" y="20" style="fill: white; text-anchor: middle">{{item.id}} - {{item.height}}</text>
+            </g>
+          </template>
 
           <template v-for="(item, index) in processModel.edges">
             <g class="connection" :data-id="item.id">
@@ -625,6 +626,8 @@ export default {
 
       let Offset = 0 // (sourcePoint.x < targetPoint.x) ? -20 : 0
 
+      if (sourcePoint.x === targetPoint.x) anchorOffset = 0
+
       let sourceAnchor = {
         x: sourcePoint.x,
         y: sourcePoint.y + Math.max(Math.round((targetPoint.y - sourcePoint.y) / 2), anchorOffset)
@@ -1183,8 +1186,9 @@ marker {
 
 
 .content {
-  flex-grow: 1;
-  align-self: center;
+  fill: #29e;
+  stroke-width: 1;
+  stroke: white;
 }
 
 $anchorSize: 20px;
@@ -1192,11 +1196,7 @@ $anchorSize: 20px;
 .anchor {
   width: $anchorSize;
   height: $anchorSize;
-  -webkit-border-radius: $anchorSize / 2;
-  -moz-border-radius: $anchorSize / 2;
-  border-radius: $anchorSize / 2;
-  background: white;
-  align-self: center;
+  fill:rgb(255,255,255);
   cursor: crosshair;
 }
 
