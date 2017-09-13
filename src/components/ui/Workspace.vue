@@ -32,8 +32,7 @@
         <axis-y class="ignore-container-events" :cols="processModel.cols" :shapes="processModel.shapes" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
         <template v-for="(item, index) in processModel.cols">
-          <div :class="'col col' + index" :data-id="item.id" :style="'width: ' + ( containerSize.x / processModel.cols.length ) + 'px'">
-          </div>
+          <div :class="'col col' + index" :data-id="item.id" :style="'width: ' + ( containerSize.x / processModel.cols.length ) + 'px'"></div>
         </template>
 
         <svg class="svgNode">
@@ -52,10 +51,10 @@
 
           </defs>
 
-          <template v-for="(item, index) in processModel.shapes">
+          <template v-if="item.width" v-for="(item, index) in processModel.shapes">
             <g class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick">
               <rect class="content" :data-id="item.id" :style="'height: ' + item.height + 'px; width: ' + item.width + 'px'"></rect>
-              <circle class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect" r="10" :style="'cy: ' + (item.height - 40 / 2) + '; cx: '+ (item.width / 2 ) + ';'"></circle>
+              <circle class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect" r="10" :style="'cy: ' + (item.height - 20) + '; cx: '+ (item.width / 2 ) + ';'"></circle>
               <text :x="(item.width / 2)" y="20" style="fill: white; text-anchor: middle">{{item.id}} - {{item.height}}</text>
             </g>
           </template>
@@ -837,7 +836,7 @@ export default {
       console.log('processCreate')
       let process = Data.getEmptyProcess()
       this.$emit('addNode', process)
-      this.$refs['dialog-process'].open(process, this.processModel.cols, 'create')
+      // this.$refs['dialog-process'].open(process, this.processModel.cols, 'create')
     },
 
     onContainerClick () {

@@ -170,19 +170,42 @@ export class Calc {
       // prepare search
       patched = false
       const yEndList = nodes.map(elem => elem.position.y + elem.height)
-      // console.log(yEndList)
+      console.log('addSpace', yEndList)
 
       nodes.forEach(function (node, index) {
         let startPosition = node.position.y
-        if (yEndList.findIndex((pos) => {
-          return (startPosition >= pos) && (startPosition < pos + timeSlice)
-        }) === -1) return // next iteration
+        let foundNodes = yEndList.filter(endPos => {
+          return (startPosition >= endPos) && (startPosition < endPos + timeSlice)
+        })
+
+        if (foundNodes.length === 0) return // next iteration
+
+        // return
+
+        console.log('node', JSON.stringify(node))
+        console.log('foundNodes', foundNodes)
+        console.log('startingPos', node.position.y)
+        console.log('endPos', node.position.y + node.height)
+        const yEndList1 = nodes.map(elem => elem.position.y + elem.height)
+        console.log('beforePatch', yEndList1)
 
         // actual startPosition found in an endPosition for another node
         // increment all other nodes by 1
-        for (let i = index; i < nodes.length; i++) nodes[i].position.y += timeSlice
+        let endPoint = node.position.y + node.height
+        for (let i = index; i < nodes.length; i++) {
+          if (nodes[i].position.y + nodes[i].height >= endPoint) nodes[i].position.y += timeSlice
+        }
+
+        const yEndList2 = nodes.map(elem => elem.position.y + elem.height)
+        console.log('afterPatch', yEndList2)
 
         patched = true
+
+        // Should not happen (just in case)
+        if (foundNodes[0] > 6000) {
+          console.warn('Unexpected Calculation, stopping to avoid inifite loop')
+          patched = false
+        }
       })
     } while (patched) // run as long as something got patched
   }
