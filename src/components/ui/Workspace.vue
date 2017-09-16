@@ -51,11 +51,11 @@
 
           </defs>
 
-          <template v-if="item.width" v-for="(item, index) in processModel.childs" :data-test="processModel.childs.length">
+          <template v-if="item._width" v-for="(item, index) in processModel.childs" :data-test="processModel.childs.length">
             <g class="process draggable drag-drop" :data-test="processModel.childs.length"  :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
-              <rect class="process-content" :data-id="item.id" :style="'height: ' + item.height + 'px; width: ' + item.width + 'px'"></rect>
-              <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :style="'cy: ' + (item.height - 20) + '; cx: '+ (item.width / 2 ) + ';'"></circle>
-              <text class="process-text" :data-id="item.id" :x="(item.width / 2)" y="20">{{item.id}} - {{item.height}}</text>
+              <rect class="process-content" :data-id="item.id" :style="'height: ' + item._height + 'px; width: ' + item._width + 'px'"></rect>
+              <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :style="'cy: ' + (item._height - 20) + '; cx: '+ (item._width / 2 ) + ';'"></circle>
+              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" y="20">{{item.id}} - {{item._height}}</text>
             </g>
           </template>
 
@@ -433,9 +433,9 @@ export default {
           let process = this.processModel.childs.find(elem => elem.id === Helper.parse(processId))
           console.log('process', process)
           let resizeDelta = { x: Math.floor(event.dx / this.containerScale.x), y: Math.floor(event.dy / this.containerScale.y) }
-          let factor = (process.height + resizeDelta.y) / process.height
+          let factor = (process._height + resizeDelta.y) / process._height
           Calc.endDateByChange(process, factor)
-          process.height = process.height + resizeDelta.y
+          process._height += resizeDelta.y
           this.$emit('updateProcess', process.id)
         }
       })

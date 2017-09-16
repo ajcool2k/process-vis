@@ -71,8 +71,8 @@ export class Axis {
         {
           y: elem._position.y,
           start: dateFormat(elem.start, 'dd. mm. yyyy'),
-          end: dateFormat(elem.defaultEndDate, 'dd. mm. yyyy'),
-          height: elem.height
+          end: dateFormat(elem._defaultEndDate, 'dd. mm. yyyy'),
+          height: elem._height
         }
       )
     })

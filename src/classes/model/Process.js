@@ -43,10 +43,8 @@ export class Process {
     this.mStartProcess = startProcess // will set this._startProcess
     this._position = { x: 0, y: 0 }
     this._connections = [] // wrapper for connection
-
-    // TODO underscore
-    this.width = 0
-    this.height = 0
+    this._width = 0
+    this._height = 0
   }
 
   // IMPL getter and setter

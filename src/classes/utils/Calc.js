@@ -60,11 +60,11 @@ export class Calc {
   * @param {Number} factor Faktor zur Veränderung der Duration
   */
   static endDateByChange (process, factor) {
-    let durationMillis = process.defaultEndDate - process.start
+    let durationMillis = process._defaultEndDate - process.start
     let durationMillisChanged = Math.floor(durationMillis * factor)
     let endDate = new Date(process.start.getTime() + durationMillisChanged)
     process.end = endDate
-    process.defaultEndDate = endDate
+    process._defaultEndDate = endDate
   }
 
   static updateStartProcess (childs) {
@@ -159,11 +159,11 @@ export class Calc {
       let durationMillis = defaultEndDate - elem.start
       let duration = durationMillis / quotient
 
-      elem.height = Math.max(Math.ceil(timeSlice * duration), timeSlice)
-      elem.width = processWidth
+      elem._height = Math.max(Math.ceil(timeSlice * duration), timeSlice)
+      elem._width = processWidth
 
-      elem.defaultEndDate = defaultEndDate
-      // console.log('Calc.processPosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem.height)
+      elem._defaultEndDate = defaultEndDate
+      // console.log('Calc.processPosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem._height)
 
       // find workspace lane
       let laneNumber = lanes.indexOf(elem.initiator) + 1
@@ -191,12 +191,12 @@ export class Calc {
     for (let i = 0; i < processes.length; i++) {
       processes[i]._position.x = processesCopy[i]._position.x
       processes[i]._position.y = processesCopy[i]._position.y
-      processes[i].height = processesCopy[i].height
-      processes[i].width = processesCopy[i].width
-      processes[i].defaultEndDate = processesCopy[i].defaultEndDate
+      processes[i]._height = processesCopy[i]._height
+      processes[i]._width = processesCopy[i]._width
+      processes[i]._defaultEndDate = processesCopy[i]._defaultEndDate
     }
 
-    // console.log(processes.map(elem => elem._position.y + elem.height))
+    // console.log(processes.map(elem => elem._position.y + elem._height))
   }
 
   /**
@@ -213,7 +213,7 @@ export class Calc {
     do {
       // prepare search
       patched = false
-      const yEndList = processes.map(elem => elem._position.y + elem.height)
+      const yEndList = processes.map(elem => elem._position.y + elem._height)
       console.log('addSpace', yEndList)
 
       processes.forEach(function (node, index) {
@@ -229,18 +229,18 @@ export class Calc {
         console.log('node', JSON.stringify(node))
         console.log('foundProcesses', foundProcesses)
         console.log('startingPos', node._position.y)
-        console.log('endPos', node._position.y + node.height)
-        const yEndList1 = processes.map(elem => elem._position.y + elem.height)
+        console.log('endPos', node._position.y + node._height)
+        const yEndList1 = processes.map(elem => elem._position.y + elem._height)
         console.log('beforePatch', yEndList1)
 
         // actual startPosition found in an endPosition for another node
         // increment all other processes by 1
-        let endPoint = node._position.y + node.height
+        let endPoint = node._position.y + node._height
         for (let i = index; i < processes.length; i++) {
-          if (processes[i]._position.y + processes[i].height >= endPoint) processes[i]._position.y += timeSlice
+          if (processes[i]._position.y + processes[i]._height >= endPoint) processes[i]._position.y += timeSlice
         }
 
-        const yEndList2 = processes.map(elem => elem._position.y + elem.height)
+        const yEndList2 = processes.map(elem => elem._position.y + elem._height)
         console.log('afterPatch', yEndList2)
 
         patched = true
@@ -290,7 +290,7 @@ export class Calc {
     // relative approch
     processes.forEach(function (elem, index) {
       // store x / y for container size
-      containerY = Math.max(containerY, elem._position.y + elem.height + Calc.containerPaddingBottom)
+      containerY = Math.max(containerY, elem._position.y + elem._height + Calc.containerPaddingBottom)
     })
 
     // easy approch
