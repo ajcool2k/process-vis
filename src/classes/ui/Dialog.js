@@ -1,7 +1,7 @@
 export class Dialog {
   constructor () {
-    this.removeEdgeDialog = {
-      ref: 'removeEdgeDialog',
+    this.removeConnectionDialog = {
+      ref: 'removeConnectionDialog',
       title: 'Aktion',
       ok: 'Ja',
       cancel: 'Nein',

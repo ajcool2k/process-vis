@@ -2,18 +2,18 @@
   <div id="Process">
 
     <!-- child component -->
-    <workspace :processModel="mod" :changes="changes"
+    <workspace :processModel="datamodel" :changes="changes"
 
         v-on:addConnection="addConnection"
         v-on:removeConnection="removeConnection"
 
-        v-on:addNode="addNode"
-        v-on:moveNode="moveNode"
-        v-on:removeNode="removeNode"
-        v-on:updateNode="updateNode"
+        v-on:addProcess="addProcess"
+        v-on:moveProcess="moveProcess"
+        v-on:removeProcess="removeProcess"
+        v-on:updateProcess="updateProcess"
 
-        v-on:addLane="addLane"
-        v-on:removeLane="removeLane"
+        v-on:addParticipant="addParticipant"
+        v-on:removeParticipant="removeParticipant"
 
     ></workspace>
 
@@ -21,12 +21,17 @@
 </template>
 
 <script>
-// Node Dependencies
+// Dependencies
 import { _ } from 'underscore'
 
 // Classes
 import { Helper } from '@/classes/utils/Helper'
-import { Data } from '@/classes/utils/Data'
+import { Calc } from '@/classes/utils/Calc'
+
+import { Data2 } from '@/classes/utils/Data2'
+
+import { Process } from '@/classes/model/Process'
+import { Stakeholder } from '@/classes/model/Stakeholder'
 
 // Child components
 import Workspace from './ui/Workspace.vue'
@@ -38,12 +43,7 @@ export default {
   },
   data: function () {
     return {
-      mod: {
-        shapes: [],
-        edges: [],
-        cols: [],
-        tests: {}
-      },
+      datamodel: new Process(),
       changes: {
         time: new Date()
       }
@@ -52,9 +52,8 @@ export default {
 
   created: function () {
     console.log('App created')
-
     this.addData()
-    console.log(this.mod)
+    console.log('datamodel', this.datamodel)
   },
 
   destroyed: function () {
@@ -70,10 +69,10 @@ export default {
   },
 
   watch: {
-    // whenever question changes, this function will run
-    'mod.shapes': function (newShapes) {
-      this.mod.startProcess = this.startProcess(this.mod.shapes)
-      console.log('new startingProcess: ', this.mod.startProcess.id)
+    // whenever childs changes, this function will run
+    'datamodel.childs': function (updatedChilds) {
+      let startProcess = Calc.updateStartProcess(this.datamodel.childs)
+      console.log('new startingProcess: ', startProcess)
     }
   },
   methods: {
@@ -82,74 +81,82 @@ export default {
       console.log('App addData')
 
       // add column
-      this.addLane()
-      let data = Data.generateData()
-      console.log(data)
-      this.mod.shapes = data.nodes
-      this.mod.edges = data.edges
-      this.mod.cols = data.participants
-      this.mod.startProcess = this.startProcess(this.mod.shapes)
+      this.addParticipant()
+      let generatedData = Data2.generateData()
+      this.datamodel = generatedData.datamodel
+      Calc.updateStartProcess(this.datamodel.childs)
+      console.log(generatedData)
     },
 
-    addNode (process) {
-      let id = Helper.nextId(this.mod.shapes)
-      process.id = id
-      let position = { x: 0, y: 0 }
-      let shape = { id: id, name: id, p: process, position: position }
-      this.mod.shapes.push(shape)
+    addProcess (process) {
+      console.log('addProcess', process)
+      this.datamodel.childs.push(process)
     },
 
-    moveNode (shapeData) {
-      let node = _.findWhere(this.mod.shapes, { id: shapeData.shapeId })
-      node.p.participant = shapeData.laneId
+    moveProcess (processData) {
+      console.log('moveProcess', processData)
+      let process = this.datamodel.childs.find(elem => elem.id === processData.processId)
+      process.initiator = processData.participantId
       this.forceRedraw()
     },
 
-    removeNode (shapeId) {
-      console.log('Process (removeNode): ' + shapeId)
+    removeProcess (processId) {
+      console.log('Process (removeProcess): ' + processId)
 
       // remove Connection
-      let unneededEdges = this.mod.edges.filter(edge => edge.source === shapeId || edge.target === shapeId)
-      unneededEdges.forEach((edge) => {
-        this.removeConnection(edge.id)
+      let unneededConnections = []
+      this.datamodel.childs.forEach(elem => {
+        if (elem.connection.from.indexOf(processId) > -1) unneededConnections.push(processId + '->' + elem.id)
+        if (elem.connection.to.indexOf(processId) > -1) unneededConnections.push(elem.id + '->' + processId)
       })
 
-      // remove Node
-      console.log(this.mod.shapes)
-      this.mod.shapes = _.reject(this.mod.shapes, (shape) => shape.id === shapeId)
-      console.log(this.mod.shapes)
+      unneededConnections.forEach((con) => {
+        this.removeConnection(con)
+      })
+
+      // remove Process
+      this.datamodel.childs = this.datamodel.childs.filter(elem => elem.id !== processId)
     },
 
-    updateNode (shapeId) {
-      this.mod.shapes = this.mod.shapes.map((elem) => elem)
+    updateProcess (processId) {
+      this.datamodel.childs = this.datamodel.childs.map(elem => elem)
     },
 
-    addConnection (edgeData) {
-      let newId = Helper.nextId(this.mod.edges)
+    addConnection (connectionData) {
+      console.log('addConnection', connectionData)
 
-      let edge = {
-        id: newId,
-        source: edgeData.source,
-        target: edgeData.target,
-        transform: '='
-      }
+      let processSource = this.datamodel.childs.find(elem => elem.id === connectionData.source)
+      let processTarget = this.datamodel.childs.find(elem => elem.id === connectionData.target)
 
-      this.mod.edges.push(edge)
-      console.log(this.mod.edges)
+      console.log('processSource', processSource)
+      console.log('processTarget', processTarget)
+
+      processSource.mConnections = { to: connectionData.target }
+      processTarget.mConnections = { from: connectionData.source }
     },
 
-    removeConnection (edgeId) {
-      edgeId = Helper.parse(edgeId)
-      this.mod.edges = _.reject(this.mod.edges, edge => edge.id === edgeId)
+    removeConnection (connectionId) {
+      console.log('removeConnection', connectionId)
+      let con = Helper.connectionParse(connectionId)
+
+      let processTo = this.datamodel.childs.find(elem => elem.id === con.source)
+      let processFrom = this.datamodel.childs.find(elem => elem.id === con.target)
+
+      processTo.connection.to = _.reject(processTo.connection.to, elem => elem === con.target) // remove to process
+      processFrom.connection.from = _.reject(processFrom.connection.from, elem => elem === con.source) // remove from process
+
+      processTo._connections = processTo._connections.filter(elem => elem.id !== connectionId) // remove from mConnections
     },
 
-    addLane () {
-      let newId = Helper.nextId(this.mod.cols)
-      this.mod.cols.push({ id: newId, name: 'A' + newId })
+    addParticipant () {
+      let stakeholder = new Stakeholder()
+      console.log('stakeholder', stakeholder)
+      this.datamodel.stakeholder.push(stakeholder)
+      this.datamodel.participants.push(stakeholder.id)
     },
 
-    removeLane (participantId) {
-      console.log('remove lane')
+    removeParticipant (participantId) {
+      console.log('remove Participant', participantId)
 
       if (typeof participantId === 'undefined' || participantId.length < 1) {
         console.warn('Could not remove participant, id missing')
@@ -157,49 +164,45 @@ export default {
       }
 
       // check if id exists
-      let used = this.mod.cols.filter(col => col.id === participantId)
-      if (used.length < 1) {
+      let found = this.datamodel.participants.filter(elem => elem === participantId)
+      if (found.length < 1) {
         console.warn('Could not remove participant, id not found')
         return
       }
 
-      // avoid if shapes are on this lane to keep them in container
-      var shapes = this.mod.shapes.filter(shape => shape.p.participant === participantId)
+      // avoid if child processes are on this Participant to keep them in container
+      let used = this.datamodel.childs.filter(elem => elem.initiator === participantId)
 
-      if (shapes.length > 0) {
-        console.warn('Could not remove lane, there are still processes applied')
+      if (used.length > 0) {
+        console.warn('Could not remove Participant, there are still processes applied')
         return
       }
 
-      // avoid if only one lane is left
-      if (this.mod.cols.length < 2) {
-        console.warn('Could not remove more lanes')
+      // avoid if only one Participant is left
+      if (this.datamodel.participants.length < 2) {
+        console.warn('Could not remove more Participants')
         return
       }
 
       // remove id from model
-      this.mod.cols = this.mod.cols.filter(col => col.id !== participantId)
+      this.datamodel.participants = this.datamodel.participants.filter(elem => elem !== participantId)
     },
 
-    startProcess (nodes) {
-      if (nodes instanceof Array !== true) {
+    startProcess (childs) {
+      if (childs instanceof Array !== true) {
         console.warn('Could not parse startProcess: Processes not available')
         return
       }
 
-      if (nodes.length === 0) return null
+      if (childs.length === 0) return null
 
       // get begin times of each process
-      const processBegin = nodes.map(node => node.p.begin)
-      let smallestDate = _.min(processBegin)
-      let processes = nodes.filter(node => node.p.begin === smallestDate) // find all processes containing this date
+      const processBegin = childs.map(elem => elem.start)
+      const smallestDate = _.min(processBegin)
+      let startProcess = childs.find(elem => elem.start === smallestDate) // find first process with this date
 
-      if (processes.length < 1) {
-        console.warn('Could not find target Date')
-        return null
-      }
-      console.log('startProcess', processes[0])
-      return processes[0] // return first
+      console.log('startProcess', startProcess)
+      return startProcess
     },
 
     forceRedraw () {

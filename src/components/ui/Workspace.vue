@@ -5,14 +5,13 @@
     <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom"></tool-bar>
 
     <div class="workspace">
-
       <md-dialog-confirm
-        :md-title="dialog.removeEdgeDialog.title"
-        :md-content-html="dialog.removeEdgeDialog.contentHtml"
-        :md-ok-text="dialog.removeEdgeDialog.ok"
-        :md-cancel-text="dialog.removeEdgeDialog.cancel"
-        @close="onCloseRemoveEdgeDialog"
-        ref="removeEdgeDialog">
+        :md-title="dialog.removeConnectionDialog.title"
+        :md-content-html="dialog.removeConnectionDialog.contentHtml"
+        :md-ok-text="dialog.removeConnectionDialog.ok"
+        :md-cancel-text="dialog.removeConnectionDialog.cancel"
+        @close="onCloseRemoveConnectionDialog"
+        ref="removeConnectionDialog">
       </md-dialog-confirm>
 
       <md-dialog-alert
@@ -27,12 +26,13 @@
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
       <!-- child components -->
-        <axis-x class="ignore-container-events" :cols="processModel.cols" :scale="containerScale" v-on:closeDialog="onCloseParticipantDialog"></axis-x>
+        <axis-x class="ignore-container-events" :stakeholder="processModel.stakeholder" :participants="processModel.participants" :scale="containerScale" v-on:closeDialog="onCloseParticipantDialog"></axis-x>
         <input type="range" class="range-timeSlice ignore-container-events" :value="timeSlice" min="1" max="100" @change.stop="onRangeChange">
-        <axis-y class="ignore-container-events" :cols="processModel.cols" :shapes="processModel.shapes" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
+        <axis-y class="ignore-container-events" :participants="processModel.participants" :processes="processModel.childs" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
-        <template v-for="(item, index) in processModel.cols">
-          <div :class="'col col' + index" :data-id="item.id" :style="'width: ' + ( containerSize.x / processModel.cols.length ) + 'px'"></div>
+
+        <template v-for="(item, index) in processModel.participants">
+          <div :class="'participant participant' + index" :data-id="item" :style="'width: ' + ( containerSize.x / processModel.participants.length ) + 'px'"></div>
         </template>
 
         <svg class="svgNode">
@@ -51,24 +51,26 @@
 
           </defs>
 
-          <template v-if="item.width" v-for="(item, index) in processModel.shapes">
-            <g class="shape draggable drag-drop" :data-id="item.id" :data-lane="item.p.participant" @click.stop="onShapeClick">
-              <rect class="content" :data-id="item.id" :style="'height: ' + item.height + 'px; width: ' + item.width + 'px'"></rect>
-              <circle class="anchor" :data-id="item.id" @click.stop="activateEdgeConnect" r="10" :style="'cy: ' + (item.height - 20) + '; cx: '+ (item.width / 2 ) + ';'"></circle>
-              <text :x="(item.width / 2)" y="20" style="fill: white; text-anchor: middle">{{item.id}} - {{item.height}}</text>
+          <template v-if="item.width" v-for="(item, index) in processModel.childs" :data-test="processModel.childs.length">
+            <g class="process draggable drag-drop" :data-test="processModel.childs.length"  :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
+              <rect class="process-content" :data-id="item.id" :style="'height: ' + item.height + 'px; width: ' + item.width + 'px'"></rect>
+              <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :style="'cy: ' + (item.height - 20) + '; cx: '+ (item.width / 2 ) + ';'"></circle>
+              <text class="process-text" :data-id="item.id" :x="(item.width / 2)" y="20">{{item.id}} - {{item.height}}</text>
             </g>
           </template>
 
-          <template v-for="(item, index) in processModel.edges">
-            <g class="connection" :data-id="item.id">
-              <polyline class="connection-outline" :data-id="item.id" points="" @click.stop="openRemoveConnectionDialog" />
-              <polyline class="connection-line" :data-id="item.id" points="" />
-              <g class="connection-transition" :data-id="item.id" @click.stop="openTransitionDialog">
-                <circle class="connection-transition-circle" r="20" />
-                <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transform}}</text>
-                <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
+          <template v-for="(item, index) in processModel.childs">
+            <template v-for="(con, index) in item.mConnections">
+              <g class="connection" :data-id="con.id">
+                <polyline class="connection-outline" :data-id="con.id" points="" @click.stop="openRemoveConnectionDialog" />
+                <polyline class="connection-line" :data-id="con.id" points="" />
+                <g class="connection-transition" :data-id="con.id" @click.stop="openTransitionDialog">
+                  <circle class="connection-transition-circle" r="20" />
+                  <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transformation.type}}</text>
+                  <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
+                </g>
               </g>
-            </g>
+             </template>
           </template>
           <polyline class="tmpConnection" points="" />
           <line class="timeRuler" />
@@ -77,7 +79,7 @@
     </div>
 
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
-    <item-chooser v-on:onProcessCreate="processCreate" v-on:laneChange="applyLaneChange"></item-chooser>
+    <item-chooser v-on:onProcessCreate="processCreate" v-on:participantChange="applyParticipantChange"></item-chooser>
 
   </div>
 </template>
@@ -114,7 +116,7 @@ import { TouchSupport } from '@/classes/utils/TouchSupport'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
-import { Data } from '@/classes/utils/Data'
+import { Process } from '@/classes/model/Process'
 
 Vue.use(VueMaterial)
 
@@ -178,7 +180,7 @@ export default {
   },
 
   created: function () {
-    console.log('Worspace created')
+    console.warn('Worspace created')
 
     this.initStateMachine()
 
@@ -199,7 +201,7 @@ export default {
   },
 
   mounted: function () {
-    console.log('Workspace mounted')
+    console.log('Workspace mounted', document.querySelectorAll('.process').length)
 
     // cache DOM
     this.workspaceNode = document.querySelector('.workspace')
@@ -212,15 +214,15 @@ export default {
     this.scopeProp = Helper.getScopeProp(this.svgNode)
 
     // prepare Container and Workspace
-    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat) // set position on the model
-    this.containerSize = Calc.containerSize(this.processModel.shapes, this.processModel.cols) // calc layout based on model
+    Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.containerNode, this.timeFormat) // set position on the model
+    this.containerSize = Calc.containerSize(this.processModel.childs, this.processModel.participants) // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
     this.updateWorkspaceSize() // forces reflow
     // remove existing event handlers
     interact('.processContainer').unset()
-    interact('.col').unset()
-    interact('.shape').unset()
+    interact('.participant').unset()
+    interact('.process rect').unset()
 
     // add new event handlers
     interact('.processContainer')
@@ -254,7 +256,7 @@ export default {
         this.updateWorkspaceSize(scaledDragDelta) // forces reflow
       })
 
-    interact('.shape')
+    interact('.process rect')
       .draggable({
         snap: {
           targets: [
@@ -271,13 +273,13 @@ export default {
         }
       })
       .on('dragstart', event => {
-        console.warn('dragstart shape')
+        console.warn('dragstart process')
         if (!this.fsm.hasEvent('dragstart')) return
         this.fsm.run('dragstart')
       })
-      .on('dragmove', this.onShapeDrag)
+      .on('dragmove', this.onProcessDrag)
       .on('dragend', event => {
-        console.warn('dragend shape')
+        console.warn('dragend process')
       })
       .resizable({
         preserveAspectRatio: false,
@@ -285,22 +287,22 @@ export default {
         edges: { left: false, right: false, bottom: true, top: false }
       })
       .on('resizestart', event => {
-        if (!this.fsm.hasEvent('resizeShapeStart')) return
-        this.fsm.run('resizeShapeStart')
+        if (!this.fsm.hasEvent('resizeProcessStart')) return
+        this.fsm.run('resizeProcessStart')
       })
       .on('resizemove', event => {
-        if (!this.fsm.hasEvent('resizeShapeMove')) return
-        this.fsm.run('resizeShapeMove', event)
+        if (!this.fsm.hasEvent('resizeProcessMove')) return
+        this.fsm.run('resizeProcessMove', event)
       })
       .on('resizeend', event => {
-        if (!this.fsm.hasEvent('resizeShapeFinished')) return
-        this.fsm.run('resizeShapeFinished', event)
+        if (!this.fsm.hasEvent('resizeProcessFinished')) return
+        this.fsm.run('resizeProcessFinished', event)
       })
 
-    interact('.col')
+    interact('.participant')
       .dropzone({
         // only accept elements matching this CSS selector
-        accept: '.shape',
+        accept: '.process rect',
         // Require a 75% element overlap for a drop to be possible
         overlap: 0.75,
 
@@ -315,36 +317,36 @@ export default {
           var dropzoneElement = event.target
 
           // feedback the possibility of a drop
-          dropzoneElement.classList.add('lane-drop')
-          draggableElement.classList.add('shape-drop')
+          dropzoneElement.classList.add('pariticipant-drop')
+          draggableElement.classList.add('process-drop')
           // draggableElement.textContent = 'Dragged in';
         },
         ondragleave: function (event) {
           // remove the drop feedback style
-          event.target.classList.remove('lane-drop')
-          event.relatedTarget.classList.remove('shape-drop')
+          event.target.classList.remove('pariticipant-drop')
+          event.relatedTarget.classList.remove('process-drop')
           // event.relatedTarget.textContent = 'Dragged out';
         },
         ondrop: event => {
-          if (!this.fsm.hasEvent('onShapeDrop')) return
-          this.fsm.run('onShapeDrop', event)
-          event.relatedTarget.classList.remove('shape-drop')
+          if (!this.fsm.hasEvent('onProcessDrop')) return
+          this.fsm.run('onProcessDrop', event)
+          event.relatedTarget.classList.remove('process-drop')
         },
         ondropdeactivate: function (event) {
           // remove active dropzone feedback
           event.target.classList.remove('drop-active')
-          event.target.classList.remove('lane-drop')
+          event.target.classList.remove('pariticipant-drop')
         }
       })
   },
 
   beforeUpdate: function () {
-    console.log('Workspace updating ...')
-    Calc.shapePosition(this.processModel.shapes, this.processModel.cols, this.containerSize, this.containerNode, this.processModel.startProcess, this.timeFormat)
+    console.warn('Workspace updating ...', document.querySelectorAll('.process').length)
+    Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.containerNode, this.timeFormat)
   },
 
   updated: function () {
-    console.warn('Workspace updated')
+    console.warn('Workspace updated', document.querySelectorAll('.process').length)
     Animate.clear()
     this.redraw()
   },
@@ -356,28 +358,28 @@ export default {
 
       let idle = this.fsm.addState('idle')
 
-      // Edges
-      let drawEdge = this.fsm.addState('drawEdge')
+      // Connections
+      let drawConnection = this.fsm.addState('drawConnection')
 
-      // Shapes
-      let dragShape = this.fsm.addState('dragShape')
-      let droppedShape = this.fsm.addState('droppedShape')
+      // Processs
+      let dragProcess = this.fsm.addState('dragProcess')
+      let droppedProcess = this.fsm.addState('droppedProcess')
 
-      let resizeShapeStart = this.fsm.addState('resizeShapeStart')
-      let resizeShapeMove = this.fsm.addState('resizeShapeMove')
-      let resizeShapeFinished = this.fsm.addState('resizeShapeFinished')
+      let resizeProcessStart = this.fsm.addState('resizeProcessStart')
+      let resizeProcessMove = this.fsm.addState('resizeProcessMove')
+      let resizeProcessFinished = this.fsm.addState('resizeProcessFinished')
 
       // Dialogs
       let showProcess = this.fsm.addState('showProcess')
-      let showRemoveEdge = this.fsm.addState('showRemoveEdge')
+      let showRemoveConnection = this.fsm.addState('showRemoveConnection')
       let showTransition = this.fsm.addState('showTransition')
 
-      this.fsm.addEvent(idle, drawEdge, {
-        name: 'activateEdgeConnect',
+      this.fsm.addEvent(idle, drawConnection, {
+        name: 'activateConnectionConnect',
         action: (event) => {}
       })
 
-      this.fsm.addEvent(drawEdge, idle, {
+      this.fsm.addEvent(drawConnection, idle, {
         name: 'onContainerClick',
         action: (event) => {
           this.actions.drawingMode = false
@@ -385,8 +387,8 @@ export default {
         }
       })
 
-      this.fsm.addEvent(drawEdge, idle, {
-        name: 'onShapeClick',
+      this.fsm.addEvent(drawConnection, idle, {
+        name: 'onProcessClick',
         action: (event) => {
           let source = this.tmpLine
           let sourceId = source.getAttribute('data-id')
@@ -400,81 +402,82 @@ export default {
         }
       })
 
-      this.fsm.addEvent(idle, resizeShapeStart, {
-        name: 'resizeShapeStart',
+      this.fsm.addEvent(idle, resizeProcessStart, {
+        name: 'resizeProcessStart',
         action: (event) => {
           this.timeRuler.setAttribute('data-y', this.mousePosition.y)
           this.timeRuler.style.display = 'inline'
         }
       })
 
-      this.fsm.addEvent(resizeShapeStart, resizeShapeMove, {
-        name: 'resizeShapeMove',
+      this.fsm.addEvent(resizeProcessStart, resizeProcessMove, {
+        name: 'resizeProcessMove',
         type: 'transition',
         action: (event) => {
           this.resizeElement(event)
-          let shapeId = event.target.getAttribute('data-id')
+          let processId = event.target.getAttribute('data-id')
 
           // show time ruler
           this.drawRuler(event)
 
-          // update connections of the shape
-          this.redrawConnection(shapeId)
+          // update connections of the process
+          this.redrawConnection(processId)
         }
       })
 
-      this.fsm.addEvent(resizeShapeMove, resizeShapeFinished, {
-        name: 'resizeShapeFinished',
+      this.fsm.addEvent(resizeProcessMove, resizeProcessFinished, {
+        name: 'resizeProcessFinished',
         action: (event) => {
           this.timeRuler.style.display = 'none'
-          let shapeId = event.target.getAttribute('data-id')
-          let shape = _.findWhere(this.processModel.shapes, { id: Helper.parse(shapeId) })
+          let processId = event.target.getAttribute('data-id')
+          let process = this.processModel.childs.find(elem => elem.id === Helper.parse(processId))
+          console.log('process', process)
           let resizeDelta = { x: Math.floor(event.dx / this.containerScale.x), y: Math.floor(event.dy / this.containerScale.y) }
-          let factor = (shape.height + resizeDelta.y) / shape.height
-          Calc.endDateByChange(shape, factor)
-          shape.height = shape.height + resizeDelta.y
-          this.$emit('updateNode', shape.id)
+          let factor = (process.height + resizeDelta.y) / process.height
+          Calc.endDateByChange(process, factor)
+          process.height = process.height + resizeDelta.y
+          this.$emit('updateProcess', process.id)
         }
       })
 
-      this.fsm.addEvent(resizeShapeFinished, idle, {
-        name: 'onShapeClick',
+      this.fsm.addEvent(resizeProcessFinished, idle, {
+        name: 'onProcessClick',
         action: (event) => {
         }
       })
 
-      this.fsm.addEvent(idle, dragShape, {
+      this.fsm.addEvent(idle, dragProcess, {
         name: 'dragstart',
         action: (event) => {
         }
       })
 
-      this.fsm.addEvent(dragShape, droppedShape, {
-        name: 'onShapeDrop',
+      this.fsm.addEvent(dragProcess, droppedProcess, {
+        name: 'onProcessDrop',
         action: (event) => {
           let draggableElement = event.relatedTarget
           let dropzoneElement = event.target
           let data = {
-            shapeId: Helper.parse(draggableElement.getAttribute('data-id')),
-            laneId: Helper.parse(dropzoneElement.getAttribute('data-id'))
+            processId: Helper.parse(draggableElement.getAttribute('data-id')),
+            participantId: Helper.parse(dropzoneElement.getAttribute('data-id'))
           }
           console.log(JSON.stringify(data))
-          this.$emit('moveNode', data)
+          this.$emit('moveProcess', data)
         }
       })
 
-      this.fsm.addEvent(droppedShape, idle, {
-        name: 'onShapeClick',
+      this.fsm.addEvent(droppedProcess, idle, {
+        name: 'onProcessClick',
         action: (event) => {
         }
       })
 
       this.fsm.addEvent(idle, showProcess, {
-        name: 'onShapeClick',
+        name: 'onProcessClick',
         action: (event) => {
           this.actionId = event.target.getAttribute('data-id')
-          let p = _.findWhere(this.processModel.shapes, { id: Helper.parse(this.actionId) })
-          this.$refs['dialog-process'].open(p.p, this.processModel.cols, 'update')
+          let p = _.findWhere(this.processModel.childs, { id: Helper.parse(this.actionId) })
+          this.$refs['dialog-process'].open(p, this.processModel.participants, 'update')
         }
       })
 
@@ -484,23 +487,23 @@ export default {
           console.log('EVENT', event)
           switch (event.response) {
             case 'update':
-              this.$emit('updateNode', event.id)
+              this.$emit('updateProcess', event.id)
               break
             case 'remove':
-              this.$emit('removeNode', event.id)
+              this.$emit('removeProcess', event.id)
               break
           }
         }
       })
 
-      this.fsm.addEvent(idle, showRemoveEdge, {
+      this.fsm.addEvent(idle, showRemoveConnection, {
         name: 'openRemoveConnectionDialog',
         action: (event) => {
         }
       })
 
-      this.fsm.addEvent(showRemoveEdge, idle, {
-        name: 'onCloseRemoveEdgeDialog',
+      this.fsm.addEvent(showRemoveConnection, idle, {
+        name: 'onCloseRemoveConnectionDialog',
         action: (event) => {}
       })
 
@@ -526,85 +529,91 @@ export default {
       targetId = Helper.parse(targetId)
 
       // avoid duplicate connections
-      if (_.findWhere(this.processModel.edges, {source: sourceId, target: targetId})) {
+      let process = this.processModel.childs.find(elem => elem.id === sourceId)
+      if (process && process.connection.to.indexOf(targetId) !== -1) {
         console.warn('skipped new connection, it is already present')
         return
       }
 
       // update model
-      let edge = {
+      let con = {
         source: sourceId,
         target: targetId
       }
 
-      this.$emit('addConnection', edge)
+      this.$emit('addConnection', con)
     },
 
-    removeConnection (edgeId) {
-      console.log('remove Edge: ' + edgeId)
-      this.$emit('removeConnection', edgeId)
+    removeConnection (conId) {
+      console.log('remove Connection: ' + conId)
+      this.$emit('removeConnection', conId)
     },
 
     redraw () {
       console.warn('redraw')
 
-      this.processModel.shapes.forEach(shape => {
-        // draw shape at correct position
-        let domNode = this.redrawShapePosition(shape)
+      this.processModel.childs.forEach(process => {
+        // draw process at correct position
+        let domNode = this.redrawProcessPosition(process)
 
         // draw connection
-        let callback = () => { this.redrawConnection(shape) }
-        let animationName = '.shape[data-id="' + shape.id + '"]'
+        let callback = () => { this.redrawConnection(process) }
+        let animationName = '.process[data-id="' + process.id + '"]'
         Animate.afterTransition(domNode, animationName, callback)
         Animate.start(domNode, animationName, 'transform', 'ease-in', 0.2)
       })
     },
 
-    redrawShapePosition (shape) {
-      let source = this.containerNode.querySelector('.shape[data-id="' + shape.id + '"]')
+    redrawProcessPosition (process) {
+      let source = this.containerNode.querySelector('.process[data-id="' + process.id + '"]')
 
       let storedX = Helper.parse(source.getAttribute('data-x'))
       let storedY = Helper.parse(source.getAttribute('data-y'))
 
-      if (storedX === shape.position.x && storedY === shape.position.y) {
-        console.log('shape position not changed - skipping')
+      if (storedX === process._position.x && storedY === process._position.y) {
+        console.log('process position not changed - skipping')
         return source
       }
 
       // store position
-      source.setAttribute('data-x', shape.position.x)
-      source.setAttribute('data-y', shape.position.y)
+      source.setAttribute('data-x', process._position.x)
+      source.setAttribute('data-y', process._position.y)
 
       // transform
-      source.style.webkitTransform = source.style.transform = 'translate(' + shape.position.x + 'px ,' + shape.position.y + 'px)'
+      source.style.webkitTransform = source.style.transform = 'translate(' + process._position.x + 'px ,' + process._position.y + 'px)'
 
       return source
     },
 
-    redrawConnection (shape) {
-      if (typeof shape === 'string') shape = _.findWhere(this.processModel.shapes, {id: Helper.parse(shape)})
+    redrawConnection (process) {
+      if (typeof process === 'string') process = _.findWhere(this.processModel.childs, {id: Helper.parse(process)})
 
-      let conSources = _.where(this.processModel.edges, {source: shape.id})
-      let conTargets = _.where(this.processModel.edges, {target: shape.id})
+      let conSources = process.connection.from
+      let conTargets = process.connection.to
 
-      let cons = _.union(conSources, conTargets)
+      conSources.forEach(elem => {
+        let con = { id: elem + '->' + process.id, source: elem, target: process.id }
+        this.updateConnection(con)
+      })
 
-      cons.forEach(edge => {
-        this.updateConnection(edge)
+      conTargets.forEach(elem => {
+        let con = { id: process.id + '->' + elem, source: process.id, target: elem }
+        this.updateConnection(con)
       })
     },
 
-    updateConnection (edge) {
-      // console.log('updateConnection')
-      let connectionGroup = this.svgNode.querySelector('.connection[data-id="' + edge.id + '"]')
-      let line = connectionGroup.querySelector('.connection-line[data-id="' + edge.id + '"]')
-      let outline = connectionGroup.querySelector('.connection-outline[data-id="' + edge.id + '"]')
-      let transition = connectionGroup.querySelector('.connection-transition[data-id="' + edge.id + '"]')
+    updateConnection (con) {
+      // console.log('updateConnection', con)
+
+      let connectionGroup = this.svgNode.querySelector('.connection[data-id="' + con.id + '"]')
+      let line = connectionGroup.querySelector('.connection-line[data-id="' + con.id + '"]')
+      let outline = connectionGroup.querySelector('.connection-outline[data-id="' + con.id + '"]')
+      let transition = connectionGroup.querySelector('.connection-transition[data-id="' + con.id + '"]')
 
       // ----------------------------------------------
       // source könnte ausgelagert werden, aber nicht performance kritisch
-      let source = this.containerNode.querySelector('.shape[data-id="' + edge.source + '"]')
-      let target = this.containerNode.querySelector('.shape[data-id="' + edge.target + '"]')
+      let source = this.containerNode.querySelector('.process[data-id="' + con.source + '"]')
+      let target = this.containerNode.querySelector('.process[data-id="' + con.target + '"]')
 
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
       let targetRect = Calc.absolutePosition(target, this.containerTranslation) // forces reflow
@@ -658,13 +667,13 @@ export default {
       transition.setAttribute('transform', 'translate(' + middlePoint1.x + ',' + middlePoint1.y + ')')
     },
 
-    activateEdgeConnect (event) {
-      if (!this.fsm.hasEvent('activateEdgeConnect')) return
-      this.fsm.run('activateEdgeConnect')
+    activateConnectionConnect (event) {
+      if (!this.fsm.hasEvent('activateConnectionConnect')) return
+      this.fsm.run('activateConnectionConnect')
 
       event.preventDefault()
 
-      console.log('activateEdgeConnect: ' + event.type)
+      console.log('activateConnectionConnect: ' + event.type)
 
       let source = event.target
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
@@ -755,7 +764,7 @@ export default {
       let y = (parseFloat(this.timeRuler.getAttribute('data-y')) || 0)
 
       // update model
-      // translate when resizing from top or left edges
+      // translate when resizing from top or left connections
       y += Math.round(event.dy / this.containerScale.y)
       // store position
       this.timeRuler.setAttribute('data-y', y)
@@ -806,16 +815,16 @@ export default {
     },
 
     // Listener for horizontal-bar emits
-    applyLaneChange (laneData) {
-      switch (laneData) {
+    applyParticipantChange (data) {
+      switch (data) {
         case 'add':
-          this.$emit('addLane')
+          this.$emit('addParticipant')
           return
         case 'remove':
-          this.$emit('removeLane')
+          this.$emit('removeParticipant')
           return
         default:
-          console.warn('laneData has unexpected information')
+          console.warn('data has unexpected information')
       }
     },
 
@@ -834,9 +843,13 @@ export default {
 
     processCreate () {
       console.log('processCreate')
-      let process = Data.getEmptyProcess()
-      this.$emit('addNode', process)
-      // this.$refs['dialog-process'].open(process, this.processModel.cols, 'create')
+      let initiator = this.processModel.participants[this.processModel.participants.length - 1] // use last participant
+      let startProcess = this.processModel.childs.length === 0 // true if no childs are around
+      let start = startProcess ? new Date() : this.processModel.childs[this.processModel.childs.length - 1].start // use
+
+      let process = new Process('[new]', initiator, start, null, startProcess)
+      this.$emit('addProcess', process)
+      // this.$refs['dialog-process'].open(process, this.processModel.participants, 'create')
     },
 
     onContainerClick () {
@@ -850,12 +863,12 @@ export default {
       this.fsm.run('openRemoveConnectionDialog', event)
 
       this.actionId = event.target.getAttribute('data-id')
-      this.$refs['removeEdgeDialog'].open()
+      this.$refs['removeConnectionDialog'].open()
     },
 
-    onCloseRemoveEdgeDialog (type) {
-      if (!this.fsm.hasEvent('onCloseRemoveEdgeDialog')) return
-      this.fsm.run('onCloseRemoveEdgeDialog')
+    onCloseRemoveConnectionDialog (type) {
+      if (!this.fsm.hasEvent('onCloseRemoveConnectionDialog')) return
+      this.fsm.run('onCloseRemoveConnectionDialog')
 
       console.log('Closed', type)
 
@@ -888,57 +901,65 @@ export default {
       console.log('onCloseParticipantDialog called')
       switch (data.response) {
         case 'update':
-          this.$emit('updateLane', data.id)
+          this.$emit('updateParticipant', data.id)
           break
         case 'remove':
-          this.$emit('removeLane', data.id)
+          this.$emit('removeParticipant', data.id)
           break
       }
     },
 
     resizeElement (event) {
-      console.log('resizeElement')
+      console.log('resizeElement', event.target)
+      // anchor point
+      let group = event.target.parentNode
+      let rect = event.target
+      let anchor = group.querySelector('.process-anchor')
 
       // read from model
-      let x = (parseFloat(event.target.getAttribute('data-x')) || 0)
-      let y = (parseFloat(event.target.getAttribute('data-y')) || 0)
+      let groupX = (parseFloat(group.getAttribute('data-x')) || 0)
+      let groupY = (parseFloat(group.getAttribute('data-y')) || 0)
+      let anchorY = parseInt(anchor.style.cy)
 
       // update model
-      // translate when resizing from top or left edges
-      x += event.deltaRect.left
-      y += event.deltaRect.top
+      // translate when resizing from top or left cons
+      groupX += event.deltaRect.left
+      groupY += event.deltaRect.top
+      anchorY += event.dy
+
       // store position
-      event.target.setAttribute('data-x', x)
-      event.target.setAttribute('data-y', y)
+      group.setAttribute('data-x', groupX)
+      group.setAttribute('data-y', groupY)
 
       // update view
-      let displayValue = event.target.style.display
-      event.target.style.display = 'none' // avoid reflows by multiple style changes
+      let displayValue = group.style.display
+      group.style.display = 'none' // avoid reflows by multiple style changes
 
       // update the element's style
-      event.target.style.width = Math.round(event.rect.width / this.containerScale.x) + 'px'
-      event.target.style.height = Math.round(event.rect.height / this.containerScale.y) + 'px'
-      // translate when resizing from top or left edges
-      event.target.style.webkitTransform =
-      event.target.style.transform =
-          'translate(' + x + 'px,' + y + 'px)'
+      rect.style.width = Math.round(event.rect.width / this.containerScale.x) + 'px'
+      rect.style.height = Math.round(event.rect.height / this.containerScale.y) + 'px'
+      anchor.style.cy = anchorY
 
-      event.target.style.display = displayValue
+      group.style.display = displayValue
+
+      // translate when resizing from top or left cons
+      group.style.webkitTransform = group.style.transform = 'translate(' + groupX + 'px,' + groupY + 'px)'
     },
 
-    onShapeClick (event) {
-      console.log('onShapeClick')
+    onProcessClick (event) {
+      console.log('onProcessClick')
 
-      if (!this.fsm.hasEvent('onShapeClick')) return
-      this.fsm.run('onShapeClick', event)
+      if (!this.fsm.hasEvent('onProcessClick')) return
+      this.fsm.run('onProcessClick', event)
 
       event.preventDefault()
     },
 
-    onShapeDrag (event) {
-      console.log('onShapeDrag')
+    onProcessDrag (event) {
+      console.log('onProcessDrag')
+      event.target = event.target.parentNode // translate group instead of rect
 
-      let shapeId = event.target.getAttribute('data-id')
+      let processId = event.target.getAttribute('data-id')
       let x = (parseFloat(event.target.getAttribute('data-x')) || 0)
       let y = (parseFloat(event.target.getAttribute('data-y')) || 0)
 
@@ -953,8 +974,8 @@ export default {
       event.target.style.transform =
           'translate(' + x + 'px, ' + y + 'px)'
 
-      // update connections of the shape
-      this.redrawConnection(shapeId)
+      // update connections of the process
+      this.redrawConnection(processId)
     },
 
     onRangeChange (event) {
@@ -1015,7 +1036,7 @@ $bgColor: #eee;
 
   @media print {
 
-    .shape {
+    .process {
       -webkit-print-color-adjust: exact;
     }
 
@@ -1074,13 +1095,13 @@ svg {
   z-index: 1;
 }
 
-.col {
+.participant {
   border-left: 2px dashed #ccc;
   text-align: center;
   transition: all 1s;
 }
 
-.col0 {
+.participant0 {
   border-left: none;
 }
 
@@ -1161,7 +1182,7 @@ marker {
   stroke: #888;
 }
 
-.shape {
+.process {
   position: absolute;
   display: flex;
   left: 0;
@@ -1175,35 +1196,40 @@ marker {
   justify-content: flex-end;
 
   z-index: 2;
-  opacity: 0.5
+  opacity: 0.5;
+
+  rect.process-drop {
+    fill: #4e4;
+  }
+
+  .process-content {
+    fill: #29e;
+    stroke-width: 1;
+    stroke: white;
+  }
+
+  $anchorSize: 20px;
+
+  .process-anchor {
+    width: $anchorSize;
+    height: $anchorSize;
+    fill:rgb(255,255,255);
+    cursor: crosshair;
+  }
+
+  .process-text {
+    fill: white;
+    text-anchor: middle;
+    pointer-events: none
+  }
 }
 
-.shape-drop {
-  color: #000;
-  background-color: #4e4;
-}
-
-
-.content {
-  fill: #29e;
-  stroke-width: 1;
-  stroke: white;
-}
-
-$anchorSize: 20px;
-
-.anchor {
-  width: $anchorSize;
-  height: $anchorSize;
-  fill:rgb(255,255,255);
-  cursor: crosshair;
-}
 
 .drop-active {
   border-color: #aaa;
 }
 
-.lane-drop {
+.pariticipant-drop {
   background-color: #29e;
   opacity: 0.3;
 }

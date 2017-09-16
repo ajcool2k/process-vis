@@ -24,6 +24,7 @@
     "jsplumb": "^2.3.2",
     "lodash": "^4.17.4",
     "underscore": "^1.8.3",
+    "uniqid": "^4.1.1",
     "vue": "^2.3.3",
     "vue-material": "^0.7.4",
     "vue-router": "^2.3.1"

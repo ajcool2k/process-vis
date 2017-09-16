@@ -60,4 +60,26 @@ export class Helper {
       if (child.nodeType !== 3) child.setAttribute(scopedProp, '')
     }, this)
   }
+
+  /**
+   * Format {sourceId}->{tagetId}
+   */
+  static connectionParse (con) {
+    if (typeof con !== 'string') {
+      console.warn('connectionParse: expected string parameter')
+      return con
+    }
+
+    let tmp = con.split('->')
+
+    if (!tmp || tmp.length !== 2) {
+      console.warn('connectionParse: could not find unique limiter')
+      return con
+    }
+
+    return {
+      source: tmp[0],
+      target: tmp[1]
+    }
+  }
 }

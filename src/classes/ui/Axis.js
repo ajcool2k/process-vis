@@ -4,16 +4,17 @@
  */
 
 import {select} from 'd3-selection'
-import {scaleLinear, scaleBand} from 'd3-scale'
+import {scaleOrdinal} from 'd3-scale'
 import {axisTop, axisLeft} from 'd3-axis'
 import dateFormat from 'dateformat'
+import { _ } from 'underscore'
 
 export class Axis {
   constructor () {
     console.log('Create Axis')
 
     // d3 lib
-    this.d3 = { select, scaleBand, scaleLinear, axisTop, axisLeft }
+    this.d3 = { select, scaleOrdinal, axisTop, axisLeft }
     this.domContainer = null
     this.domAxisGroup = {
       x: null,
@@ -68,8 +69,8 @@ export class Axis {
     this.data.processes.map(elem => {
       this.data.timeline.push(
         {
-          y: elem.position.y,
-          start: dateFormat(elem.p.begin, 'dd. mm. yyyy'),
+          y: elem._position.y,
+          start: dateFormat(elem.start, 'dd. mm. yyyy'),
           end: dateFormat(elem.defaultEndDate, 'dd. mm. yyyy'),
           height: elem.height
         }
@@ -81,24 +82,25 @@ export class Axis {
     let rangeArray = []
 
     data.forEach((elem) => {
-      domainArray.push(domainArray.length)
-      domainArray.push(domainArray.length)
       rangeArray.push(elem.y)
       rangeArray.push(elem.y + elem.height)
     })
 
-    this.yScale = d3.scaleLinear()
-        .domain(domainArray)            // [0, 1, 2, 3, 4, 5]
-        .range(rangeArray)              // [0, 200, 300, 500, 600, 800, 900, 1100, 1200, 1400, 1500, 1700]
+    rangeArray = _.uniq(rangeArray, x => x)
+    domainArray = rangeArray.map((elem, index) => index)
+
+    this.yScale = d3.scaleOrdinal()
+      .domain(domainArray) // [0, 1, 2, 3, 4, 5]
+      .range(rangeArray) // [0, 200, 300, 500, 600, 800, 900, 1100, 1200, 1400, 1500, 1700]
 
     this.yAxis = d3.axisLeft()
-        .scale(this.yScale)
-        .ticks(rangeArray.length)
-        .tickFormat(function (d, i) {
-          let vIndex = Math.floor(i / 2)
-          let v = i % 2 === 0 ? data[vIndex].start : data[vIndex].end
-          return '' + v
-        })
+      .scale(this.yScale)
+      .ticks(rangeArray.length)
+      .tickFormat(function (d, i) {
+        let vIndex = Math.floor(i / 2)
+        let v = i % 2 === 0 ? data[vIndex].start : data[vIndex].end
+        return '' + v
+      })
   }
 
   clean () {
@@ -114,13 +116,14 @@ export class Axis {
     let fontSize = '10pt' // Math.max(10, Math.floor(10 / this.data.scale.x))
 
     // Create an SVG group Element for the Axis elements and call the xAxis function
+    if (this.data.processes.length === 0) return
 
     this.domAxisGroup.y = this.domContainer
-        .append('g')
-        .attr('class', 'axis-y')
-        .attr(this.scopedProp, '')
-        .style('font-size', fontSize)
-        .attr('transform', 'translate(' + this.offsetAxisY.x + ',' + this.offsetAxisY.y + ')')
-        .call(this.yAxis)
+      .append('g')
+      .attr('class', 'axis-y')
+      .attr(this.scopedProp, '')
+      .style('font-size', fontSize)
+      .attr('transform', 'translate(' + this.offsetAxisY.x + ',' + this.offsetAxisY.y + ')')
+      .call(this.yAxis)
   }
 }

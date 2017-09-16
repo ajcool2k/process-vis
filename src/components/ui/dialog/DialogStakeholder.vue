@@ -1,5 +1,5 @@
 <template>
-  <div class="dialog-participant">
+  <div class="dialog-stakeholder">
     <md-dialog
       md-ok-text="OK"
       @close="onCloseDialog"
@@ -10,12 +10,12 @@
       <form novalidate @submit.stop.prevent="submit">
         <md-input-container>
           <label>Akteur-ID</label>
-          <md-input type="text" readonly v-model="participant.id"></md-input>
+          <md-input type="text" readonly v-model="stakeholder.id"></md-input>
         </md-input-container>
 
         <md-input-container>
           <label>Akteur-Name</label>
-          <md-input type="text" v-model="participant.name"></md-input>
+          <md-input type="text" v-model="stakeholder.name"></md-input>
         </md-input-container>
 
         <md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button>
@@ -34,36 +34,36 @@ import VueMaterial from 'vue-material'
 Vue.use(VueMaterial)
 
 export default {
-  name: 'DialogParticipant',
+  name: 'DialogStakeholder',
   props: [],
   data: function () {
     return {
-      participant: {},
+      stakeholder: {},
       action: 'create',
       response: 'update'
     }
   },
 
   created: function () {
-    console.log('DialogParticipant created')
+    console.log('DialogStakeholder created')
   },
 
   destroyed: function () {
   },
 
   mounted: function () {
-    console.log('DialogParticipant mounted')
+    console.log('DialogStakeholder mounted')
   },
 
   updated: function () {
-    console.log('DialogParticipant updated')
+    console.log('DialogStakeholder updated')
   },
 
   methods: {
-    open (p, a) {
-      console.log('DialogParticipant open()')
-      console.log(p)
-      this.participant = p
+    open (s, a) {
+      console.log('DialogStakeholder open()')
+      console.log(s)
+      this.stakeholder = s
       this.setAction(a)
 
       this.$refs['dialog'].open()
@@ -89,7 +89,7 @@ export default {
     },
 
     onCloseDialog () {
-      this.$emit('closeDialog', { id: this.participant.id, response: this.response })
+      this.$emit('closeDialog', { id: this.stakeholder.id, response: this.response })
     }
   }
 }

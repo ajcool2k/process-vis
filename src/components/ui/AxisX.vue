@@ -1,12 +1,12 @@
 <template>
   <div class="axis-x">
 
-    <dialog-participant ref="dialog-participant" v-on:closeDialog="onCloseDialog"></dialog-participant>
+    <dialog-stakeholder ref="dialog-stakeholder" v-on:closeDialog="onCloseDialog"></dialog-stakeholder>
 
-    <md-layout :md-gutter="this.cols.length">
-        <template v-for="(item, index) in this.cols">
+    <md-layout :md-gutter="this.participants.length">
+        <template v-for="(item, index) in this.participants">
           <md-layout md-align="center">
-            <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item.id">{{ item.name }}</md-button>
+            <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item">{{ getStakeholder(item).name }}</md-button>
           </md-layout>
         </template>
 
@@ -22,16 +22,16 @@ import VueMaterial from 'vue-material'
 import { _ } from 'underscore'
 import { Dialog } from '@/classes/ui/Dialog'
 import { Helper } from '@/classes/utils/Helper'
-import DialogParticipant from './dialog/DialogParticipant.vue'
+import DialogStakeholder from './dialog/DialogStakeholder.vue'
 
 Vue.use(VueMaterial)
 
 export default {
   name: 'AxisX',
   components: {
-    'dialog-participant': DialogParticipant
+    'dialog-stakeholder': DialogStakeholder
   },
-  props: ['cols', 'scale'],
+  props: ['participants', 'stakeholder', 'scale'],
   data: function () {
     return {
 
@@ -61,13 +61,18 @@ export default {
       console.log('onShowActorDialog')
       event.stopPropagation()
       let actionId = event.target.getAttribute('data-id')
-      let participant = _.findWhere(this.cols, { id: Helper.parse(actionId) })
-      this.$refs['dialog-participant'].open(participant, 'update')
+      let stakeholder = this.stakeholder.find(elem => elem.id === Helper.parse(actionId))
+      this.$refs['dialog-stakeholder'].open(stakeholder, 'update')
     },
 
     onCloseDialog (data) {
       this.$emit('closeDialog', data)
+    },
+
+    getStakeholder (participant) {
+      return this.stakeholder.find(elem => elem.id === participant)
     }
+
   }
 }
 </script>

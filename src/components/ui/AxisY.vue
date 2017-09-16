@@ -1,5 +1,5 @@
 <template>
-  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-timeSlice="this.timeSlice" :data-shapes="this.shapes" :data-scale="this.scale" :data-containerSize="this.containerSize">
+  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-timeSlice="this.timeSlice" :data-processes="this.processes" :data-scale="this.scale" :data-containerSize="this.containerSize">
     <svg>
       <g class="svg-axis-y"></g>
     </svg>
@@ -13,7 +13,7 @@ import { Benchmark } from '@/classes/utils/Benchmark'
 
 export default {
   name: 'AxisY',
-  props: ['cols', 'shapes', 'timeFormat', 'timeSlice', 'scale', 'containerSize'],
+  props: ['participants', 'processes', 'timeFormat', 'timeSlice', 'scale', 'containerSize'],
   data: function () {
     return {
       domNode: null,
@@ -53,8 +53,8 @@ export default {
 
     drawAxis () {
       console.warn('AxisY drawAxis')
-      let actorNames = this.cols.map(elem => elem.name)
-      let processData = this.shapes
+      let actorNames = this.participants
+      let processData = this.processes
       let timeFormat = this.timeFormat
 
       this.axis.setData('actorNames', actorNames)
@@ -84,7 +84,7 @@ export default {
   width: 100px;
   display: flex;
   justify-content: center;
-  background: white;  
+  background: white;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
