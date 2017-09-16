@@ -19,7 +19,7 @@ module.exports = function (config) {
       }
     },
     client: {
-      captureConsole: false
+      captureConsole: true
     },
     browsers: [
       'PhantomJS'

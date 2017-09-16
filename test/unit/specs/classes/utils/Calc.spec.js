@@ -1,4 +1,5 @@
-import { Process } from '@/classes/Process'
+import { _ } from 'underscore'
+import { Process } from '@/classes/model/Process'
 import { Calc } from '@/classes/utils/Calc'
 
 describe('Calc.js (getEndDate)', () => {
@@ -29,47 +30,48 @@ describe('Calc.js (getEndDate)', () => {
 
 describe('Calc.js (containerSize)', () => {
   it('should calc correctly', () => {
-    let nodes = [
-      { position: { x: 0, y: 0 } },
-      { position: { x: 0, y: 500 } },
-      { position: { x: 0, y: 600 } },
-      { position: { x: 0, y: 300 } }
+    let childs = [
+      { _position: { x: 0, y: 0 }, _height: 100 },
+      { _position: { x: 0, y: 500 }, _height: 100 },
+      { _position: { x: 0, y: 600 }, _height: 100 },
+      { _position: { x: 0, y: 300 }, _height: 100 }
     ]
-    let cols = [1, 2, 3, 4]
-    let ret = Calc.containerSize(nodes, cols)
+    let participants = [1, 2, 3, 4]
+    let ret = Calc.containerSize(childs, participants)
 
+    let maxElem = _.max(childs, elem => elem._height)
     expect(ret).to.be.an('object')
-    expect(ret.x).to.equal(Calc.colWidth * cols.length)
-    expect(ret.y).to.equal(600 + Calc.containerPaddingBottom)
+    expect(ret.x).to.equal(Calc.colWidth * participants.length)
+    expect(ret.y).to.equal(600 + Calc.containerPaddingBottom + maxElem._height)
   })
 })
 
 describe('Calc.js (columnSize)', () => {
   it('should calc correctly', () => {
     let columnsize = { x: 100, y: 100 }
-    let cols = [1, 2, 3, 4]
-    let ret = Calc.columnSize(columnsize, cols)
+    let participants = [1, 2, 3, 4]
+    let ret = Calc.columnSize(columnsize, participants)
     expect(ret).to.equal(25)
   })
 
   it('should calc round correctly', () => {
     let columnsize = { x: 100, y: 100 }
-    let cols = [1, 2, 3]
-    let ret = Calc.columnSize(columnsize, cols)
+    let participants = [1, 2, 3]
+    let ret = Calc.columnSize(columnsize, participants)
     expect(ret).to.equal(33)
   })
 
   it('should not crash on missing param 1', () => {
     let columnsize
-    let cols = [1, 2, 3, 4]
-    let ret = Calc.columnSize(columnsize, cols)
+    let participants = [1, 2, 3, 4]
+    let ret = Calc.columnSize(columnsize, participants)
     expect(ret).to.equal(0)
   })
 
   it('should not crash on missing param 2', () => {
     let columnsize = { x: 100, y: 100 }
-    let cols
-    let ret = Calc.columnSize(columnsize, cols)
+    let participants
+    let ret = Calc.columnSize(columnsize, participants)
     expect(ret).to.equal(0)
   })
 })
