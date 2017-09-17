@@ -71,7 +71,7 @@ export default {
   watch: {
     // whenever childs changes, this function will run
     'datamodel.childs': function (updatedChilds) {
-      let startProcess = Calc.updateStartProcess(this.datamodel.childs)
+      let startProcess = Calc.getStartProcess(this.datamodel.childs)
       console.log('new startingProcess: ', startProcess)
     }
   },
@@ -84,7 +84,6 @@ export default {
       this.addParticipant()
       let generatedData = Data2.generateData()
       this.datamodel = generatedData.datamodel
-      Calc.updateStartProcess(this.datamodel.childs)
       console.log(generatedData)
     },
 

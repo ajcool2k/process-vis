@@ -1,5 +1,5 @@
 export class Process {
-  constructor (name, initiator, start, end, startProcess) {
+  constructor (name, initiator, start, end) {
     this._comment = 'Process'
 
     const uniqid = require('uniqid')
@@ -40,7 +40,6 @@ export class Process {
     this.created = new Date()
     this.modified = ''
 
-    this.mStartProcess = startProcess // will set this._startProcess
     this._position = { x: 0, y: 0 }
     this._connections = [] // wrapper for connection
     this._width = 0
@@ -86,6 +85,7 @@ export class Process {
     }
 
     this.end = new Date(end.valueOf()) // create copy of date
+    this._defaultEndDate = this.end
 
     if (this.start instanceof Date && this.end instanceof Date) this._duration = this.end - this.start
   }
@@ -95,9 +95,6 @@ export class Process {
 
   get mParticipation () { return this.participation }
   set mParticipation (participation) { this.participation = participation }
-
-  get mStartProcess () { return this._startProcess }
-  set mStartProcess (startProcess) { this._startProcess = typeof startProcess !== 'undefined' ? startProcess : false }
 
   get mConnections () { return this._connections }
   set mConnections (con) {

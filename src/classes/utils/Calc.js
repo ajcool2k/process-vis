@@ -59,55 +59,20 @@ export class Calc {
   * @param {Object} process Datenobj
   * @param {Number} factor Faktor zur Veränderung der Duration
   */
-  static endDateByChange (process, factor) {
-    let durationMillis = process._defaultEndDate - process.start
+  static updateEndDate (process, factor) {
+    if (typeof process === 'undefined') {
+      console.warn('updateEndDate: process expected')
+      return
+    }
+
+    if (typeof factor !== 'number') {
+      console.warn('updateEndDate: factor as number expected')
+      return
+    }
+
+    let durationMillis = process.mEnd - process.start
     let durationMillisChanged = Math.floor(durationMillis * factor)
-    let endDate = new Date(process.start.getTime() + durationMillisChanged)
-    process.end = endDate
-    process._defaultEndDate = endDate
-  }
-
-  static updateStartProcess (childs) {
-    if (childs instanceof Array !== true) {
-      console.warn('Could not parse startProcess: Processes not available')
-      return
-    }
-
-    if (childs.length === 0) return
-
-    // get begin times of each process
-    const startDates = childs.map(elem => elem.start)
-    const smallestDate = _.min(startDates)
-
-    let oldStartProcess = childs.find(elem => elem.mStartProcess === true)
-    let newStartProcess = childs.find(elem => elem.start === smallestDate) // find first process with this date
-
-    if (newStartProcess === oldStartProcess) return oldStartProcess
-
-    // reset start date if proc
-    if (typeof oldStartProcess !== 'undefined') oldStartProcess.mStartProcess = false
-    if (typeof newStartProcess !== 'undefined') newStartProcess.mStartProcess = true
-
-    console.log('startProcess', newStartProcess)
-    return newStartProcess
-  }
-
-  static getStartingProcess (childs) {
-    if (childs instanceof Array !== true) {
-      console.warn('getStartingProcess: expected processes array')
-      return
-    }
-
-    if (childs.length === 0) return
-
-    let startingProcess = childs.find(elem => elem.mStartProcess === true)
-
-    if (typeof startingProcess === 'undefined') {
-      console.warn('getStartingProcess: Could not find startingProcess')
-      return
-    }
-
-    return startingProcess
+    process.mEnd = new Date(process.start.valueOf() + durationMillisChanged)
   }
 
   /**
@@ -115,7 +80,7 @@ export class Calc {
    */
   static processPosition (processes, participants, containerSize, containerNode, timeFormat) {
     console.warn('processPosition')
-    let startProcess = Calc.getStartingProcess(processes)
+    let startProcess = Calc.getStartProcess(processes)
     console.log('startProcess', startProcess)
     // create copy of processes to work with
     let processesCopy = processes.map(elem => Helper.copy(elem))
@@ -153,7 +118,7 @@ export class Calc {
     const lanes = participants
 
     processesCopy.forEach(function (elem, index) {
-      let defaultEndDate = Calc.getEndDate(elem, timeFormat)
+      let defaultEndDate = Calc.getDefaultEndDate(elem, timeFormat)
 
       // calc height
       let durationMillis = defaultEndDate - elem.start
@@ -254,7 +219,7 @@ export class Calc {
     } while (patched) // run as long as something got patched
   }
 
-  static getEndDate (process, timeFormat) {
+  static getDefaultEndDate (process, timeFormat) {
     if (process.end !== null && typeof process.end === 'object') return process.end
 
     // console.log('no enddate found')
@@ -279,21 +244,18 @@ export class Calc {
   }
 
   /**
-   * Methide zum Finden des ersten Prozesses
+   * Methode zum Finden des obersten Prozesses
    * @param {Object} childs
    */
-  static startProcess (childs) {
+  static getStartProcess (childs) {
     if (childs instanceof Array !== true) {
       console.warn('Could not parse startProcess: Processes not available')
-      return
+      return undefined
     }
 
-    if (childs.length === 0) return null
+    if (childs.length === 0) return undefined
 
-    // get begin times of each process
-    const processBegin = childs.map(elem => elem.start)
-    const smallestDate = _.min(processBegin)
-    let startProcess = childs.find(elem => elem.start === smallestDate) // find first process with this date
+    let startProcess = _.min(childs, elem => elem.start)
 
     return startProcess
   }
@@ -302,13 +264,13 @@ export class Calc {
    * Methode zum Finden des letzten Prozesses
    * @param {Object} childs
    */
-  static endProcess (childs) {
+  static getEndProcess (childs) {
     if (childs instanceof Array !== true) {
-      console.warn('Could not parse startProcess: Processes not available')
-      return
+      console.warn('Could not parse endProcess: Processes not available')
+      return undefined
     }
 
-    if (childs.length === 0) return null
+    if (childs.length === 0) return undefined
 
     let endProcess = _.max(childs, elem => elem.mEnd)
     return endProcess
@@ -333,6 +295,7 @@ export class Calc {
     containerX = participants.length * Calc.colWidth
 
     containerY = Math.max(containerY, Calc.minContainerHeight)
+    containerX = Math.max(containerX, Calc.minContainerWidth)
 
     console.log('containerSize', { x: containerX, y: containerY })
     // return containerSize

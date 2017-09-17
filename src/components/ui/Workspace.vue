@@ -442,7 +442,7 @@ export default {
           console.log('process', process)
           let resizeDelta = { x: Math.floor(event.dx / this.containerScale.x), y: Math.floor(event.dy / this.containerScale.y) }
           let factor = (process._height + resizeDelta.y) / process._height
-          Calc.endDateByChange(process, factor)
+          Calc.updateEndDate(process, factor)
           process._height += resizeDelta.y
           this.$emit('updateProcess', process.id)
         }
@@ -857,21 +857,21 @@ export default {
 
     processCreate () {
       console.log('processCreate')
-      let isStartProcess = this.processModel.childs.length === 0 // true if no childs are around
+      let isSingleChild = this.processModel.childs.length === 0 // true if no childs are around
       let start
       let initiator
 
-      if (isStartProcess) {
+      if (isSingleChild) {
         start = new Date()
         initiator = this.processModel.participants[0] // use last participant
       } else {
-        let lastProcess = Calc.endProcess(this.processModel.childs) // process at the bottom
+        let lastProcess = Calc.getEndProcess(this.processModel.childs) // process at the bottom
         console.log('lastProcess', lastProcess)
         start = lastProcess.mEnd
         initiator = lastProcess.initiator // use initator of lastProcess
       }
 
-      let process = new Process('[new]', initiator, start, null, isStartProcess)
+      let process = new Process('[new]', initiator, start, null)
       this.$emit('addProcess', process)
       // this.$refs['dialog-process'].open(process, this.processModel.participants, 'create')
     },

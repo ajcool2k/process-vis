@@ -2,10 +2,6 @@ import { Process } from '@/classes/model/Process'
 import { Stakeholder } from '@/classes/model/Stakeholder'
 
 export class Data2 {
-  static getEmptyProcess () {
-    return new Process('empty', 1, new Date(2017, 0, 6), new Date(2017, 0, 11))
-  }
-
   static generateData () {
     console.warn('generateData')
 
@@ -22,7 +18,7 @@ export class Data2 {
     datamodel.stakeholder.push(s3)
 
     // generate child processes
-    let child1 = new Process('child 1', s1.id, new Date(2017, 0, 1), null, true)
+    let child1 = new Process('child 1', s1.id, new Date(2017, 0, 1), null)
     child1.transformation.type = '='
 
     let child2 = new Process('child 2', s2.id, new Date(2017, 0, 6), new Date(2017, 0, 11))
