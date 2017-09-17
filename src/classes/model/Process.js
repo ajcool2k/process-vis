@@ -66,7 +66,19 @@ export class Process {
     if (this.start instanceof Date && this.end instanceof Date) this._duration = this.end - this.start
   }
 
-  get mEnd () { return this.end }
+  get mEnd () {
+    if (this._defaultEndDate instanceof Date === true) return this._defaultEndDate
+
+    console.warn('Process: defaultDate is not a date')
+
+    if (this.end instanceof Date === false) {
+      console.warn('Process: endDate is not a date - returning startDate')
+      return this.start
+    }
+
+    return this.end
+  }
+
   set mEnd (end) {
     if (end instanceof Date === false) {
       console.warn('Process: end is not a date')

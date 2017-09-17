@@ -56,7 +56,7 @@ export class StateMachine {
 
   hasEvent (eventName) {
     let stateEvent = _.find(this.actualState.events, e => e.name === eventName)
-    console.log('hasEvent: ' + eventName)
+    console.log('FSM hasEvent: ' + eventName + ', actualState: ' + this.actualState.name)
     return typeof stateEvent === 'object'
   }
 

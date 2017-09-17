@@ -188,23 +188,6 @@ export default {
       this.datamodel.participants = this.datamodel.participants.filter(elem => elem !== participantId)
     },
 
-    startProcess (childs) {
-      if (childs instanceof Array !== true) {
-        console.warn('Could not parse startProcess: Processes not available')
-        return
-      }
-
-      if (childs.length === 0) return null
-
-      // get begin times of each process
-      const processBegin = childs.map(elem => elem.start)
-      const smallestDate = _.min(processBegin)
-      let startProcess = childs.find(elem => elem.start === smallestDate) // find first process with this date
-
-      console.log('startProcess', startProcess)
-      return startProcess
-    },
-
     forceRedraw () {
       let change = {
         time: new Date()

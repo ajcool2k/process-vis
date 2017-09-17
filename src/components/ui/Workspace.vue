@@ -52,7 +52,7 @@
           </defs>
 
           <template v-if="item._width" v-for="(item, index) in processModel.childs" :data-test="processModel.childs.length">
-            <g class="process draggable drag-drop" :data-test="processModel.childs.length"  :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
+            <g class="process draggable drag-drop" :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
               <rect class="process-content" :data-id="item.id" :style="'height: ' + item._height + 'px; width: ' + item._width + 'px'"></rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :style="'cy: ' + (item._height - 20) + '; cx: '+ (item._width / 2 ) + ';'"></circle>
               <text class="process-text" :data-id="item.id" :x="(item._width / 2)" y="20">{{item.id}} - {{item._height}}</text>
@@ -136,9 +136,9 @@ export default {
     return {
       fsm: null, // finite state machine
       workspaceNode: null,
-      workspaceSize: { x: 1000, y: 1000 },
+      workspaceSize: { x: Calc.minContainerWidth + 200, y: Calc.minContainerWidth + 200 },
       containerNode: null,
-      containerSize: { x: 1000, y: 600 },
+      containerSize: { x: Calc.minContainerWidth, y: Calc.minContainerHeight },
       scopeProp: '',
 
       containerOffset: null,
@@ -287,6 +287,7 @@ export default {
         edges: { left: false, right: false, bottom: true, top: false }
       })
       .on('resizestart', event => {
+        console.log('resizestart event', event)
         if (!this.fsm.hasEvent('resizeProcessStart')) return
         this.fsm.run('resizeProcessStart')
       })
@@ -343,6 +344,13 @@ export default {
   beforeUpdate: function () {
     console.warn('Workspace updating ...', document.querySelectorAll('.process').length)
     Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.containerNode, this.timeFormat)
+    let size = Calc.containerSize(this.processModel.childs, this.processModel.participants) // calc layout based on model
+    let delta = { x: 0, y: size.y - this.containerSize.y }
+
+    if (delta.x !== 0 || delta.y !== 0) {
+      this.updateContainerSize(delta)
+      this.updateWorkspaceSize(delta)
+    }
   },
 
   updated: function () {
@@ -414,7 +422,7 @@ export default {
         name: 'resizeProcessMove',
         type: 'transition',
         action: (event) => {
-          this.resizeElement(event)
+          this.resizeProcess(event)
           let processId = event.target.getAttribute('data-id')
 
           // show time ruler
@@ -442,6 +450,12 @@ export default {
 
       this.fsm.addEvent(resizeProcessFinished, idle, {
         name: 'onProcessClick',
+        action: (event) => {
+        }
+      })
+
+      this.fsm.addEvent(resizeProcessFinished, idle, {
+        name: 'onContainerClick',
         action: (event) => {
         }
       })
@@ -843,11 +857,21 @@ export default {
 
     processCreate () {
       console.log('processCreate')
-      let initiator = this.processModel.participants[this.processModel.participants.length - 1] // use last participant
-      let startProcess = this.processModel.childs.length === 0 // true if no childs are around
-      let start = startProcess ? new Date() : this.processModel.childs[this.processModel.childs.length - 1].start // use
+      let isStartProcess = this.processModel.childs.length === 0 // true if no childs are around
+      let start
+      let initiator
 
-      let process = new Process('[new]', initiator, start, null, startProcess)
+      if (isStartProcess) {
+        start = new Date()
+        initiator = this.processModel.participants[0] // use last participant
+      } else {
+        let lastProcess = Calc.endProcess(this.processModel.childs) // process at the bottom
+        console.log('lastProcess', lastProcess)
+        start = lastProcess.mEnd
+        initiator = lastProcess.initiator // use initator of lastProcess
+      }
+
+      let process = new Process('[new]', initiator, start, null, isStartProcess)
       this.$emit('addProcess', process)
       // this.$refs['dialog-process'].open(process, this.processModel.participants, 'create')
     },
@@ -909,8 +933,8 @@ export default {
       }
     },
 
-    resizeElement (event) {
-      console.log('resizeElement', event.target)
+    resizeProcess (event) {
+      console.log('resizeProcess', event.target)
       // anchor point
       let group = event.target.parentNode
       let rect = event.target
@@ -946,8 +970,39 @@ export default {
       group.style.webkitTransform = group.style.transform = 'translate(' + groupX + 'px,' + groupY + 'px)'
     },
 
+    resizeElement (event) {
+      console.log('resizeElement', event.target)
+      let elem = event.target
+
+      // read from model
+      let elemX = (parseFloat(elem.getAttribute('data-x')) || 0)
+      let elemY = (parseFloat(elem.getAttribute('data-y')) || 0)
+
+      // update model
+      // translate when resizing from top or left cons
+      elemX += event.deltaRect.left
+      elemY += event.deltaRect.top
+
+      // store position
+      elem.setAttribute('data-x', elemX)
+      elem.setAttribute('data-y', elemY)
+
+      // update view
+      let displayValue = elem.style.display
+      elem.style.display = 'none' // avoid reflows by multiple style changes
+
+      // update the element's style
+      elem.style.width = Math.round(event.rect.width / this.containerScale.x) + 'px'
+      elem.style.height = Math.round(event.rect.height / this.containerScale.y) + 'px'
+
+      elem.style.display = displayValue
+
+      // translate when resizing from top or left cons
+      elem.style.webkitTransform = elem.style.transform = 'translate(' + elem + 'px,' + elem + 'px)'
+    },
+
     onProcessClick (event) {
-      console.log('onProcessClick')
+      console.warn('onProcessClick')
 
       if (!this.fsm.hasEvent('onProcessClick')) return
       this.fsm.run('onProcessClick', event)

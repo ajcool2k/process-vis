@@ -279,6 +279,42 @@ export class Calc {
   }
 
   /**
+   * Methide zum Finden des ersten Prozesses
+   * @param {Object} childs
+   */
+  static startProcess (childs) {
+    if (childs instanceof Array !== true) {
+      console.warn('Could not parse startProcess: Processes not available')
+      return
+    }
+
+    if (childs.length === 0) return null
+
+    // get begin times of each process
+    const processBegin = childs.map(elem => elem.start)
+    const smallestDate = _.min(processBegin)
+    let startProcess = childs.find(elem => elem.start === smallestDate) // find first process with this date
+
+    return startProcess
+  }
+
+  /**
+   * Methode zum Finden des letzten Prozesses
+   * @param {Object} childs
+   */
+  static endProcess (childs) {
+    if (childs instanceof Array !== true) {
+      console.warn('Could not parse startProcess: Processes not available')
+      return
+    }
+
+    if (childs.length === 0) return null
+
+    let endProcess = _.max(childs, elem => elem.mEnd)
+    return endProcess
+  }
+
+  /**
    * Methode berechnet die größe des benötigten Containers für Elemente.
    * Zur Berechnung ist es notwendig, dass addElementPosition zuvor aufgerufen wurde.
    * @see addElementPosition
@@ -295,6 +331,9 @@ export class Calc {
 
     // easy approch
     containerX = participants.length * Calc.colWidth
+
+    containerY = Math.max(containerY, Calc.minContainerHeight)
+
     console.log('containerSize', { x: containerX, y: containerY })
     // return containerSize
     return { x: containerX, y: containerY }
@@ -302,5 +341,7 @@ export class Calc {
 }
 
 Calc.timeSlice = 60
+Calc.minContainerHeight = 600
+Calc.minContainerWidth = 800
 Calc.colWidth = 400
 Calc.containerPaddingBottom = 100
