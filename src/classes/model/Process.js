@@ -107,4 +107,14 @@ export class Process {
 
   get mPosition () { return this._position }
   set mPosition (position) { this._position = position }
+
+  get mPrivates () {
+    let keys = Object.keys(this)
+    let privateKeys = keys.filter(elem => elem.startsWith('_'))
+    let ret = {}
+    privateKeys.forEach(elem => {
+      ret[elem] = this[elem]
+    })
+    return ret
+  }
 }
