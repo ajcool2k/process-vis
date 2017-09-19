@@ -214,7 +214,7 @@ export default {
     this.scopeProp = Helper.getScopeProp(this.svgNode)
 
     // prepare Container and Workspace
-    Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.containerNode, this.timeFormat) // set position on the model
+    Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.timeFormat) // set position on the model
     this.containerSize = Calc.containerSize(this.processModel.childs, this.processModel.participants) // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
@@ -343,7 +343,7 @@ export default {
 
   beforeUpdate: function () {
     console.warn('Workspace updating ...', document.querySelectorAll('.process').length)
-    Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.containerNode, this.timeFormat)
+    Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.timeFormat)
     let size = Calc.containerSize(this.processModel.childs, this.processModel.participants) // calc layout based on model
     let delta = { x: 0, y: size.y - this.containerSize.y }
 
