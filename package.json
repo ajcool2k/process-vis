@@ -15,6 +15,7 @@
     "dump": "npm list --depth=0 --json > installed_modules.json"
   },
   "dependencies": {
+    "clone": "^2.1.1",
     "cytoscape": "^3.0.0",
     "d3": "^4.8.0",
     "dateformat": "^2.0.0",

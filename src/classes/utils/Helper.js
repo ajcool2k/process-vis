@@ -7,8 +7,9 @@ export class Helper {
     return Number.isNaN(parseInt(x)) ? x : Number.parseInt(x)
   }
 
-  static copy (elem) {
-    return Object.assign({}, elem)
+  static deepClone (collection) {
+    const clone = require('clone')
+    return clone(collection)
   }
 
   /**

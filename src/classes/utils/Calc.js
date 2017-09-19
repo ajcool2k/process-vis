@@ -75,54 +75,78 @@ export class Calc {
     process.mEnd = new Date(process.start.valueOf() + durationMillisChanged)
   }
 
+  static getDivider (timeFormat) {
+    let divider = 1
+
+    if (typeof timeFormat === 'undefined' || typeof timeFormat !== 'string') {
+      console.warn('getDivider: timeFormat is missing')
+      return divider
+    }
+
+    if (Calc.timeFormats.hasOwnProperty(timeFormat) === false) {
+      console.warn('getDivider: unknown timeFormat ' + timeFormat)
+      return divider
+    }
+
+    switch (timeFormat) {
+      case 'hours':
+        divider = Calc.timeFormats.hours
+        break
+
+      case 'days':
+        divider = Calc.timeFormats.days
+        break
+
+      case 'months':
+        divider = Calc.timeFormats.months
+        break
+    }
+
+    return divider
+  }
+
   /**
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    */
-  static processPosition (processes, participants, containerSize, containerNode, timeFormat) {
+  static processPosition (processes, participants, containerSize, timeFormat) {
     console.warn('processPosition')
-    let startProcess = Calc.getStartProcess(processes)
-    console.log('startProcess', startProcess)
-    // create copy of processes to work with
-    let processesCopy = processes.map(elem => Helper.copy(elem))
 
-    const axisOffset = 40
+    if (typeof processes === 'undefined' || processes instanceof Array === false) {
+      console.warn('processPosition: processes are missing')
+      return
+    }
+
+    if (typeof participants === 'undefined' || participants instanceof Array === false) {
+      console.warn('processPosition: participants are missing')
+      return
+    }
+
+    if (typeof containerSize === 'undefined' || typeof containerSize !== 'object') {
+      console.warn('processPosition: containerSize is missing')
+      return
+    }
+
+    if (typeof timeFormat === 'undefined' || typeof timeFormat !== 'string') {
+      console.warn('processPosition: timeFormat is missing')
+      return
+    }
+
+    let startProcess = Calc.getStartProcess(processes)
+
+    // create copy of processes to work with
+    let processesCopy = Helper.deepClone(processes)
     const timeSlice = Calc.timeSlice
 
     let colWidth = Calc.columnSize(containerSize, participants)
     let processWidth = Math.min(colWidth / 2, 100) // Bug Math.max(colWidth / 2, 100)) liefert dynamische Ergebnisse
 
-    let quotientHours = 1000 * 60 * 60
-    let quotientDays = 1000 * 60 * 60 * 24
-    let quotientMonths = 1000 * 60 * 60 * 24 * 30
-
-    let quotient = 1
-    switch (timeFormat) {
-      case 'hours':
-        quotient = quotientHours
-        break
-
-      case 'days':
-        quotient = quotientDays
-        break
-
-      case 'months':
-        quotient = quotientMonths
-        break
-
-      default:
-        console.warn('Calc.processPosition: unknown timeFormat ' + timeFormat)
-        quotient = quotientDays
-        break
-    }
-
-    const lanes = participants
-
-    processesCopy.forEach(function (elem, index) {
+    let divider = Calc.getDivider(timeFormat)
+    processesCopy.forEach(elem => {
       let defaultEndDate = Calc.getDefaultEndDate(elem, timeFormat)
 
       // calc height
       let durationMillis = defaultEndDate - elem.start
-      let duration = durationMillis / quotient
+      let duration = durationMillis / divider
 
       elem._height = Math.max(Math.ceil(timeSlice * duration), timeSlice)
       elem._width = processWidth
@@ -131,7 +155,7 @@ export class Calc {
       // console.log('Calc.processPosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem._height)
 
       // find workspace lane
-      let laneNumber = lanes.indexOf(elem.initiator) + 1
+      let laneNumber = participants.indexOf(elem.initiator) + 1
 
       if (laneNumber === 0) {
         console.warn('Calc.processPosition: Process is not applied to any lane')
@@ -140,25 +164,33 @@ export class Calc {
       // calc position
       let x = Math.floor((colWidth * laneNumber) - (colWidth / 2) - (processWidth / 2))
       let deltaStart = elem.start - startProcess.start
-      let deltaTime = deltaStart / quotient
-      let y = Math.ceil(deltaTime * timeSlice) + axisOffset
+      let deltaTime = deltaStart / divider
+      let y = Math.ceil(deltaTime * timeSlice) + Calc.axisOffset
 
       elem._position = {
         x: x,
         y: y
       }
-    }, lanes)
+    })
 
     Calc.addSpace(processesCopy, timeSlice)
 
     // copy back values on originals (avoid reactivity if no values changes)
-
     for (let i = 0; i < processes.length; i++) {
+      // copy primitives
       processes[i]._position.x = processesCopy[i]._position.x
       processes[i]._position.y = processesCopy[i]._position.y
       processes[i]._height = processesCopy[i]._height
       processes[i]._width = processesCopy[i]._width
-      processes[i]._defaultEndDate = processesCopy[i]._defaultEndDate
+
+      // copy enddate (keep old if it's the same)
+      if (processes[i].hasOwnProperty('_defaultEndDate')) {
+        let date1 = processes[i]._defaultEndDate
+        let date2 = processesCopy[i]._defaultEndDate
+        processes[i]._defaultEndDate = _.isEqual(date1, date2) ? date1 : date2
+      } else {
+        processes[i]._defaultEndDate = processesCopy[i]._defaultEndDate
+      }
     }
 
     // console.log(processes.map(elem => elem._position.y + elem._height))
@@ -171,18 +203,43 @@ export class Calc {
    * @param {Number} timeSlice Offset-Wert um den verschoben werden soll
    */
   static addSpace (processes, timeSlice) {
+    if (typeof processes === 'undefined') {
+      console.warn('addSpace: processes missing')
+      return false
+    }
+
+    if (typeof timeSlice !== 'number') {
+      console.warn('addSpace: timeSlice missing')
+      return false
+    }
+
+    if (processes.length === 0) return true
+
+    if (_.find(processes, elem => typeof elem._position.y !== 'number')) {
+      console.error('addSpace: process needs to have position y value')
+      return false
+    }
+
+    if (_.find(processes, elem => typeof elem._height !== 'number')) {
+      console.error('addSpace: process needs to have position y value')
+      return false
+    }
+
     // prüfe ob elem.y + height ein anderes elem.y ergibt
     // wenn vorhanden dann patche alle elemente >= elem.y (y+height) um einen offset
     let patched = false
+    let successfulPatch = true
+    let interation = 0
 
     do {
       // prepare search
       patched = false
       const yEndList = processes.map(elem => elem._position.y + elem._height)
-      console.log('addSpace', yEndList)
 
-      processes.forEach(function (node, index) {
-        let startPosition = node._position.y
+      console.log('addSpace - Interation: ', interation++, yEndList)
+
+      processes.forEach((elem, index) => {
+        let startPosition = elem._position.y
         let foundProcesses = yEndList.filter(endPos => {
           return (startPosition >= endPos) && (startPosition < endPos + timeSlice)
         })
@@ -191,16 +248,16 @@ export class Calc {
 
         // return
 
-        console.log('node', JSON.stringify(node))
-        console.log('foundProcesses', foundProcesses)
-        console.log('startingPos', node._position.y)
-        console.log('endPos', node._position.y + node._height)
+        // console.log('elem', JSON.stringify(elem))
+        // console.log('foundProcesses', foundProcesses)
+        // console.log('startingPos', elem._position.y)
+        // console.log('endPos', elem._position.y + elem._height)
         const yEndList1 = processes.map(elem => elem._position.y + elem._height)
         console.log('beforePatch', yEndList1)
 
-        // actual startPosition found in an endPosition for another node
+        // actual startPosition found in an endPosition for another elem
         // increment all other processes by 1
-        let endPoint = node._position.y + node._height
+        let endPoint = elem._position.y + elem._height
         for (let i = index; i < processes.length; i++) {
           if (processes[i]._position.y + processes[i]._height >= endPoint) processes[i]._position.y += timeSlice
         }
@@ -211,12 +268,15 @@ export class Calc {
         patched = true
 
         // Should not happen (just in case)
-        if (foundProcesses[0] > 6000) {
+        if (foundProcesses[0] > 60000) {
           console.warn('Unexpected Calculation, stopping to avoid inifite loop')
           patched = false
+          successfulPatch = false
         }
       })
     } while (patched) // run as long as something got patched
+
+    return successfulPatch
   }
 
   static getDefaultEndDate (process, timeFormat) {
@@ -308,3 +368,9 @@ Calc.minContainerHeight = 600
 Calc.minContainerWidth = 800
 Calc.colWidth = 400
 Calc.containerPaddingBottom = 100
+Calc.axisOffset = 40
+Calc.timeFormats = {
+  'hours': 1000 * 60 * 60,
+  'days': 1000 * 60 * 60 * 24,
+  'months': 1000 * 60 * 60 * 24 * 30
+}
