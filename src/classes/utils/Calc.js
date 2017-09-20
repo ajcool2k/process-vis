@@ -28,15 +28,13 @@ export class Calc {
       console.warn('could not access window element')
     }
 
-    let data = {
-      left: Math.round(rect.left + offsetX) - translate.x,
-      top: Math.round(rect.top + offsetY) - translate.y,
-      width: rect.width,
-      height: rect.height,
-      bottom: Math.round(rect.top + offsetY) + rect.height,
-      right: Math.round(rect.left + offsetX) + rect.width
-    }
-
+    let data = {}
+    data.left = Math.round(rect.left + offsetX) - translate.x
+    data.top = Math.round(rect.top + offsetY) - translate.y
+    data.width = rect.width
+    data.height = rect.height
+    data.bottom = data.top + rect.height
+    data.right = data.left + rect.width
     return data
   }
 
