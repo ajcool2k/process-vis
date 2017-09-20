@@ -38,6 +38,11 @@ export class Calc {
     return data
   }
 
+  /**
+   * Dient zur Berechnung einer Spaltenbreite
+   * @param {Object} containerSize aktuelle Größe des Containers
+   * @param {Array} participants  Array mit Akteuren
+   */
   static columnSize (containerSize, participants) {
     if (typeof containerSize === 'undefined' || containerSize === null || !containerSize.hasOwnProperty('x')) {
       console.warn('Calc.columnSize: param containerSize not correctly passed.')
@@ -54,7 +59,7 @@ export class Calc {
 
   /**
   * Methode zum Verändern des End-Datums, basiernd auf einem Duration-Faktors
-  * @param {Object} process Datenobj
+  * @param {Array} process Kindprozesse
   * @param {Number} factor Faktor zur Veränderung der Duration
   */
   static updateEndDate (process, factor) {
@@ -73,6 +78,10 @@ export class Calc {
     process.mEnd = new Date(process.start.valueOf() + durationMillisChanged)
   }
 
+  /**
+   * Dient zur Berechnung des Teilers für ein gewähltes Zeitformat
+   * @param {String} timeFormat das aktuell gewählte Zeitformat
+   */
   static getDivider (timeFormat) {
     let divider = 1
 
@@ -105,6 +114,10 @@ export class Calc {
 
   /**
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
+   * @param {Array} processes  Array mit allen Prozessen
+   * @param {Array} participants  Array mit Akteuren
+   * @param {Object} containerSize aktuelle Größe des Containers
+   * @param {String} timeFormat das aktuell gewählte Zeitformat
    */
   static processPosition (processes, participants, containerSize, timeFormat) {
     console.warn('processPosition')
@@ -197,7 +210,7 @@ export class Calc {
   /**
    * Methode dient zum Setzen von Abständen zwischen processes
    * Dieses Verhalten kann notwendig werden, wenn Y-Startpunkt einer Node mit einem Y-Endpunkt einer anderen Node kollidieren
-   * @param {Object} processes  Objekt mit allen Prozessen
+   * @param {Array} processes Kindprozesse des aktuellen Prozesses
    * @param {Number} timeSlice Offset-Wert um den verschoben werden soll
    */
   static addSpace (processes, timeSlice) {
@@ -303,7 +316,7 @@ export class Calc {
 
   /**
    * Methode zum Finden des obersten Prozesses
-   * @param {Object} childs
+   * @param {Array} childs Kindprozesse des aktuellen Prozesses
    */
   static getStartProcess (childs) {
     if (childs instanceof Array !== true) {
@@ -320,7 +333,7 @@ export class Calc {
 
   /**
    * Methode zum Finden des letzten Prozesses
-   * @param {Object} childs
+   * @param {Array} childs Kindprozesse des aktuellen Prozesses
    */
   static getEndProcess (childs) {
     if (childs instanceof Array !== true) {
@@ -337,9 +350,12 @@ export class Calc {
   /**
    * Methode berechnet die größe des benötigten Containers für Elemente.
    * Zur Berechnung ist es notwendig, dass addElementPosition zuvor aufgerufen wurde.
+   * @param {Array} processes  Kindprozesse
+   * @param {Array} participants  Akteure des Prozesses (Initiatoren der Kindprozesse)
+   * @param {Boolean} fit  (optional) true/false - fit X-Achse in minContainerSize
    * @see addElementPosition
    */
-  static containerSize (processes, participants) {
+  static containerSize (processes, participants, fit) {
     let containerX = 0
     let containerY = 0
 
@@ -350,7 +366,7 @@ export class Calc {
     })
 
     // easy approch
-    containerX = participants.length * Calc.colWidth
+    containerX = fit === true ? Calc.minContainerWidth : participants.length * Calc.colWidth
 
     containerY = Math.max(containerY, Calc.minContainerHeight)
     containerX = Math.max(containerX, Calc.minContainerWidth)

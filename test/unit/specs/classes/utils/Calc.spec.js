@@ -29,7 +29,7 @@ describe('Calc.js (getDefaultEndDate)', () => {
 })
 
 describe('Calc.js (containerSize)', () => {
-  it('should calc correctly', () => {
+  it('should calc correctly (non fit)', () => {
     let childs = [
       { _position: { x: 0, y: 0 }, _height: 100 },
       { _position: { x: 0, y: 500 }, _height: 100 },
@@ -42,6 +42,22 @@ describe('Calc.js (containerSize)', () => {
     let maxElem = _.max(childs, elem => elem._height)
     expect(ret).to.be.an('object')
     expect(ret.x).to.equal(Calc.colWidth * participants.length)
+    expect(ret.y).to.equal(600 + Calc.containerPaddingBottom + maxElem._height)
+  })
+
+  it('should calc correctly (x axis fit)', () => {
+    let childs = [
+      { _position: { x: 0, y: 0 }, _height: 100 },
+      { _position: { x: 0, y: 500 }, _height: 100 },
+      { _position: { x: 0, y: 600 }, _height: 100 },
+      { _position: { x: 0, y: 300 }, _height: 100 }
+    ]
+    let participants = [1, 2, 3, 4]
+    let ret = Calc.containerSize(childs, participants, true)
+
+    let maxElem = _.max(childs, elem => elem._height)
+    expect(ret).to.be.an('object')
+    expect(ret.x).to.equal(Calc.minContainerWidth)
     expect(ret.y).to.equal(600 + Calc.containerPaddingBottom + maxElem._height)
   })
 

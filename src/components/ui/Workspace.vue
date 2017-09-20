@@ -344,8 +344,14 @@ export default {
   beforeUpdate: function () {
     console.warn('Workspace updating ...', document.querySelectorAll('.process').length)
     Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.timeFormat)
-    let size = Calc.containerSize(this.processModel.childs, this.processModel.participants) // calc layout based on model
-    let delta = { x: 0, y: size.y - this.containerSize.y }
+    let size = Calc.containerSize(this.processModel.childs, this.processModel.participants, true) // calc layout based on model
+
+    // diff between actual containerSize and Calculation
+    let delta = { x: size.x - this.containerSize.x, y: size.y - this.containerSize.y }
+
+    // increase containerSize when more space is needed (e.g. process added)
+    delta.x = delta.x < 0 ? 0 : delta.x
+    delta.y = delta.y < 0 ? 0 : delta.y
 
     if (delta.x !== 0 || delta.y !== 0) {
       this.updateContainerSize(delta)
