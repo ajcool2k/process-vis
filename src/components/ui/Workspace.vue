@@ -2,7 +2,7 @@
   <div id="vue-workspace" :data-change="changes.time">
 
     <!-- child component -->
-    <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom"></tool-bar>
+    <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange"></tool-bar>
 
     <div class="workspace">
       <md-dialog-confirm
@@ -116,6 +116,8 @@ import { TouchSupport } from '@/classes/utils/TouchSupport'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
+
+import { Exchange } from '@/classes/utils/Exchange'
 import { Process } from '@/classes/model/Process'
 
 Vue.use(VueMaterial)
@@ -180,7 +182,7 @@ export default {
   },
 
   created: function () {
-    console.warn('Worspace created')
+    console.warn('Workspace created')
 
     this.initStateMachine()
 
@@ -606,7 +608,7 @@ export default {
     },
 
     redrawConnection (process) {
-      if (typeof process === 'string') process = _.findWhere(this.processModel.childs, {id: Helper.parse(process)})
+      if (typeof process === 'string') process = this.processModel.childs.find(elem => elem.id === Helper.parse(process))
 
       let conSources = process.connection.from
       let conTargets = process.connection.to
@@ -853,6 +855,19 @@ export default {
       this.containerScale.x = scaleData.x
       this.containerScale.y = scaleData.y
       this.applyTransform()
+    },
+
+    exchange (data) {
+      switch (data) {
+        case 'save':
+          this.$emit('save')
+          return
+        case 'download':
+          this.$emit('download')
+          return
+        default:
+          console.warn('data has unexpected information')
+      }
     },
 
     // Listener for time-chooser emits

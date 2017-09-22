@@ -7,6 +7,29 @@ export class Helper {
     return Number.isNaN(parseInt(x)) ? x : Number.parseInt(x)
   }
 
+  static removeAttributes (collection, blacklist) {
+    let copy = Helper.deepClone(collection)
+    Helper.removeProps(copy, blacklist)
+    return copy
+  }
+
+  /**
+   * Methode dient zum Entfernen von Properties von einem Array
+   * Objekte behalten den Type
+   * Achtung: Circular Objects führen zu Infinite Loop!!
+   * @param {Object} obj
+   * @param {Array} blacklist
+   */
+  static removeProps (obj, blacklist) {
+    for (let prop in obj) {
+      if (blacklist.indexOf(prop) > -1) {
+        delete obj[prop]
+      } else if (typeof obj[prop] === 'object') {
+        Helper.removeProps(obj[prop], blacklist)
+      }
+    }
+  }
+
   static deepClone (collection) {
     const clone = require('clone')
     return clone(collection)

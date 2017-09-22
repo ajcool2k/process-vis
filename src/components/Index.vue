@@ -1,14 +1,13 @@
 <template>
     <div id="index">
         <h1>Übersicht Module</h1>
-        <p>App:         
+        <p>Neues Datenmodell
             <router-link to="/process">
-                <button>Process-Vis</button>
+                 <button>erstellen</button>
             </router-link>
         </p>
-
-            <p>Demos:
-            <!--
+          <!--
+          <p>Demos:
             <router-link to="/draw">
                 <button>Route zeichnen</button>
             </router-link>
@@ -16,7 +15,7 @@
             <router-link to="/draw2">
                 <button>CyDemo</button>
             </router-link>
-            -->
+
             <router-link to="/flexbox">
                 <button>Flexbox</button>
             </router-link>
@@ -31,28 +30,35 @@
 
             <router-link to="/state-machine">
                 <button>StateMachine</button>
-            </router-link>            
+            </router-link>
         </p>
 
         <div class="logo">
             <img src="../assets/logo.png" draggable="true">
-        </div>    
+        </div>
+        -->
+
+        <process-list></process-list>
 
     </div>
 </template>
 
 
 <script>
-  export default {
-    name: 'Index',
-    data: function () {
-      return {}
-    }
-}
+import List from './ui/List.vue'
 
+export default {
+  name: 'Index',
+  components: {
+    'process-list': List
+  },
+  data: function () {
+    return {}
+  }
+}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .logo img {
         position: absolute;
         left: 50%;

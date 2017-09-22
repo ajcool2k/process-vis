@@ -19,4 +19,17 @@ export class Stakeholder {
 
   get mName () { return this.name }
   set mName (name) { this.name = name }
+
+  get props () { return this }
+  set props (serializedStakeholder) {
+    if (!serializedStakeholder || typeof serializedStakeholder === 'undefined') {
+      console.warn('Stakeholder.props() - serializedStakeholder is undefined')
+      return
+    }
+
+    this.id = serializedStakeholder.id
+    this.name = serializedStakeholder.name
+    this.type = serializedStakeholder.type
+    this.contact = serializedStakeholder.contact
+  }
 }

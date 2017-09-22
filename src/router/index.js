@@ -23,6 +23,7 @@ export default new Router({
     { name: 'Flexbox', path: '/flexbox', component: Flexbox },
     { name: 'D3demo', path: '/draw3', component: D3demo },
     { name: 'StateMachine', path: '/state-machine', component: StateMachine },
-    { name: 'Process', path: '/process', component: Process }
+    { name: 'Process (new)', path: '/process', component: Process },
+    { name: 'Process (existing)', path: '/process/:id', component: Process }
   ]
 })

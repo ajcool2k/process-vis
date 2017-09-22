@@ -24,12 +24,19 @@ export class Data2 {
     let child2 = new Process('child 2', s2.id, new Date(2017, 0, 6), new Date(2017, 0, 11))
     child2.transformation.type = '+'
 
+    let child3 = new Process('child 3', s3.id, new Date(2017, 0, 6), new Date(2017, 0, 11))
+    child3.transformation.type = '+'
+
     datamodel.childs.push(child1)
     datamodel.childs.push(child2)
+    datamodel.childs.push(child3)
 
     // setup connection between childs
     child1.mConnections = {to: child2.id}
+    child1.mConnections = {to: child3.id}
+
     child2.mConnections = {from: child1.id}
+    child3.mConnections = {from: child1.id}
 
     // store child initiators as participants
     let initiators = datamodel.childs.map(elem => elem.initiator)

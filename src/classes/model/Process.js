@@ -1,3 +1,5 @@
+import { Stakeholder } from '@/classes/model/Stakeholder'
+
 export class Process {
   constructor (name, initiator, start, end) {
     this._comment = 'Process'
@@ -14,7 +16,7 @@ export class Process {
     }
 
     this.parent = ''
-    this.mName = name
+    this.name = name
     this.description = ''
     this.location = [] // all locations on this process (not taken child locations into account)
     this._duration = 0 // will be calculated by start and end
@@ -44,9 +46,55 @@ export class Process {
     this._connections = [] // wrapper for connection
     this._width = 0
     this._height = 0
+    this._defaultEndDate = null
+    this._domNode = null
   }
 
   // IMPL getter and setter
+  get props () { return this }
+  set props (serializedProcess) {
+    if (!serializedProcess || typeof serializedProcess === 'undefined') {
+      console.warn('Process.props() - serializedProcess is undefined')
+      return
+    }
+
+    this.id = serializedProcess.id
+    this.name = serializedProcess.name
+    this.reference = serializedProcess.reference
+    this.initiator = serializedProcess.initiator
+    this.connection = serializedProcess.connection
+    this.connection.to.forEach(con => {
+      this._connections.push({ id: this.id + '->' + con, source: this.id, target: con })
+    })
+    this.parent = serializedProcess.parent
+    this.name = serializedProcess.name
+    this.description = serializedProcess.description
+    this.location = serializedProcess.location
+    this.mStart = serializedProcess.start ? new Date(serializedProcess.start) : null
+    this.mEnd = serializedProcess.end ? new Date(serializedProcess.end) : null
+    this.participation = serializedProcess.participation
+    this.participants = serializedProcess.participants
+    this.transformation = serializedProcess.transformation
+    this.results = serializedProcess.results
+
+    serializedProcess.childs.forEach(child => {
+      let childProcess = new Process()
+      childProcess.props = child
+      this.childs.push(childProcess)
+    })
+
+    serializedProcess.stakeholder.forEach(sh => {
+      let stakeholder = new Stakeholder()
+      stakeholder.props = sh
+      this.stakeholder.push(stakeholder)
+    })
+
+    this.locations = serializedProcess.locations
+
+    // timestamps
+    this.created = serializedProcess.created ? new Date(serializedProcess.created) : null
+    this.modified = serializedProcess.modified ? new Date(serializedProcess.modified) : null
+  }
 
   get mInitiator () { return this.initiator }
   set mInitiator (initiator) { this.initiator = typeof initiator !== 'undefined' ? initiator : 1 }

@@ -4,6 +4,9 @@
     <!-- child component -->
     <workspace :processModel="datamodel" :changes="changes"
 
+        v-on:save="saveModel"
+        v-on:download="downloadModel"
+
         v-on:addConnection="addConnection"
         v-on:removeConnection="removeConnection"
 
@@ -25,6 +28,7 @@
 import { _ } from 'underscore'
 
 // Classes
+import { Exchange } from '@/classes/utils/Exchange'
 import { Helper } from '@/classes/utils/Helper'
 import { Calc } from '@/classes/utils/Calc'
 
@@ -52,7 +56,18 @@ export default {
 
   created: function () {
     console.log('App created')
-    this.addData()
+    console.log('Route data', this.$route.params)
+    let routeInfo = this.$route.params
+    if (routeInfo.hasOwnProperty('id')) {
+      console.log('existing model requested')
+      let process = new Process()
+      let obj = Exchange.openProcess(routeInfo.id)
+      process.props = obj
+      this.datamodel = process
+    } else {
+      console.log('new model requested')
+      this.addData()
+    }
     console.log('datamodel', this.datamodel)
   },
 
@@ -193,6 +208,16 @@ export default {
       }
 
       this.changes = change
+    },
+
+    saveModel () {
+      console.warn('saveModel')
+      Exchange.storeProcess(this.datamodel)
+    },
+
+    downloadModel () {
+      console.warn('download')
+      Exchange.downloadProcess(this.datamodel)
     }
 
   }

@@ -2,6 +2,14 @@
   <div class="tool-bar">
     <md-toolbar class="md-dense">
       <h2 class="md-title" style="flex: 1">Prozess-Modellierung</h2>
+        <md-button @touchstart.native="save"  @mousedown.native="save">
+          <md-icon>save</md-icon>
+        </md-button>
+
+        <md-button @touchstart.native="download"  @mousedown.native="download">
+          <md-icon>file_download</md-icon>
+        </md-button>
+
         <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">
           <md-icon>zoom_in</md-icon>
         </md-button>
@@ -14,7 +22,6 @@
 </template>
 
 <script>
-
 import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 import VueMaterial from 'vue-material'
@@ -77,10 +84,17 @@ export default {
       }
 
       this.scaleData = {x: this.scaleData.x * multX, y: this.scaleData.y * multY}
+    },
+
+    save () {
+      this.$emit('exchange', 'save')
+    },
+
+    download () {
+      this.$emit('exchange', 'download')
     }
   }
 }
-
 </script>
 
 <style lang="scss" scoped>
