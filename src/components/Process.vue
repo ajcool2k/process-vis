@@ -104,7 +104,7 @@ export default {
 
     addProcess (process) {
       console.log('addProcess', process)
-      this.datamodel.childs.push(process)
+      this.datamodel.addChild(process)
     },
 
     moveProcess (processData) {
@@ -116,20 +116,7 @@ export default {
 
     removeProcess (processId) {
       console.log('Process (removeProcess): ' + processId)
-
-      // remove Connection
-      let unneededConnections = []
-      this.datamodel.childs.forEach(elem => {
-        if (elem.connection.from.indexOf(processId) > -1) unneededConnections.push(processId + '->' + elem.id)
-        if (elem.connection.to.indexOf(processId) > -1) unneededConnections.push(elem.id + '->' + processId)
-      })
-
-      unneededConnections.forEach((con) => {
-        this.removeConnection(con)
-      })
-
-      // remove Process
-      this.datamodel.childs = this.datamodel.childs.filter(elem => elem.id !== processId)
+      this.datamodel.removeChild(processId)
     },
 
     updateProcess (processId) {
@@ -145,21 +132,22 @@ export default {
       console.log('processSource', processSource)
       console.log('processTarget', processTarget)
 
-      processSource.mConnections = { to: connectionData.target }
-      processTarget.mConnections = { from: connectionData.source }
+      processSource.addConnectionTo(processTarget)
     },
 
     removeConnection (connectionId) {
       console.log('removeConnection', connectionId)
+
+      if (typeof connectionId !== 'string') {
+        console.warn('Process.removeConnection - expected id as a string')
+        return
+      }
+
       let con = Helper.connectionParse(connectionId)
+      let processFrom = this.datamodel.childs.find(elem => elem.id === con.source)
+      let processTo = this.datamodel.childs.find(elem => elem.id === con.target)
 
-      let processTo = this.datamodel.childs.find(elem => elem.id === con.source)
-      let processFrom = this.datamodel.childs.find(elem => elem.id === con.target)
-
-      processTo.connection.to = _.reject(processTo.connection.to, elem => elem === con.target) // remove to process
-      processFrom.connection.from = _.reject(processFrom.connection.from, elem => elem === con.source) // remove from process
-
-      processTo._connections = processTo._connections.filter(elem => elem.id !== connectionId) // remove from mConnections
+      processFrom.removeConnectionTo(processTo)
     },
 
     addParticipant () {

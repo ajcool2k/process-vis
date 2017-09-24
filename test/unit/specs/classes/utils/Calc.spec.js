@@ -2,16 +2,18 @@ import { _ } from 'underscore'
 import { Process } from '@/classes/model/Process'
 import { Calc } from '@/classes/utils/Calc'
 
+require('es6-shim') // for non supported browsers like phantom.js
+
 describe('Calc.js (getDefaultEndDate)', () => {
   it('should calc return enddate correctly', () => {
-    let process = new Process('head', 1, new Date(2017, 0, 1), new Date(2017, 0, 2), true)
+    let process = new Process('head', 1, new Date(2017, 0, 1), new Date(2017, 0, 2))
     let ret = Calc.getDefaultEndDate(process, '')
     expect(ret instanceof Date).to.equal(true)
     expect(ret.getTime()).to.equal(new Date(2017, 0, 2).getTime())
   })
 
   it('should calc missing enddate correctly', () => {
-    let process = new Process('head', 1, new Date(2017, 0, 1), null, true)
+    let process = new Process('head', 1, new Date(2017, 0, 1), null)
     let timeFormats = [ 'hours', 'days', 'months' ]
 
     let retA = Calc.getDefaultEndDate(process, timeFormats[0])

@@ -9,8 +9,14 @@ export class Exchange {
 
   static storeProcess (process) {
     console.warn('storeProcess')
+    process.modified = new Date()
     let fixedModel = Exchange.cleanProcess(process)
     Storage.save(fixedModel)
+  }
+
+  static removeProcess (id) {
+    console.warn('removeProcess')
+    Storage.remove(id)
   }
 
   static openProcess (id) {

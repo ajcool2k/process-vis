@@ -60,7 +60,7 @@
           </template>
 
           <template v-for="(item, index) in processModel.childs">
-            <template v-for="(con, index) in item.mConnections">
+            <template v-for="(con, index) in item._connections">
               <g class="connection" :data-id="con.id">
                 <polyline class="connection-outline" :data-id="con.id" points="" @click.stop="openRemoveConnectionDialog" />
                 <polyline class="connection-line" :data-id="con.id" points="" />

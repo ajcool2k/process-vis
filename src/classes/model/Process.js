@@ -2,13 +2,21 @@ import { Stakeholder } from '@/classes/model/Stakeholder'
 
 export class Process {
   constructor (name, initiator, start, end) {
+    // Privates (not in the datamodel included)
     this._comment = 'Process'
+    this._position = { x: 0, y: 0 }
+    this._connections = [] // wrapper for connection
+    this._width = 0
+    this._height = 0
+    this._defaultEndDate = null
+    this._duration = 0 // will be calculated by start and end
+    this._domNode = null
 
     const uniqid = require('uniqid')
     this.id = uniqid()
 
     this.reference = ''
-    this.initiator = initiator
+    this.initiator = typeof initiator !== 'undefined' ? initiator : null
 
     this.connection = {
       from: [],
@@ -16,10 +24,9 @@ export class Process {
     }
 
     this.parent = ''
-    this.name = name
+    this.name = name && typeof name !== 'undefined' ? name : ''
     this.description = ''
     this.location = [] // all locations on this process (not taken child locations into account)
-    this._duration = 0 // will be calculated by start and end
 
     this.start = null
     this.end = null
@@ -40,14 +47,7 @@ export class Process {
 
     // timestamps
     this.created = new Date()
-    this.modified = ''
-
-    this._position = { x: 0, y: 0 }
-    this._connections = [] // wrapper for connection
-    this._width = 0
-    this._height = 0
-    this._defaultEndDate = null
-    this._domNode = null
+    this.modified = new Date()
   }
 
   // IMPL getter and setter
@@ -138,20 +138,69 @@ export class Process {
     if (this.start instanceof Date && this.end instanceof Date) this._duration = this.end - this.start
   }
 
+  setChilds (childs) {
+    if (childs instanceof Array === false) {
+      console.warn('Process.setChilds - expected childs as type Array')
+      return
+    }
+    this.childs = childs
+    this.participants = this.childs.map(elem => elem.initiator)
+  }
+
+  addChild (child) {
+    if (typeof child === 'undefined' || child instanceof Process === false) {
+      console.warn('Process.addChild - expected child as type Process')
+      return
+    }
+
+    child.parent = this.id
+    this.childs.push(child)
+    this.participants.push(child.initiator)
+  }
+
+  removeChild (id) {
+    if (typeof id !== 'string') {
+      console.warn('Process.removeChild - expected id as a string')
+      return
+    }
+
+    let index = this.childs.findIndex(elem => elem.id === id)
+
+    if (index === -1) {
+      console.warn('Process.removeChild - id not found')
+      return
+    }
+
+    let child = this.childs[index]
+
+    // remove Connection
+    this.childs.forEach(elem => {
+      if (elem.connection.from.indexOf(id) > -1) child.removeConnectionTo(elem)
+      if (elem.connection.to.indexOf(id) > -1) elem.removeConnectionTo(child)
+    })
+
+    this.childs.splice(index, 1)
+  }
+
+  addConnectionTo (target) {
+    this.connection.to.push(target.id)
+    target.connection.from.push(this.id)
+
+    this._connections.push({ id: this.id + '->' + target.id, source: this.id, target: target.id })
+  }
+
+  removeConnectionTo (target) {
+    let connectionId = this.id + '->' + target.id
+    this.connection.to = this.connection.to.filter(elem => elem !== target.id) // remove to process
+    target.connection.from = target.connection.from.filter(elem => elem !== this.id) // remove from process
+    this._connections = this._connections.filter(elem => elem.id !== connectionId) // remove from private connection object
+  }
+
   get mDuration () { return isNaN(this._duration) ? 0 : this._duration }
   set mDuration (duration) { console.warn('duration cannot be set') }
 
   get mParticipation () { return this.participation }
   set mParticipation (participation) { this.participation = participation }
-
-  get mConnections () { return this._connections }
-  set mConnections (con) {
-    if (con.from && typeof con.from !== 'undefined') this.connection.from.push(con.from)
-    if (con.to && typeof con.to !== 'undefined') {
-      this.connection.to.push(con.to)
-      this._connections.push({ id: this.id + '->' + con.to, source: this.id, target: con.to })
-    }
-  }
 
   get mPosition () { return this._position }
   set mPosition (position) { this._position = position }
