@@ -47,6 +47,7 @@
     "cross-env": "^4.0.0",
     "cross-spawn": "^5.0.1",
     "css-loader": "^0.28.0",
+    "es6-shim": "^0.35.3",
     "eventsource-polyfill": "^0.9.6",
     "express": "^4.14.1",
     "extract-text-webpack-plugin": "^2.0.0",
