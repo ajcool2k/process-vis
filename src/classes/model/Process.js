@@ -75,6 +75,7 @@ export class Process {
     this.mEnd = serializedProcess.end ? new Date(serializedProcess.end) : null
     this.participation = serializedProcess.participation
     this.transformation = serializedProcess.transformation
+    this.participants = serializedProcess.participants
 
     serializedProcess.childs.forEach(child => {
       let childProcess = new Process()
@@ -85,7 +86,7 @@ export class Process {
     serializedProcess.stakeholder.forEach(sh => {
       let stakeholder = new Stakeholder()
       stakeholder.props = sh
-      this.stakeholder.push(stakeholder)
+      this.addStakeholder(stakeholder)
     })
 
     serializedProcess.results.forEach(res => {
@@ -176,13 +177,29 @@ export class Process {
       return false
     }
 
-    let found = this.participants.find(elem => elem.id === id)
-    if (found) {
+    let found = this.participants.find(elem => elem === id)
+    if (typeof found !== 'undefined') {
       console.warn('Process.addParticipant() - id is already set')
       return false
     }
 
     this.participants.push(id)
+    return true
+  }
+
+  addStakeholder (stakeholder) {
+    if (typeof stakeholder === 'undefined' || stakeholder instanceof Stakeholder === false) {
+      console.warn('Process.addStakeholder() - expected string')
+      return false
+    }
+
+    let found = this.stakeholder.find(elem => elem.id === stakeholder.id)
+    if (typeof found !== 'undefined') {
+      console.warn('Process.addStakeholder() - id is already set')
+      return false
+    }
+
+    this.stakeholder.push(stakeholder)
     return true
   }
 
@@ -285,7 +302,6 @@ export class Process {
   }
 
   addLocation (location) {
-    console.log('location instanceof', location instanceof Location)
     if (typeof location === 'undefined' || location instanceof Location === false) {
       console.warn('Process.addLocation() - expected Location')
       return false

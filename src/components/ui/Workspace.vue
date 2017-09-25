@@ -498,7 +498,7 @@ export default {
         action: (event) => {
           this.actionId = event.target.getAttribute('data-id')
           let p = _.findWhere(this.processModel.childs, { id: Helper.parse(this.actionId) })
-          this.$refs['dialog-process'].open(p, this.processModel.participants, 'update')
+          this.$refs['dialog-process'].open(p, this.processModel.participants, this.processModel.stakeholder, 'update')
         }
       })
 
@@ -899,7 +899,6 @@ export default {
 
       let process = new Process('[new]', initiator, start, null)
       this.$emit('addProcess', process)
-      // this.$refs['dialog-process'].open(process, this.processModel.participants, 'create')
     },
 
     onContainerClick () {

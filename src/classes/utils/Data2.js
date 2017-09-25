@@ -1,5 +1,7 @@
 import { Process } from '@/classes/model/Process'
+import { Location } from '@/classes/model/Location'
 import { Stakeholder } from '@/classes/model/Stakeholder'
+import { Result } from '@/classes/model/Result'
 
 export class Data2 {
   static generateData () {
@@ -13,13 +15,23 @@ export class Data2 {
     let s2 = new Stakeholder('S2', 'group closed')
     let s3 = new Stakeholder('S3', 'group closed')
 
-    datamodel.stakeholder.push(s1)
-    datamodel.stakeholder.push(s2)
-    datamodel.stakeholder.push(s3)
+    datamodel.addStakeholder(s1)
+    datamodel.addStakeholder(s2)
+    datamodel.addStakeholder(s3)
 
     // generate child processes
     let child1 = new Process('child 1', s1.id, new Date(2017, 0, 1), null)
     child1.transformation.type = '='
+
+    let location = new Location('Friedrich-List-Platz 1', '01069', 'Dresden', 'A117', { lat: '51.035467', lng: '13.736129' })
+    child1.addLocation(location)
+
+    let result = new Result('Result 1', 'Das Erste Ergebnis!!', '', 'AJ')
+    child1.addResult(result)
+
+    let stakeholder = new Stakeholder('Moon Inc.')
+    datamodel.addStakeholder(stakeholder)
+    child1.addParticipant(stakeholder.id)
 
     let child2 = new Process('child 2', s2.id, new Date(2017, 0, 6), new Date(2017, 0, 11))
     child2.transformation.type = '+'

@@ -1,6 +1,7 @@
 import { Process } from '@/classes/model/Process'
 import { Result } from '@/classes/model/Result'
 import { Location } from '@/classes/model/Location'
+import { Stakeholder } from '@/classes/model/Stakeholder'
 import { Exchange } from '@/classes/utils/Exchange'
 
 require('es6-shim') // for non supported browsers like phantom.js
@@ -84,6 +85,10 @@ describe('Process.js', () => {
 
     let location = new Location('Friedrich-List-Platz 1', '01069', 'Dresden', 'A117', { lat: '51.035467', lng: '13.736129' })
     child1.addLocation(location)
+
+    let stakeholder = new Stakeholder('Moon Inc.')
+    processBefore.addStakeholder(stakeholder)
+    child1.addParticipant(stakeholder.id)
 
     // export and import back
     Exchange.storeProcess(processBefore)
