@@ -2,10 +2,12 @@
   <div id="Process">
 
     <!-- child component -->
-    <workspace :processModel="datamodel" :changes="changes"
+    <workspace :processModel="datamodel" :isSaved="isSaved" :changes="changes"
 
+        v-on:list="listModels"
         v-on:save="saveModel"
         v-on:download="downloadModel"
+        v-on:remove="removeModel"
 
         v-on:addConnection="addConnection"
         v-on:removeConnection="removeConnection"
@@ -47,6 +49,7 @@ export default {
   },
   data: function () {
     return {
+      isSaved: false,
       datamodel: new Process(),
       changes: {
         time: new Date()
@@ -64,6 +67,7 @@ export default {
       let obj = Exchange.openProcess(routeInfo.id)
       process.props = obj
       this.datamodel = process
+      this.isSaved = true
     } else {
       console.log('new model requested')
       this.addData()
@@ -198,14 +202,33 @@ export default {
       this.changes = change
     },
 
+    listModels () {
+      console.warn('saveModel')
+      this.$router.replace('/')
+    },
+
     saveModel () {
       console.warn('saveModel')
       Exchange.storeProcess(this.datamodel)
+      this.$router.replace('/process/' + this.datamodel.id)
+      this.isSaved = true
     },
 
     downloadModel () {
       console.warn('download')
       Exchange.downloadProcess(this.datamodel)
+    },
+
+    removeModel () {
+      console.warn('removeModel')
+      let ret = Exchange.removeProcess(this.datamodel.id)
+
+      if (ret === false) {
+        console.warn('Process.removeModel() - could not remove Model')
+        return
+      }
+      this.isSaved = false
+      this.$router.replace('/')
     }
 
   }

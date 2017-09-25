@@ -58,7 +58,7 @@ export class Storage {
 
     if (Storage.exists(indexName) === false) {
       console.warn('Storage.remove() - Element does not exist in Index')
-      return
+      return false
     }
 
     // remove from index
@@ -67,6 +67,8 @@ export class Storage {
     Storage.setIndex(index)
 
     store.removeItem(Storage.prefix + id)
+
+    return true
   }
 
   static exists (indexName) {

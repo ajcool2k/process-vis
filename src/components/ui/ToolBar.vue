@@ -2,21 +2,30 @@
   <div class="tool-bar">
     <md-toolbar class="md-dense">
       <h2 class="md-title" style="flex: 1">Prozess-Modellierung</h2>
-        <md-button @touchstart.native="save"  @mousedown.native="save">
-          <md-icon>save</md-icon>
-        </md-button>
 
-        <md-button @touchstart.native="download"  @mousedown.native="download">
-          <md-icon>file_download</md-icon>
-        </md-button>
+      <md-button @touchstart.native="list" @mousedown.native="list">
+        <md-icon>arrow_back</md-icon>
+      </md-button>
 
-        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">
-          <md-icon>zoom_in</md-icon>
-        </md-button>
+      <md-button v-if="isSaved" @touchstart.native="remove" @mousedown.native="remove">
+        <md-icon>delete</md-icon>
+      </md-button>
 
-        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">
-          <md-icon>zoom_out</md-icon>
-        </md-button>
+      <md-button @touchstart.native="save"  @mousedown.native="save">
+        <md-icon>save</md-icon>
+      </md-button>
+
+      <md-button @touchstart.native="download"  @mousedown.native="download">
+        <md-icon>file_download</md-icon>
+      </md-button>
+
+      <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">
+        <md-icon>zoom_in</md-icon>
+      </md-button>
+
+      <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">
+        <md-icon>zoom_out</md-icon>
+      </md-button>
     </md-toolbar>
   </div>
 </template>
@@ -29,7 +38,7 @@ Vue.use(VueMaterial)
 
 export default {
   name: 'ToolBar',
-  props: [ 'containerScale' ],
+  props: [ 'containerScale', 'isSaved' ],
   data: function () {
     return {
       scaleData: this.containerScale
@@ -92,7 +101,16 @@ export default {
 
     download () {
       this.$emit('exchange', 'download')
+    },
+
+    remove () {
+      this.$emit('exchange', 'remove')
+    },
+
+    list () {
+      this.$emit('exchange', 'list')
     }
+
   }
 }
 </script>

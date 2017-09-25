@@ -2,7 +2,7 @@
   <div id="vue-workspace" :data-change="changes.time">
 
     <!-- child component -->
-    <tool-bar :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange"></tool-bar>
+    <tool-bar :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange"></tool-bar>
 
     <div class="workspace">
       <md-dialog-confirm
@@ -117,7 +117,6 @@ import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
 
-import { Exchange } from '@/classes/utils/Exchange'
 import { Process } from '@/classes/model/Process'
 
 Vue.use(VueMaterial)
@@ -132,7 +131,7 @@ export default {
     'axis-y': AxisY,
     'dialog-process': DialogProcess
   },
-  props: [ 'processModel', 'changes' ],
+  props: [ 'processModel', 'isSaved', 'changes' ],
 
   data: function () {
     return {
@@ -859,11 +858,17 @@ export default {
 
     exchange (data) {
       switch (data) {
+        case 'list':
+          this.$emit('list')
+          return
         case 'save':
           this.$emit('save')
           return
         case 'download':
           this.$emit('download')
+          return
+        case 'remove':
+          this.$emit('remove')
           return
         default:
           console.warn('data has unexpected information')

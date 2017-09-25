@@ -16,7 +16,7 @@ export class Exchange {
 
   static removeProcess (id) {
     console.warn('removeProcess')
-    Storage.remove(id)
+    return Storage.remove(id)
   }
 
   static openProcess (id) {

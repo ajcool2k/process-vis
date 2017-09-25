@@ -81,7 +81,8 @@ describe('Storage.js ()', () => {
   })
 
   it('should remove object from Storage', () => {
-    Storage.remove(process.id)
+    let ret = Storage.remove(process.id)
+    expect(ret).to.equal(true)
     expect(store.hasOwnProperty(Storage.prefix + process.id)).to.equal(false)
   })
 
