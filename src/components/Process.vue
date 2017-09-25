@@ -158,7 +158,7 @@ export default {
       let stakeholder = new Stakeholder()
       console.log('stakeholder', stakeholder)
       this.datamodel.stakeholder.push(stakeholder)
-      this.datamodel.participants.push(stakeholder.id)
+      this.datamodel.addParticipant(stakeholder.id)
     },
 
     removeParticipant (participantId) {

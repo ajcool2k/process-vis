@@ -1,4 +1,6 @@
 import { Stakeholder } from '@/classes/model/Stakeholder'
+import { Result } from '@/classes/model/Result'
+import { Location } from '@/classes/model/Location'
 
 export class Process {
   constructor (name, initiator, start, end) {
@@ -16,7 +18,7 @@ export class Process {
     this.id = uniqid()
 
     this.reference = ''
-    this.initiator = typeof initiator !== 'undefined' ? initiator : null
+    this.initiator = typeof initiator !== 'undefined' ? initiator : ''
 
     this.connection = {
       from: [],
@@ -69,24 +71,33 @@ export class Process {
     this.parent = serializedProcess.parent
     this.name = serializedProcess.name
     this.description = serializedProcess.description
-    this.location = serializedProcess.location
     this.mStart = serializedProcess.start ? new Date(serializedProcess.start) : null
     this.mEnd = serializedProcess.end ? new Date(serializedProcess.end) : null
     this.participation = serializedProcess.participation
-    this.participants = serializedProcess.participants
     this.transformation = serializedProcess.transformation
-    this.results = serializedProcess.results
 
     serializedProcess.childs.forEach(child => {
       let childProcess = new Process()
       childProcess.props = child
-      this.childs.push(childProcess)
+      this.addChild(childProcess)
     })
 
     serializedProcess.stakeholder.forEach(sh => {
       let stakeholder = new Stakeholder()
       stakeholder.props = sh
       this.stakeholder.push(stakeholder)
+    })
+
+    serializedProcess.results.forEach(res => {
+      let result = new Result()
+      result.props = res
+      this.addResult(result)
+    })
+
+    serializedProcess.location.forEach(loc => {
+      let location = new Location()
+      location.props = loc
+      this.addLocation(location)
     })
 
     this.locations = serializedProcess.locations
@@ -143,8 +154,9 @@ export class Process {
       console.warn('Process.setChilds - expected childs as type Array')
       return
     }
-    this.childs = childs
-    this.participants = this.childs.map(elem => elem.initiator)
+
+    this.childs = []
+    childs.forEach(elem => { this.addChild(elem) })
   }
 
   addChild (child) {
@@ -155,7 +167,23 @@ export class Process {
 
     child.parent = this.id
     this.childs.push(child)
-    this.participants.push(child.initiator)
+    this.addParticipant(child.initiator)
+  }
+
+  addParticipant (id) {
+    if (typeof id !== 'string') {
+      console.warn('Process.addParticipant() - expected string')
+      return false
+    }
+
+    let found = this.participants.find(elem => elem.id === id)
+    if (found) {
+      console.warn('Process.addParticipant() - id is already set')
+      return false
+    }
+
+    this.participants.push(id)
+    return true
   }
 
   removeChild (id) {
@@ -183,17 +211,105 @@ export class Process {
   }
 
   addConnectionTo (target) {
+    if (typeof target !== 'object') {
+      console.warn('Process.addConnectionTo() - expected object')
+      return false
+    }
+
     this.connection.to.push(target.id)
     target.connection.from.push(this.id)
 
     this._connections.push({ id: this.id + '->' + target.id, source: this.id, target: target.id })
+    return true
   }
 
   removeConnectionTo (target) {
+    if (typeof target !== 'object') {
+      console.warn('Process.addConnectionTo() - expected object')
+      return false
+    }
+
     let connectionId = this.id + '->' + target.id
     this.connection.to = this.connection.to.filter(elem => elem !== target.id) // remove to process
     target.connection.from = target.connection.from.filter(elem => elem !== this.id) // remove from process
     this._connections = this._connections.filter(elem => elem.id !== connectionId) // remove from private connection object
+
+    return true
+  }
+
+  setResults (results) {
+    if (typeof results === 'undefined' || results instanceof Array === false) {
+      console.warn('Process.setResults() - expected Array')
+      return false
+    }
+
+    this.results = []
+    results.forEach(elem => { this.addResult(elem) })
+  }
+
+  addResult (result) {
+    if (typeof result === 'undefined' || result instanceof Result === false) {
+      console.warn('Process.addResult() - expected Result')
+      return false
+    }
+
+    this.results.push(result)
+    return true
+  }
+
+  removeResult (id) {
+    if (typeof result !== 'string') {
+      console.warn('Process.removeResult() - expected string')
+      return false
+    }
+
+    let index = this.results.findIndex(elem => elem.id === id)
+
+    if (index === -1) {
+      console.warn('Process.removeResult() - could not find result')
+      return false
+    }
+
+    this.results.splice(index, 1)
+    return true
+  }
+
+  setLocations (locations) {
+    if (typeof locations === 'undefined' || locations instanceof Array === false) {
+      console.warn('Process.setLocations() - expected Array')
+      return false
+    }
+
+    this.location = []
+    locations.forEach(elem => { this.addLocation(elem) })
+  }
+
+  addLocation (location) {
+    console.log('location instanceof', location instanceof Location)
+    if (typeof location === 'undefined' || location instanceof Location === false) {
+      console.warn('Process.addLocation() - expected Location')
+      return false
+    }
+
+    this.location.push(location)
+    return true
+  }
+
+  removeLocation (id) {
+    if (typeof location !== 'string') {
+      console.warn('Process.removeLocation() - expected string')
+      return false
+    }
+
+    let index = this.location.findIndex(elem => elem.id === id)
+
+    if (index === -1) {
+      console.warn('Process.removeLocation() - could not find location')
+      return false
+    }
+
+    this.location.splice(index, 1)
+    return true
   }
 
   get mDuration () { return isNaN(this._duration) ? 0 : this._duration }

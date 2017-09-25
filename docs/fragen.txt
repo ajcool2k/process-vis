@@ -1,0 +1,11 @@
+- Wie ist die Struktur einer Datei im Datenmodell?
+	"files (optional)": []
+
+- Wie Verfahren wir mit nicht gesetzten Attributen wie this.parent im Datenmodell
+ 	-> leer, null, nicht vorhanden?
+
+- Wie Verfahrne wir mit optionalen Attributen wie copyright
+
+- Wofür brauchen wir this.locations? Diese Daten könnten auch direkt aus den childs gelesen werden
+
+- Validator würde ich gern verwenden, wenn vorhanden

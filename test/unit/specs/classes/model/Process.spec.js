@@ -1,4 +1,6 @@
 import { Process } from '@/classes/model/Process'
+import { Result } from '@/classes/model/Result'
+import { Location } from '@/classes/model/Location'
 import { Exchange } from '@/classes/utils/Exchange'
 
 require('es6-shim') // for non supported browsers like phantom.js
@@ -21,7 +23,7 @@ describe('Process.js', () => {
     expect(process instanceof Process).to.equal(true)
     expect(process.id).to.be.a('string')
     expect(process.name).to.equal('')
-    expect(process.initiator).to.be.a('null')
+    expect(process.initiator).to.equal('')
     expect(process.start).to.be.a('null')
     expect(process.end).to.be.a('null')
   })
@@ -76,11 +78,21 @@ describe('Process.js', () => {
     child1.addConnectionTo(child2)
     child2.addConnectionTo(child3)
 
+    // add some sub types to child1
+    let result = new Result()
+    child1.addResult(result)
+
+    let location = new Location('Friedrich-List-Platz 1', '01069', 'Dresden', 'A117', { lat: '51.035467', lng: '13.736129' })
+    child1.addLocation(location)
+
     // export and import back
     Exchange.storeProcess(processBefore)
 
     let processAfter = new Process()
     processAfter.props = Exchange.openProcess(processBefore.id)
+
+    // console.log('processBefore', processBefore.participants)
+    // console.log('processAfter', processAfter.participants)
 
     // check for deep equal state
     expect(_.isEqual(processAfter, processBefore)).to.equal(true)
