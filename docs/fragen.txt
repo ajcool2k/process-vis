@@ -1,3 +1,7 @@
+Anmerkungen:
+
+- true/false sollten boolean Values sein, keine String -> transformation.decision
+
 - Wie ist die Struktur einer Datei im Datenmodell?
 	"files (optional)": []
 

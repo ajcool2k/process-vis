@@ -4,38 +4,45 @@
       md-ok-text="OK"
       @close="onCloseDialog"
       ref="dialog">
-      <md-dialog-title>Prozess</md-dialog-title>
+      <md-dialog-title>Prozess ({{ process.name }})</md-dialog-title>
       <md-dialog-content>
         <form novalidate @submit.stop.prevent="submit">
           <md-tabs :md-fixed="false" :md-dynamic-height="true">
             <md-tab id="general" md-label="General">
+              <md-input-container>
+                <label>Prozess-ID</label>
+                <md-input type="text" readonly v-model="process.id"></md-input>
+              </md-input-container>
+
+              <md-input-container>
+                <label>Start</label>
+                <md-input type="date" v-model="info.start" @change="onChangeStart"></md-input>
+              </md-input-container>
+
+              <md-input-container>
+                <label>Ende</label>
+                <md-input type="date" v-model="info.end" @change="onChangeEnd"></md-input>
+              </md-input-container>
+
+              <md-input-container>
+                <label for="participation">Partizipation</label>
+                <md-select name="participation" id="participation" v-model="process.participation">
+                  <md-option value="closed">nicht möglich</md-option>
+                  <md-option value="open">möglich</md-option>
+                </md-select>
+              </md-input-container>
+
+            </md-tab>
+
+            <md-tab id="info" md-label="Info">
                 <md-input-container>
-                  <label>Prozess-ID</label>
-                  <md-input type="text" readonly v-model="process.id"></md-input>
+                  <label>Bezeichnung</label>
+                  <md-input type="text" v-model="process.name"></md-input>
                 </md-input-container>
 
                 <md-input-container>
-                  <label for="participant">Verantwortlicher</label>
-                  <md-select name="participant" id="participant" v-model="process.initiator">
-                    <template v-for="(item, index) in participants">
-                      <md-option :value="item">{{ item }}</md-option>
-                    </template>
-                  </md-select>
-                </md-input-container>
-
-                <md-input-container>
-                  <label>Partizipation</label>
-                  <md-input type="text" v-model="process.participation"></md-input>
-                </md-input-container>
-
-                <md-input-container>
-                  <label>Start</label>
-                  <md-input type="date" v-model="info.start" @change="onChangeStart"></md-input>
-                </md-input-container>
-
-                <md-input-container>
-                  <label>Ende</label>
-                  <md-input type="date" v-model="info.end" @change="onChangeEnd"></md-input>
+                  <label>Beschreibung</label>
+                  <md-textarea v-model="process.description"></md-textarea>
                 </md-input-container>
             </md-tab>
 
@@ -55,6 +62,16 @@
             </md-tab>
 
             <md-tab id="stakeholder" md-label="Beteiligte">
+
+              <md-input-container>
+                <label for="participant">Verantwortlicher</label>
+                <md-select name="participant" id="participant" v-model="process.initiator">
+                  <template v-for="(item, index) in participants">
+                    <md-option :value="item">{{ getParticipant(item).name }}</md-option>
+                  </template>
+                </md-select>
+              </md-input-container>
+
               <md-list class="custom-list md-triple-line">
                 <template v-for="(item, index) in process.participants">
                   <md-list-item>
@@ -68,7 +85,31 @@
               </md-list>
             </md-tab>
 
+            <md-tab id="transformation" md-label="Transformation">
+
+              <md-layout md-gutter>
+                <md-layout md-flex="70" md-vertical-align="center" class="md-subheading">Entscheidung</md-layout>
+                <md-layout md-align="end" ><md-switch v-model="process.transformation.mDecision" id="decision" name="decision" class="md-primary"></md-switch></md-layout>
+              </md-layout>
+
+              <md-input-container>
+                <label for="transformation-type">Art</label>
+                <md-select name="transformation-type" id="transformation-type" v-model="process.transformation.type">
+                  <md-option value="=">Information</md-option>
+                  <md-option value="<">Kreation</md-option>
+                  <md-option value=">">Entscheidung</md-option>
+                </md-select>
+              </md-input-container>
+
+              <md-input-container>
+                <label>Hinweis</label>
+                <md-input type="text" v-model="process.transformation.info"></md-input>
+              </md-input-container>
+
+            </md-tab>
+
             <md-tab id="results" md-label="Ergebnisse">
+
               <md-list class="custom-list md-triple-line">
                 <template v-for="(item, index) in process.results">
                   <md-list-item>
@@ -87,8 +128,10 @@
             </md-tab>
           </md-tabs>
 
-          <md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button>
-          <md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button>
+          <md-layout md-gutter>
+            <md-layout md-align="start"><md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button></md-layout>
+            <md-layout md-align="end"><md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button></md-layout>
+          </md-layout>
 
         </form>
       <!--
@@ -99,6 +142,8 @@
 </template>
 
 <script>
+import { Process } from '@/classes/model/Process'
+
 import dateFormat from 'dateformat'
 import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
@@ -110,7 +155,7 @@ export default {
   props: [],
   data: function () {
     return {
-      process: {},
+      process: new Process(),
       participants: [],
       stakeholder: [],
       info: {

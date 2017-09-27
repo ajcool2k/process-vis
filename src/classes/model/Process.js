@@ -1,6 +1,7 @@
 import { Stakeholder } from '@/classes/model/Stakeholder'
 import { Result } from '@/classes/model/Result'
 import { Location } from '@/classes/model/Location'
+import { Transformation } from '@/classes/model/Transformation'
 
 export class Process {
   constructor (name, initiator, start, end) {
@@ -37,11 +38,7 @@ export class Process {
 
     this.participation = 'closed' // externe Beteiligung
     this.participants = []
-    this.transformation = {
-      type: '=',
-      info: '',
-      decision: ''
-    }
+    this.transformation = new Transformation()
     this.results = []
     this.childs = []
     this.stakeholder = []
@@ -74,7 +71,7 @@ export class Process {
     this.mStart = serializedProcess.start ? new Date(serializedProcess.start) : null
     this.mEnd = serializedProcess.end ? new Date(serializedProcess.end) : null
     this.participation = serializedProcess.participation
-    this.transformation = serializedProcess.transformation
+    this.transformation.props = serializedProcess.transformation
     this.participants = serializedProcess.participants
 
     serializedProcess.childs.forEach(child => {
