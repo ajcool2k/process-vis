@@ -200,6 +200,23 @@ export class Process {
     return true
   }
 
+  removeStakeholder (id) {
+    if (typeof id !== 'string') {
+      console.warn('Process.removeStakeholder() - expected string')
+      return false
+    }
+
+    let index = this.stakeholder.findIndex(elem => elem.id === id)
+
+    if (index === -1) {
+      console.warn('Process.removeStakeholder() - could not find stakeholder')
+      return false
+    }
+
+    this.stakeholder.splice(index, 1)
+    return true
+  }
+
   removeChild (id) {
     if (typeof id !== 'string') {
       console.warn('Process.removeChild - expected id as a string')
@@ -272,7 +289,7 @@ export class Process {
   }
 
   removeResult (id) {
-    if (typeof result !== 'string') {
+    if (typeof id !== 'string') {
       console.warn('Process.removeResult() - expected string')
       return false
     }
@@ -309,7 +326,7 @@ export class Process {
   }
 
   removeLocation (id) {
-    if (typeof location !== 'string') {
+    if (typeof id !== 'string') {
       console.warn('Process.removeLocation() - expected string')
       return false
     }
