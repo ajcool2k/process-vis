@@ -13,3 +13,5 @@ Anmerkungen:
 - Wofür brauchen wir this.locations? Diese Daten könnten auch direkt aus den childs gelesen werden
 
 - Validator würde ich gern verwenden, wenn vorhanden
+
+- contactPerson: zulässige Werte?

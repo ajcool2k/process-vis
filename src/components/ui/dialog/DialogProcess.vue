@@ -47,42 +47,11 @@
             </md-tab>
 
             <md-tab id="locations" md-label="Orte">
-              <md-list class="custom-list md-triple-line">
-                <template v-for="(item, index) in process.location">
-                  <md-list-item>
-                    <md-icon>place</md-icon>
-                    <div class="md-list-text-container">
-                      <span>Adresse: {{ item.mAddress }} - {{ item.mZip }} {{ item.mCity }}</span>
-                      <span>Ort: {{ item.mZip }} - {{ item.mCity }}</span>
-                      <span>Raum: {{ item.mRoom }}</span>
-                    </div>
-                  </md-list-item>
-               </template>
-              </md-list>
+              <location-tab :process="process"></location-tab>
             </md-tab>
 
             <md-tab id="stakeholder" md-label="Beteiligte">
-
-              <md-input-container>
-                <label for="participant">Verantwortlicher</label>
-                <md-select name="participant" id="participant" v-model="process.initiator">
-                  <template v-for="(item, index) in participants">
-                    <md-option :value="item">{{ getParticipant(item).name }}</md-option>
-                  </template>
-                </md-select>
-              </md-input-container>
-
-              <md-list class="custom-list md-triple-line">
-                <template v-for="(item, index) in process.participants">
-                  <md-list-item>
-                    <md-icon>person</md-icon>
-                    <div class="md-list-text-container">
-                      <span>Name: {{ getParticipant(item).name }}</span>
-                      <span>Typ: {{ getParticipant(item).type }}</span>
-                    </div>
-                  </md-list-item>
-               </template>
-              </md-list>
+              <stakeholder-tab :process="process" :participants="participants" :stakeholder="stakeholder"></stakeholder-tab>
             </md-tab>
 
             <md-tab id="transformation" md-label="Transformation">
@@ -109,22 +78,7 @@
             </md-tab>
 
             <md-tab id="results" md-label="Ergebnisse">
-
-              <md-list class="custom-list md-triple-line">
-                <template v-for="(item, index) in process.results">
-                  <md-list-item>
-                    <md-icon>work</md-icon>
-                    <div class="md-list-text-container">
-                      <span>Name: {{ item.mName }}</span>
-                      <span>Beschreibung: {{ item.mDescription }}</span>
-                      <span>Text: {{ item.mText }}</span>
-                      <span>Dateien: {{ item.mFiles.length }}</span>
-                      <span>Rechte: {{ item.mCopyright }}</span>
-                    </div>
-                  </md-list-item>
-               </template>
-              </md-list>
-
+              <result-tab :process="process"></result-tab>
             </md-tab>
           </md-tabs>
 
@@ -142,6 +96,10 @@
 </template>
 
 <script>
+import Location from './process/Location.vue'
+import Stakeholder from './process/Stakeholder.vue'
+import Result from './process/Result.vue'
+
 import { Process } from '@/classes/model/Process'
 
 import dateFormat from 'dateformat'
@@ -152,6 +110,11 @@ Vue.use(VueMaterial)
 
 export default {
   name: 'DialogProcess',
+  components: {
+    'location-tab': Location,
+    'stakeholder-tab': Stakeholder,
+    'result-tab': Result
+  },
   props: [],
   data: function () {
     return {
@@ -194,10 +157,6 @@ export default {
       this.info.start = typeof p.start !== 'undefined' && p.start !== null ? dateFormat(p.start, 'yyyy-mm-dd') : ''
       this.info.end = typeof p.end !== 'undefined' && p.end !== null ? dateFormat(p.end, 'yyyy-mm-dd') : ''
       this.$refs['dialog'].open()
-    },
-
-    getParticipant (id) {
-      return this.stakeholder.find(elem => elem.id === id)
     },
 
     setAction (a) {

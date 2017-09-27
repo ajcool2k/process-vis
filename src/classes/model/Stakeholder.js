@@ -3,7 +3,7 @@ export class Stakeholder {
   constructor (name, type, contact) {
     const uniqid = require('uniqid')
     this.id = uniqid()
-    this.name = typeof name === 'string' ? name : '[new]'
+    this.name = typeof name === 'string' ? name : ''
     this.type = typeof type === 'string' ? type : 'Person'
     this.contact = {
       contactPerson: '',

@@ -3,8 +3,8 @@ export class Result {
   constructor (name, description, text, copyright) {
     const uniqid = require('uniqid')
     this.id = uniqid()
-    this.name = typeof name === 'string' ? name : '[name]'
-    this.description = typeof description === 'string' ? description : '[description]'
+    this.name = typeof name === 'string' ? name : ''
+    this.description = typeof description === 'string' ? description : ''
     this.text = typeof text === 'string' ? text : ''
     this.copyright = typeof copyright === 'string' ? copyright : ''
 
