@@ -1,13 +1,12 @@
 <template>
   <div class="dialog-process">
-    <md-dialog
+    <md-dialog class="fullscreen-dialog"
       md-ok-text="OK"
       @close="onCloseDialog"
       ref="dialog">
-      <md-dialog-title>Prozess ({{ process.name }})</md-dialog-title>
       <md-dialog-content>
         <form novalidate @submit.stop.prevent="submit">
-          <md-tabs :md-fixed="false" :md-dynamic-height="true">
+          <md-tabs :md-fixed="true" :md-dynamic-height="true">
             <md-tab id="general" md-label="General">
               <md-input-container>
                 <label>Prozess-ID</label>
@@ -82,15 +81,16 @@
             </md-tab>
           </md-tabs>
 
-          <md-layout md-gutter>
-            <md-layout md-align="start"><md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button></md-layout>
-            <md-layout md-align="end"><md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button></md-layout>
-          </md-layout>
-
         </form>
       <!--
       -->
       </md-dialog-content>
+
+      <md-layout md-gutter>
+        <md-layout md-align="start"><md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button></md-layout>
+        <md-layout md-align="end"><md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button></md-layout>
+      </md-layout>
+
     </md-dialog>
   </div>
 </template>
@@ -193,5 +193,17 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+  .fullscreen-dialog .md-dialog {
+    // position: absolute;
+    // top: 20%;
+    width: 90%;
+    max-height: 90%;
+  }
+
+  .fullscreen-dialog .md-tabs-content {
+    max-height: 700px;
+    overflow-y: scroll;
+  }
+
 </style>

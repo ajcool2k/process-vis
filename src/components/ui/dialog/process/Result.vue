@@ -16,7 +16,8 @@
       </template>
     </md-list>
 
-    <md-button class="md-primary" @click="onShowInput($event)">Hinzufügen</md-button>
+    <md-button class="md-raised" @click="onShowInput($event)">Hinzufügen</md-button>
+
     <result-input v-if="showInput" v-on:add="onAdd"></result-input>
   </div>
 </template>

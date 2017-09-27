@@ -22,7 +22,7 @@
         ref="showTransition">
       </md-dialog-alert>
 
-      <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog" ></dialog-process>
+      <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
       <!-- child components -->
