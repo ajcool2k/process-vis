@@ -3,7 +3,7 @@
     <md-input-container>
       <label for="participant">Verantwortlicher</label>
       <md-select name="participant" id="participant" v-model="process.initiator">
-        <template v-for="(item, index) in participants">
+        <template v-for="(item, index) in parentProcess.participants">
           <md-option :value="item">{{ getParticipant(item).name }}</md-option>
         </template>
       </md-select>
@@ -41,7 +41,7 @@ export default {
   components: {
     'stakeholder-input': StakeholderInput
   },
-  props: [ 'process', 'participants', 'stakeholder' ],
+  props: [ 'process', 'parentProcess' ],
   data: function () {
     return {
       showInput: false
@@ -85,7 +85,7 @@ export default {
     },
 
     getParticipant (id) {
-      return this.stakeholder.find(elem => elem.id === id)
+      return this.parentProcess.stakeholder.find(elem => elem.id === id)
     }
   }
 }

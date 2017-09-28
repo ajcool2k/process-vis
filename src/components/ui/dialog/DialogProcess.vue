@@ -14,6 +14,11 @@
               </md-input-container>
 
               <md-input-container>
+                <label>Eltern-ID</label>
+                <md-input type="text" readonly v-model="process.parent"></md-input>
+              </md-input-container>
+
+              <md-input-container>
                 <label>Start</label>
                 <md-input type="date" v-model="info.start" @change="onChangeStart"></md-input>
               </md-input-container>
@@ -50,7 +55,7 @@
             </md-tab>
 
             <md-tab id="stakeholder" md-label="Beteiligte">
-              <stakeholder-tab :process="process" :participants="participants" :stakeholder="stakeholder"></stakeholder-tab>
+              <stakeholder-tab :process="process" :parentProcess="parentProcess"></stakeholder-tab>
             </md-tab>
 
             <md-tab id="transformation" md-label="Transformation">
@@ -86,7 +91,7 @@
       -->
       </md-dialog-content>
 
-      <md-layout md-gutter>
+      <md-layout md-gutter class="bottom-bar">
         <md-layout md-align="start"><md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button></md-layout>
         <md-layout md-align="end"><md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button></md-layout>
       </md-layout>
@@ -120,8 +125,7 @@ export default {
     return {
       dom: {},
       process: new Process(),
-      participants: [],
-      stakeholder: [],
+      parentProcess: new Process(),
       info: {
         start: '',
         end: ''
@@ -147,16 +151,15 @@ export default {
   },
 
   methods: {
-    open (p, c, s, a) {
+    open (child, parent, a) {
       console.log('DialogProcess open()')
-      console.log(p)
-      this.process = p
-      this.participants = c
-      this.stakeholder = s
+      console.log(child)
+      this.process = child
+      this.parentProcess = parent
       this.setAction(a)
 
-      this.info.start = typeof p.start !== 'undefined' && p.start !== null ? dateFormat(p.start, 'yyyy-mm-dd') : ''
-      this.info.end = typeof p.end !== 'undefined' && p.end !== null ? dateFormat(p.end, 'yyyy-mm-dd') : ''
+      this.info.start = typeof child.start !== 'undefined' && child.start !== null ? dateFormat(child.start, 'yyyy-mm-dd') : ''
+      this.info.end = typeof child.end !== 'undefined' && child.end !== null ? dateFormat(child.end, 'yyyy-mm-dd') : ''
       this.$refs['dialog'].open()
 
       // Fix initial scrollbar
@@ -228,6 +231,10 @@ export default {
   .fullscreen-dialog .md-tabs-content {
     max-height: 700px;
     overflow-y: hidden;
+  }
+
+  .fullscreen-dialog .bottom-bar {
+    padding: 0 24px 24px
   }
 
 </style>

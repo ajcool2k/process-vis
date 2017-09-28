@@ -497,8 +497,8 @@ export default {
         name: 'onProcessClick',
         action: (event) => {
           this.actionId = event.target.getAttribute('data-id')
-          let p = _.findWhere(this.processModel.childs, { id: Helper.parse(this.actionId) })
-          this.$refs['dialog-process'].open(p, this.processModel.participants, this.processModel.stakeholder, 'update')
+          let childProcess = _.findWhere(this.processModel.childs, { id: Helper.parse(this.actionId) })
+          this.$refs['dialog-process'].open(childProcess, this.processModel, 'update')
         }
       })
 
@@ -897,7 +897,7 @@ export default {
         initiator = lastProcess.initiator // use initator of lastProcess
       }
 
-      let process = new Process('[new]', initiator, start, null)
+      let process = new Process('', initiator, start, null)
       this.$emit('addProcess', process)
     },
 
