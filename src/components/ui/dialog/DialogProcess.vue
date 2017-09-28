@@ -6,7 +6,7 @@
       ref="dialog">
       <md-dialog-content>
         <form novalidate @submit.stop.prevent="submit">
-          <md-tabs :md-fixed="true" :md-dynamic-height="true">
+          <md-tabs v-on:change="activeTab" :md-fixed="true" :md-dynamic-height="true">
             <md-tab id="general" md-label="General">
               <md-input-container>
                 <label>Prozess-ID</label>
@@ -118,6 +118,7 @@ export default {
   props: [],
   data: function () {
     return {
+      dom: {},
       process: new Process(),
       participants: [],
       stakeholder: [],
@@ -157,6 +158,9 @@ export default {
       this.info.start = typeof p.start !== 'undefined' && p.start !== null ? dateFormat(p.start, 'yyyy-mm-dd') : ''
       this.info.end = typeof p.end !== 'undefined' && p.end !== null ? dateFormat(p.end, 'yyyy-mm-dd') : ''
       this.$refs['dialog'].open()
+
+      // Fix initial scrollbar
+      this.resetScrollbar()
     },
 
     setAction (a) {
@@ -188,6 +192,26 @@ export default {
 
     onChangeEnd (dateString) {
       this.process.end = new Date(dateString)
+    },
+
+    resetScrollbar () {
+      this.dom.tabContainer.style.overflowY = 'hidden'
+      setTimeout(() => { this.dom.tabContainer.style.overflowY = 'auto' }, 1000)
+    },
+
+    activeTab (index) {
+      if (this.dom.hasOwnProperty('tabContainer') === false) {
+        this.dom.navButtonList = document.querySelectorAll('button.md-tab-header')
+        this.dom.tabContainer = document.querySelector('.md-tabs-content')
+        this.dom.tabList = document.querySelectorAll('.md-tab')
+      }
+
+      this.resetScrollbar() // async
+
+      this.dom.tabList.forEach(tab => { tab.style.display = 'none' })
+
+      let activeTab = this.dom.tabList[index]
+      activeTab.style.display = 'inline-block'
     }
   }
 }
@@ -203,7 +227,7 @@ export default {
 
   .fullscreen-dialog .md-tabs-content {
     max-height: 700px;
-    overflow-y: scroll;
+    overflow-y: hidden;
   }
 
 </style>
