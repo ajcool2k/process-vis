@@ -96,7 +96,8 @@ export default {
 .md-button {
   width: 100%;
   margin: 0;
-  min-width: 0
+  min-width: 0;
+  align-self: flex-end;
 }
 
 </style>

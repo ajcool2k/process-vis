@@ -803,12 +803,12 @@ export default {
       let pos = container.getBoundingClientRect()
 
       if (pos.top > 80) {
-        xAxis.style.marginTop = '-55px'
+        xAxis.style.height = '50px'
         return
       }
 
-      let marginTop = 50 - pos.top
-      xAxis.style.marginTop = marginTop + 'px'
+      let height = 150 - pos.top
+      xAxis.style.height = height + 'px'
     },
 
     updateWorkspaceSize (dragDelta) {
