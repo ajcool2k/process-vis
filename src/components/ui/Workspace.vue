@@ -803,7 +803,7 @@ export default {
       let pos = container.getBoundingClientRect()
 
       if (pos.top > 80) {
-        xAxis.style.marginTop = '-50px'
+        xAxis.style.marginTop = '-55px'
         return
       }
 
