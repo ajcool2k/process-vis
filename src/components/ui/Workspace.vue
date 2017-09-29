@@ -238,6 +238,7 @@ export default {
         console.warn('dragend container')
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         this.updateWorkspaceSize(dragDelta) // forces reflow
+        this.updateAxisPosition() // forces reflow
       })
       .resizable({
         preserveAspectRatio: false,
@@ -796,6 +797,20 @@ export default {
           'translate(0px,' + y + 'px)'
     },
 
+    updateAxisPosition () {
+      let container = this.containerNode
+      let xAxis = document.querySelector('.axis-x')
+      let pos = container.getBoundingClientRect()
+
+      if (pos.top > 80) {
+        xAxis.style.marginTop = '-50px'
+        return
+      }
+
+      let marginTop = 50 - pos.top
+      xAxis.style.marginTop = marginTop + 'px'
+    },
+
     updateWorkspaceSize (dragDelta) {
       console.log('updateWorkspaceSize')
 
@@ -1098,7 +1113,16 @@ export default {
     },
 
     onScroll (event) {
-      // console.log('onScroll')
+      // remove listener
+      window.removeEventListener('scroll', this.onScroll, true)
+
+      setTimeout(() => {
+        // action
+        this.updateAxisPosition() // forces reflow
+
+        // re-add listener
+        window.addEventListener('scroll', this.onScroll, true)
+      }, 400)
     },
 
     onResize (event) {

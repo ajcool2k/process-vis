@@ -81,11 +81,13 @@ export default {
 
 .axis-x {
   position: absolute;
-  margin-top: -50px;
+  margin-top: -55px;
   height: 50px;
   width: 100%;
   display: flex;
   justify-content: center;
+  background: #eee;
+  transition: all 0.3s;
 }
 
 .md-layout {
