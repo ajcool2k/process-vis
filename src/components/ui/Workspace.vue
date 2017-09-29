@@ -27,7 +27,7 @@
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
       <!-- child components -->
         <axis-x class="ignore-container-events" :stakeholder="processModel.stakeholder" :participants="processModel.participants" :scale="containerScale" v-on:closeDialog="onCloseParticipantDialog"></axis-x>
-        <input type="range" class="range-timeSlice ignore-container-events" :value="timeSlice" min="1" max="100" @change.stop="onRangeChange">
+        <vue-slider class="range-timeSlice ignore-container-events" :value="timeSlice" :width="100" :min="1" :max="100" @callback="onRangeChange"></vue-slider>
         <axis-y class="ignore-container-events" :participants="processModel.participants" :processes="processModel.childs" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
 
@@ -89,6 +89,7 @@ import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 
 import VueMaterial from 'vue-material'
+import VueSlider from 'vue-slider-component'
 
 /*
 import { MdCore, MdDialog, MdBackdrop } from 'vue-material'
@@ -124,6 +125,7 @@ Vue.use(VueMaterial)
 export default {
   name: 'Workspace',
   components: {
+    'vue-slider': VueSlider,
     'tool-bar': ToolBar,
     'item-chooser': ItemChooser,
     'time-chooser': TimeChooser,
@@ -1084,7 +1086,7 @@ export default {
 
     onRangeChange (event) {
       console.log('onRangeChange')
-      this.timeSlice = Helper.parse(event.currentTarget.value)
+      this.timeSlice = Helper.parse(event)
       Calc.timeSlice = this.timeSlice
     },
 
