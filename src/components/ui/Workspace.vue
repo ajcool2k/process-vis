@@ -140,6 +140,8 @@ export default {
       workspaceSize: { x: Calc.minContainerWidth + 200, y: Calc.minContainerWidth + 200 },
       containerNode: null,
       containerSize: { x: Calc.minContainerWidth, y: Calc.minContainerHeight },
+      yAxisNode: null,
+      xAxisNode: null,
       scopeProp: '',
 
       containerOffset: null,
@@ -210,6 +212,9 @@ export default {
     this.svgNode = this.containerNode.querySelector('svg.svgNode')
     this.tmpLine = this.svgNode.querySelector('.tmpConnection')
     this.timeRuler = this.svgNode.querySelector('.timeRuler')
+
+    this.xAxisNode = this.workspaceNode.querySelector('.axis-x')
+    this.yAxisNode = this.workspaceNode.querySelector('.axis-y')
 
     // Scope Prop
     this.scopeProp = Helper.getScopeProp(this.svgNode)
@@ -798,17 +803,21 @@ export default {
     },
 
     updateAxisPosition () {
-      let container = this.containerNode
-      let xAxis = document.querySelector('.axis-x')
-      let pos = container.getBoundingClientRect()
+      let containerPos = this.containerNode.getBoundingClientRect()
 
-      if (pos.top > 80) {
-        xAxis.style.height = '50px'
-        return
+      if (containerPos.top < 80) {
+        let height = 150 - containerPos.top
+        this.xAxisNode.style.height = height + 'px'
+      } else {
+        this.xAxisNode.style.height = '50px'
       }
 
-      let height = 150 - pos.top
-      xAxis.style.height = height + 'px'
+      if (containerPos.left < 110) {
+        let width = 250 - containerPos.left
+        this.yAxisNode.style.width = width + 'px'
+      } else {
+        this.yAxisNode.style.width = '100px'
+      }
     },
 
     updateWorkspaceSize (dragDelta) {
@@ -1288,6 +1297,11 @@ marker {
 
 .axis-x  {
   margin-top: -55px;
+  z-index: 3
+}
+
+.axis-y  {
+  margin-left: -120px;
   z-index: 3
 }
 

@@ -84,7 +84,7 @@ export default {
   height: 50px;
   width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: right;
   background: rgba(238, 238, 238, 0.7);
   transition: all 0.3s;
 }
