@@ -1286,6 +1286,11 @@ marker {
   stroke: #888;
 }
 
+.axis-x  {
+  margin-top: -55px;
+  z-index: 3
+}
+
 .process {
   position: absolute;
   display: flex;

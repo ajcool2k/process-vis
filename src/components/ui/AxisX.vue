@@ -81,12 +81,11 @@ export default {
 
 .axis-x {
   position: absolute;
-  margin-top: -55px;
   height: 50px;
   width: 100%;
   display: flex;
   justify-content: center;
-  background: #eee;
+  background: rgba(238, 238, 238, 0.7);
   transition: all 0.3s;
 }
 
