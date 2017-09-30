@@ -26,6 +26,9 @@
       <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">
         <md-icon>zoom_out</md-icon>
       </md-button>
+
+      <md-button @touchstart.native="editProcess"  @mousedown.native="editProcess" class="md-raised md-accent">Aktueller Prozess</md-button>
+
     </md-toolbar>
   </div>
 </template>
@@ -109,8 +112,11 @@ export default {
 
     list () {
       this.$emit('exchange', 'list')
-    }
+    },
 
+    editProcess () {
+      this.$emit('process')
+    }
   }
 }
 </script>

@@ -31,7 +31,12 @@ export class Data2 {
 
     let stakeholder = new Stakeholder('Moon Inc.')
     datamodel.addStakeholder(stakeholder)
-    child1.addParticipant(stakeholder.id)
+
+    let anotherStakeholder = new Stakeholder('Jupiter Inc.')
+    let child11 = new Process('child 11', anotherStakeholder.id, new Date(2017, 0, 1))
+    child1.addStakeholder(anotherStakeholder)
+
+    child1.setChilds([child11])
 
     let child2 = new Process('child 2', s2.id, new Date(2017, 0, 6), new Date(2017, 0, 11))
     child2.transformation.type = '+'

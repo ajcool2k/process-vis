@@ -16,6 +16,7 @@
         v-on:moveProcess="moveProcess"
         v-on:removeProcess="removeProcess"
         v-on:updateProcess="updateProcess"
+        v-on:changeProcess="changeProcess"
 
         v-on:addParticipant="addParticipant"
         v-on:removeParticipant="removeParticipant"
@@ -50,6 +51,8 @@ export default {
   data: function () {
     return {
       isSaved: false,
+      savedId: '',
+      model: null,
       datamodel: new Process(),
       changes: {
         time: new Date()
@@ -66,8 +69,10 @@ export default {
       let process = new Process()
       let obj = Exchange.openProcess(routeInfo.id)
       process.props = obj
-      this.datamodel = process
+      this.model = process
+      this.datamodel = this.model
       this.isSaved = true
+      this.savedId = this.model.id
     } else {
       console.log('new model requested')
       this.addData()
@@ -102,7 +107,8 @@ export default {
       // add column
       this.addParticipant()
       let generatedData = Data2.generateData()
-      this.datamodel = generatedData.datamodel
+      this.model = generatedData.datamodel
+      this.datamodel = this.model
       console.log(generatedData)
     },
 
@@ -152,6 +158,57 @@ export default {
       let processTo = this.datamodel.childs.find(elem => elem.id === con.target)
 
       processFrom.removeConnectionTo(processTo)
+    },
+
+    changeProcess (event) {
+      console.log('changeProcess', event)
+
+      if (typeof event !== 'string') {
+        console.warn('Could not change Process, expected String')
+        return
+      }
+
+      // Upper level requested
+      if (event === 'parent') {
+        if (this.datamodel.parent === '') {
+          // create a new headProcess
+          let stakeholder = new Stakeholder('[untitled]')
+
+          let head = new Process('head')
+          head.addStakeholder(stakeholder)
+          this.model.initiator = stakeholder.id
+          head.addChild(this.model)
+
+          this.model = head
+          this.datamodel = head
+          return
+        }
+
+        // return an existing Process
+        let processId = this.datamodel.parent
+        if (processId === this.model.id) {
+          this.datamodel = this.model // return head
+          return
+        } else {
+          let process = this.model.childs.find(elem => elem.id === processId)
+          if (typeof process === 'undefined') {
+            console.warn('Could not find parentProcess')
+            return
+          }
+          this.datamodel = process
+          return
+        }
+      }
+
+      // lower level requested
+      let process = this.datamodel.childs.find(elem => elem.id === event)
+
+      if (typeof process === 'undefined') {
+        console.log('Could not find childProcess')
+        return
+      }
+      console.log('changeProcess to', process)
+      this.datamodel = process
     },
 
     addParticipant () {
@@ -209,19 +266,26 @@ export default {
 
     saveModel () {
       console.warn('saveModel')
-      Exchange.storeProcess(this.datamodel)
-      this.$router.replace('/process/' + this.datamodel.id)
+      Exchange.storeProcess(this.model)
+      this.$router.replace('/process/' + this.model.id)
+
+      // remove old Model
+      if (this.savedId !== this.model.id) {
+        Exchange.removeProcess(this.savedId)
+      }
+
       this.isSaved = true
+      this.savedId = this.model.id
     },
 
     downloadModel () {
       console.warn('download')
-      Exchange.downloadProcess(this.datamodel)
+      Exchange.downloadProcess(this.model)
     },
 
     removeModel () {
       console.warn('removeModel')
-      let ret = Exchange.removeProcess(this.datamodel.id)
+      let ret = Exchange.removeProcess(this.model.id)
 
       if (ret === false) {
         console.warn('Process.removeModel() - could not remove Model')

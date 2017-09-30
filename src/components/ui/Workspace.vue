@@ -2,7 +2,7 @@
   <div id="vue-workspace" :data-change="changes.time">
 
     <!-- child component -->
-    <tool-bar :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange"></tool-bar>
+    <tool-bar :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange" v-on:process="openProcess" v-on:closeDialog="onCloseProcessDialog"></tool-bar>
 
     <div class="workspace">
       <md-dialog-confirm
@@ -53,7 +53,7 @@
 
           <template v-if="item._width" v-for="(item, index) in processModel.childs" :data-test="processModel.childs.length">
             <g class="process draggable drag-drop" :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
-              <rect class="process-content" :data-id="item.id" :style="'height: ' + item._height + 'px; width: ' + item._width + 'px'"></rect>
+              <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :style="'height: ' + item._height + 'px; width: ' + item._width + 'px'"></rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :style="'cy: ' + (item._height - 20) + '; cx: '+ (item._width / 2 ) + ';'"></circle>
               <text class="process-text" :data-id="item.id" :x="(item._width / 2)" y="20">{{item.id}} - {{item._height}}</text>
             </g>
@@ -506,7 +506,7 @@ export default {
         action: (event) => {
           this.actionId = event.target.getAttribute('data-id')
           let childProcess = _.findWhere(this.processModel.childs, { id: Helper.parse(this.actionId) })
-          this.$refs['dialog-process'].open(childProcess, this.processModel, 'update')
+          this.$refs['dialog-process'].open(childProcess, this.processModel, 'update', true)
         }
       })
 
@@ -520,6 +520,12 @@ export default {
               break
             case 'remove':
               this.$emit('removeProcess', event.id)
+              break
+            case 'openLayer-child':
+              this.$emit('changeProcess', event.id)
+              break
+            case 'openLayer-parent':
+              this.$emit('changeProcess', 'parent')
               break
           }
         }
@@ -984,6 +990,11 @@ export default {
       }
     },
 
+    openProcess (event) {
+      console.log('openProcess')
+      this.$refs['dialog-process'].open(this.processModel, null, 'update', false)
+    },
+
     resizeProcess (event) {
       console.log('resizeProcess', event.target)
       // anchor point
@@ -1324,13 +1335,21 @@ marker {
   opacity: 0.5;
 
   rect.process-drop {
-    fill: #4e4;
+    fill: #e91e63;
   }
 
   .process-content {
     fill: #29e;
     stroke-width: 1;
     stroke: white;
+  }
+
+  .has-child-true {
+    fill: #3f51b5;
+  }
+
+  .has-child-false {
+    fill: #8e8e8e;
   }
 
   $anchorSize: 20px;

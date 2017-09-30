@@ -1,13 +1,15 @@
 <template>
-  <div class="location">
-    <md-input-container>
-      <label for="participant">Verantwortlicher</label>
-      <md-select name="participant" id="participant" v-model="process.initiator">
-        <template v-for="(item, index) in parentProcess.participants">
-          <md-option :value="item">{{ getParticipant(item).name }}</md-option>
-        </template>
-      </md-select>
-    </md-input-container>
+  <div class="stakeholder">
+    <template v-if="parentProcess && parentProcess.hasOwnProperty('participants')">
+      <md-input-container>
+        <label for="participant">Verantwortlicher</label>
+        <md-select name="participant" id="participant" v-model="process.initiator">
+          <template v-for="(item, index) in parentProcess.participants">
+            <md-option :value="item">{{ getParticipant(item) }}</md-option>
+          </template>
+        </md-select>
+      </md-input-container>
+    </template>
 
     <md-list class="custom-list md-triple-line">
       <template v-for="(item, index) in process.stakeholder">
@@ -85,7 +87,18 @@ export default {
     },
 
     getParticipant (id) {
-      return this.parentProcess.stakeholder.find(elem => elem.id === id)
+      if (typeof this.parentProcess === 'undefined' || !this.parentProcess) {
+        console.warn('Stakeholder.getParticipant() - expected parentProcess')
+        return ''
+      }
+
+      let participant = this.parentProcess.stakeholder.find(elem => elem.id === id)
+      if (typeof participant === 'undefined') {
+        console.warn('Stakeholder.getParticipant() - could not find id')
+        return '[error]'
+      }
+
+      return participant.name
     }
   }
 }

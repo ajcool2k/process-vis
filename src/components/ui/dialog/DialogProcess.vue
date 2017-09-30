@@ -93,6 +93,9 @@
 
       <md-layout md-gutter class="bottom-bar">
         <md-layout md-align="start"><md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button></md-layout>
+        <md-layout v-if="showBreadcrumbs" md-align="center" md-flex="60">
+          <breadcrumbs :process="process" v-on:openLayer="onOpenLayer"></breadcrumbs>
+        </md-layout>
         <md-layout md-align="end"><md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button></md-layout>
       </md-layout>
 
@@ -104,6 +107,7 @@
 import Location from './process/Location.vue'
 import Stakeholder from './process/Stakeholder.vue'
 import Result from './process/Result.vue'
+import Breadcrumbs from './process/Breadcrumbs.vue'
 
 import { Process } from '@/classes/model/Process'
 
@@ -116,6 +120,7 @@ Vue.use(VueMaterial)
 export default {
   name: 'DialogProcess',
   components: {
+    'breadcrumbs': Breadcrumbs,
     'location-tab': Location,
     'stakeholder-tab': Stakeholder,
     'result-tab': Result
@@ -126,6 +131,7 @@ export default {
       dom: {},
       process: new Process(),
       parentProcess: new Process(),
+      showBreadcrumbs: false,
       info: {
         start: '',
         end: ''
@@ -151,12 +157,13 @@ export default {
   },
 
   methods: {
-    open (child, parent, a) {
+    open (child, parent, a, breadcrumbs) {
       console.log('DialogProcess open()')
       console.log(child)
       this.process = child
       this.parentProcess = parent
       this.setAction(a)
+      this.showBreadcrumbs = breadcrumbs === true
 
       this.info.start = typeof child.start !== 'undefined' && child.start !== null ? dateFormat(child.start, 'yyyy-mm-dd') : ''
       this.info.end = typeof child.end !== 'undefined' && child.end !== null ? dateFormat(child.end, 'yyyy-mm-dd') : ''
@@ -182,6 +189,12 @@ export default {
 
     onRemoveButton () {
       this.response = 'remove'
+      this.$refs['dialog'].close()
+    },
+
+    onOpenLayer (layer) {
+      console.log('onOpenLayer', layer)
+      this.response = 'openLayer-' + layer
       this.$refs['dialog'].close()
     },
 

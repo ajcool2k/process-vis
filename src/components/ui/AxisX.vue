@@ -2,11 +2,10 @@
   <div class="axis-x">
 
     <dialog-stakeholder ref="dialog-stakeholder" v-on:closeDialog="onCloseDialog"></dialog-stakeholder>
-
-    <md-layout :md-gutter="this.participants.length">
+    <md-layout v-if="(this.participants.length > 0)" :md-gutter="this.participants.length">
         <template v-for="(item, index) in this.participants">
           <md-layout md-align="center">
-            <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item">{{ getStakeholder(item).name }}</md-button>
+            <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item">{{ getStakeholder(item) }}</md-button>
           </md-layout>
         </template>
 
@@ -70,7 +69,14 @@ export default {
     },
 
     getStakeholder (participant) {
-      return this.stakeholder.find(elem => elem.id === participant)
+      let stakeholder = this.stakeholder.find(elem => elem.id === participant)
+
+      if (typeof stakeholder === 'undefined') {
+        console.warn('AxisX.getStakeholder() - could not find id')
+        return '[error]'
+      }
+
+      return stakeholder.name
     }
 
   }
