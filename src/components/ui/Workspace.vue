@@ -595,7 +595,10 @@ export default {
         let domNode = this.redrawProcessPosition(process)
 
         // draw connection
-        let callback = () => { this.redrawConnection(process) }
+        let callback = () => {
+          this.redrawConnection(process)
+          domNode.querySelector('rect').classList.add('animation-morph')
+        }
         let animationName = '.process[data-id="' + process.id + '"]'
         Animate.afterTransition(domNode, animationName, callback)
         Animate.start(domNode, animationName, 'transform', 'ease-in', 0.2)
@@ -1167,7 +1170,9 @@ export default {
 
 <style lang="scss" scoped>
 
-$test: #888;
+$primaryColor: #3f51b5;
+$secondayColor: #29e;
+
 $bgColor: #eee;
 
   @media print {
@@ -1244,7 +1249,7 @@ svg {
 .timeRuler {
   fill: none;
   display: none;
-  stroke: #29e;
+  stroke: #3f51b5;
   stroke-width: 2;
   stroke-dasharray: 5,5;
   marker-start: url(#marker-circle);
@@ -1275,7 +1280,7 @@ svg {
 }
 
 .connection-outline:hover + .connection-line {
-  stroke: #29e;
+  stroke: $secondayColor;
   stroke-width: 3;
 }
 
@@ -1286,18 +1291,18 @@ svg {
 }
 
 .connection-transition-circle {
-  fill: #eee;
+  fill: $bgColor;
 }
 
 .connection-transition-circle-outline {
   fill: none;
-  stroke: #29e;
+  stroke: $primaryColor;
   stroke-width: 2;
   stroke-opacity: 0.5
 }
 
 .connection-transition-circle-outline:hover {
-  stroke: #29e;
+  stroke: $secondayColor;
   stroke-width: 3;
 }
 
@@ -1308,7 +1313,7 @@ svg {
 }
 
 .connection-transition-text:hover + .connection-transition-circle-outline {
-  stroke: #29e;
+  stroke: $secondayColor;
   stroke-width: 3;
 }
 
@@ -1334,7 +1339,6 @@ marker {
   left: 0;
   top: 0;
   width: 100px;
-  background-color: #29e;
   color: #fff;
   font-size: 1.2em;
   border-radius: 4px;
@@ -1344,12 +1348,57 @@ marker {
   z-index: 2;
   opacity: 0.5;
 
-  rect.process-drop {
-    fill: #e91e63;
+  &.animation-highlight  {
+
+    animation-name: bounceIn;
+    animation-duration: 600ms;
+
+    @keyframes bounceIn{
+      0%{
+        opacity: 0;
+      }
+      50%{
+        opacity: 0.9;
+      }
+      100%{
+        opacity: 0.5;
+      }
+    }
+  }
+
+  rect {
+    transform-origin: center;
+    transform: scale(0);
+
+    &.animation-morph {
+
+      animation-name: morphIn;
+      animation-fill-mode: forwards;
+      animation-duration: 50ms;
+      transform-origin: center;
+
+
+      @keyframes morphIn{
+        0%{
+          transform: scale(0);
+        }
+        80%{
+          transform: scale(1.1);
+        }
+        100%{
+          transform: scale(1);
+        }
+      }
+    }
+
+    &.process-drop {
+      fill: #e91e63;
+    }
+
   }
 
   .process-content {
-    fill: #29e;
+    fill: $secondayColor;
     stroke-width: 1;
     stroke: white;
   }
@@ -1384,7 +1433,7 @@ marker {
 }
 
 .pariticipant-drop {
-  background-color: #29e;
+  background-color: $secondayColor;
   opacity: 0.3;
 }
 

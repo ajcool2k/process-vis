@@ -20,7 +20,7 @@ export class Animate {
       fnAfter()
       // console.log('Animate: ' + handlerId + ' afterTransition done')
       Animate.removeTransitionHandler(handlerId)
-       // console.log('Animate: remaining handler: ' + Object.keys(Animate.handler).length)
+      // console.log('Animate: remaining handler: ' + Object.keys(Animate.handler).length)
       Animate.clearAnimation(node, handlerId)
       // console.log('-------------------')
     }
@@ -29,7 +29,7 @@ export class Animate {
   }
 
   static addTransitionDoneHandler (node, handlerId, handler) {
-    node.removeEventListener('transitionend', handler, false)    // remove old first
+    node.removeEventListener('transitionend', handler, false) // remove old first
     node.addEventListener('transitionend', handler, false)
     Animate.handler[handlerId] = typeof Animate.handler[handlerId] !== 'undefined' ? Animate.handler[handlerId] : {}
     Animate.handler[handlerId].node = node

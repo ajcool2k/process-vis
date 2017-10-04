@@ -5,7 +5,7 @@
       <md-icon>keyboard_arrow_right</md-icon>
       <md-button class="md-raised md-accent" @click="onShowProcess">{{ process.id }}</md-button>
       <md-icon>keyboard_arrow_right</md-icon>
-      <md-button class="md-dense">Teilaufgaben: {{ process.childs.length }}</md-button>
+      <md-button class="md-dense" @click="onShowChilds">Teilaufgaben: {{ process.childs.length }}</md-button>
 
   </div>
 </template>
@@ -50,6 +50,21 @@ export default {
 
     getPrev () {
       return !this.process || this.process.parent === '' ? 'ANLEGEN' : this.process.parent
+    },
+
+    onShowChilds () {
+      let nodes = document.querySelectorAll('.process')
+      nodes.forEach((elem) => {
+        elem.classList.remove('animation-highlight')
+      })
+
+      setTimeout(() => {
+        nodes.forEach((elem) => { elem.classList.add('animation-highlight') })
+      }, 100)
+
+      setTimeout(() => {
+        nodes.forEach((elem) => { elem.classList.remove('animation-highlight') })
+      }, 1000)
     }
   }
 }
