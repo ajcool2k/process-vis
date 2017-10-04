@@ -7,8 +7,12 @@ export class Data2 {
   static generateData () {
     console.warn('generateData')
 
+    // stakeholder for the main-process
+    let initiator = new Stakeholder('Main-Stakeholder', 'person')
+
     // generate process
-    let datamodel = new Process('process', 1, new Date(2017, 0, 1), null)
+    let datamodel = new Process('process', initiator.id, new Date(2017, 0, 1), null)
+    datamodel.addStakeholder(initiator)
 
     // generate stakeholder
     let s1 = new Stakeholder('S1', 'group closed')
