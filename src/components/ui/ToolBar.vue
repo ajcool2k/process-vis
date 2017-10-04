@@ -3,6 +3,9 @@
     <md-toolbar class="md-dense">
       <h2 class="md-title" style="flex: 1">Prozess-Modellierung</h2>
 
+      <breadcrumbs :process="process" v-on:changeProcess="onChangeProcess" v-on:showProcess="onShowProcess"></breadcrumbs>
+
+
       <md-button @touchstart.native="list" @mousedown.native="list">
         <md-icon>arrow_back</md-icon>
       </md-button>
@@ -27,13 +30,13 @@
         <md-icon>zoom_out</md-icon>
       </md-button>
 
-      <md-button @touchstart.native="editProcess"  @mousedown.native="editProcess" class="md-raised md-accent">Aktueller Prozess</md-button>
-
     </md-toolbar>
   </div>
 </template>
 
 <script>
+import Breadcrumbs from './dialog/process/Breadcrumbs.vue'
+
 import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 import VueMaterial from 'vue-material'
@@ -41,7 +44,10 @@ Vue.use(VueMaterial)
 
 export default {
   name: 'ToolBar',
-  props: [ 'containerScale', 'isSaved' ],
+  components: {
+    'breadcrumbs': Breadcrumbs
+  },
+  props: [ 'containerScale', 'isSaved', 'process' ],
   data: function () {
     return {
       scaleData: this.containerScale
@@ -114,8 +120,12 @@ export default {
       this.$emit('exchange', 'list')
     },
 
-    editProcess () {
+    onShowProcess () {
       this.$emit('process')
+    },
+
+    onChangeProcess (direction) {
+      this.$emit('changeProcess', 'changeProcess-' + direction)
     }
   }
 }

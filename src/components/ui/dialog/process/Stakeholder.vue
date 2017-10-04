@@ -1,11 +1,11 @@
 <template>
   <div class="stakeholder">
-    <template v-if="parentProcess && parentProcess.hasOwnProperty('participants')">
+    <template>
       <md-input-container>
-        <label for="participant">Verantwortlicher</label>
-        <md-select name="participant" id="participant" v-model="process.initiator">
-          <template v-for="(item, index) in parentProcess.participants">
-            <md-option :value="item">{{ getParticipant(item) }}</md-option>
+        <label for="initiator">Verantwortlicher</label>
+        <md-select name="initiator" id="initiator" v-model="process.initiator">
+          <template v-for="(elem, index) in process.stakeholder">
+            <md-option :value="elem.id">{{ getStakeholder(elem.id) }}</md-option>
           </template>
         </md-select>
       </md-input-container>
@@ -39,11 +39,11 @@ import VueMaterial from 'vue-material'
 Vue.use(VueMaterial)
 
 export default {
-  name: 'Location',
+  name: 'Stakeholder',
   components: {
     'stakeholder-input': StakeholderInput
   },
-  props: [ 'process', 'parentProcess' ],
+  props: [ 'process' ],
   data: function () {
     return {
       showInput: false
@@ -51,18 +51,18 @@ export default {
   },
 
   created: function () {
-    console.log('Location created')
+    console.log('Stakeholder created')
   },
 
   destroyed: function () {
   },
 
   mounted: function () {
-    console.log('Location mounted')
+    console.log('Stakeholder mounted')
   },
 
   updated: function () {
-    console.log('Location updated')
+    console.log('Stakeholder updated')
   },
 
   methods: {
@@ -77,7 +77,7 @@ export default {
       }
     },
     onRemove (id) {
-      console.log('onRemoveLocation', id)
+      console.log('onRemove', id)
       this.process.removeStakeholder(id)
     },
 
@@ -86,19 +86,19 @@ export default {
       this.process.addStakeholder(stakeholder)
     },
 
-    getParticipant (id) {
-      if (typeof this.parentProcess === 'undefined' || !this.parentProcess) {
-        console.warn('Stakeholder.getParticipant() - expected parentProcess')
+    getStakeholder (id) {
+      if (typeof this.process === 'undefined' || !this.process) {
+        console.warn('Stakeholder.getStakeholder() - expected process')
         return ''
       }
 
-      let participant = this.parentProcess.stakeholder.find(elem => elem.id === id)
-      if (typeof participant === 'undefined') {
-        console.warn('Stakeholder.getParticipant() - could not find id')
+      let stakeholder = this.process.stakeholder.find(elem => elem.id === id)
+      if (typeof stakeholder === 'undefined') {
+        console.warn('Stakeholder.getStakeholder() - could not find id')
         return '[error]'
       }
 
-      return participant.name
+      return stakeholder.name
     }
   }
 }

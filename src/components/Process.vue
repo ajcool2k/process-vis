@@ -172,15 +172,27 @@ export default {
       if (event === 'parent') {
         if (this.datamodel.parent === '') {
           // create a new headProcess
-          let stakeholder = new Stakeholder('[untitled]')
-
           let head = new Process('head')
-          head.addStakeholder(stakeholder)
-          this.model.initiator = stakeholder.id
-          head.addChild(this.model)
 
+          // set initiator
+          let headStakeholder = new Stakeholder('[untitled-initator-for-' + head.id + ']')
+          head.mInitiator = headStakeholder.id
+          head.addStakeholder(headStakeholder)
+
+          // set participant
+          let stakeholder = this.model.stakeholder.find(elem => elem.id === this.model.initiator)
+          head.addStakeholder(stakeholder)
+          head.addParticipant(stakeholder.id)
+
+          // set startTime
+          let startProcess = Calc.getStartProcess(this.model.childs)
+          head.mStart = typeof startProcess === 'undefined' ? new Date() : startProcess.start
+
+          // append last model as a child
+          head.addChild(this.model)
           this.model = head
           this.datamodel = head
+
           return
         }
 
@@ -212,7 +224,7 @@ export default {
     },
 
     addParticipant () {
-      let stakeholder = new Stakeholder()
+      let stakeholder = new Stakeholder('[untitled]')
       console.log('stakeholder', stakeholder)
       this.datamodel.stakeholder.push(stakeholder)
       this.datamodel.addParticipant(stakeholder.id)

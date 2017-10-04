@@ -2,7 +2,7 @@
   <div id="vue-workspace" :data-change="changes.time">
 
     <!-- child component -->
-    <tool-bar :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange" v-on:process="openProcess" v-on:closeDialog="onCloseProcessDialog"></tool-bar>
+    <tool-bar :process="processModel" :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange" v-on:process="onToolbarShowProcess" v-on:changeProcess="onChangeProcess"></tool-bar>
 
     <div class="workspace">
       <md-dialog-confirm
@@ -504,9 +504,15 @@ export default {
       this.fsm.addEvent(idle, showProcess, {
         name: 'onProcessClick',
         action: (event) => {
-          this.actionId = event.target.getAttribute('data-id')
-          let childProcess = _.findWhere(this.processModel.childs, { id: Helper.parse(this.actionId) })
-          this.$refs['dialog-process'].open(childProcess, this.processModel, 'update', true)
+          if (!event || typeof event === 'undefined') {
+            // open parent
+            this.$refs['dialog-process'].open(this.processModel, 'update', false)
+          } else {
+            // open child
+            this.actionId = event.target.getAttribute('data-id')
+            let child = _.findWhere(this.processModel.childs, { id: Helper.parse(this.actionId) })
+            this.$refs['dialog-process'].open(child, 'update', true)
+          }
         }
       })
 
@@ -521,11 +527,8 @@ export default {
             case 'remove':
               this.$emit('removeProcess', event.id)
               break
-            case 'openLayer-child':
+            case 'changeProcess-child':
               this.$emit('changeProcess', event.id)
-              break
-            case 'openLayer-parent':
-              this.$emit('changeProcess', 'parent')
               break
           }
         }
@@ -971,6 +974,11 @@ export default {
       this.fsm.run('onCloseTransitionDialog')
     },
 
+    onChangeProcess () {
+      console.log('onChangeProcess called')
+      this.$emit('changeProcess', 'parent')
+    },
+
     onCloseProcessDialog (data) {
       console.log('onCloseProcessDialog called')
       if (!this.fsm.hasEvent('onCloseProcessDialog')) return
@@ -990,9 +998,11 @@ export default {
       }
     },
 
-    openProcess (event) {
-      console.log('openProcess')
-      this.$refs['dialog-process'].open(this.processModel, null, 'update', false)
+    onToolbarShowProcess () {
+      console.warn('onToolbarShowProcess')
+
+      if (!this.fsm.hasEvent('onProcessClick')) return
+      this.fsm.run('onProcessClick')
     },
 
     resizeProcess (event) {

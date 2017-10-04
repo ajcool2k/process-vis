@@ -30,7 +30,7 @@
 
               <md-input-container>
                 <label for="participation">Partizipation</label>
-                <md-select name="participation" id="participation" v-model="process.participation">
+                <md-select name="participation" id="participation" v-model="process.mParticipation">
                   <md-option value="closed">nicht möglich</md-option>
                   <md-option value="open">möglich</md-option>
                 </md-select>
@@ -41,12 +41,17 @@
             <md-tab id="info" md-label="Info">
                 <md-input-container>
                   <label>Bezeichnung</label>
-                  <md-input type="text" v-model="process.name"></md-input>
+                  <md-input type="text" v-model="process.mName"></md-input>
+                </md-input-container>
+
+                <md-input-container>
+                  <label>Aktenzeichen</label>
+                  <md-input type="text" v-model="process.mReference"></md-input>
                 </md-input-container>
 
                 <md-input-container>
                   <label>Beschreibung</label>
-                  <md-textarea v-model="process.description"></md-textarea>
+                  <md-textarea v-model="process.mDescription"></md-textarea>
                 </md-input-container>
             </md-tab>
 
@@ -55,7 +60,7 @@
             </md-tab>
 
             <md-tab id="stakeholder" md-label="Beteiligte">
-              <stakeholder-tab :process="process" :parentProcess="parentProcess"></stakeholder-tab>
+              <stakeholder-tab :process="process"></stakeholder-tab>
             </md-tab>
 
             <md-tab id="transformation" md-label="Transformation">
@@ -87,14 +92,12 @@
           </md-tabs>
 
         </form>
-      <!--
-      -->
       </md-dialog-content>
 
       <md-layout md-gutter class="bottom-bar">
         <md-layout md-align="start"><md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button></md-layout>
-        <md-layout v-if="showBreadcrumbs" md-align="center" md-flex="60">
-          <breadcrumbs :process="process" v-on:openLayer="onOpenLayer"></breadcrumbs>
+        <md-layout v-if="showProcessButton" md-align="center" md-flex="60">
+          <md-button class="md-raised md-accent" @click="onChangeProcess('child')">Öffnen</md-button>
         </md-layout>
         <md-layout md-align="end"><md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button></md-layout>
       </md-layout>
@@ -107,7 +110,6 @@
 import Location from './process/Location.vue'
 import Stakeholder from './process/Stakeholder.vue'
 import Result from './process/Result.vue'
-import Breadcrumbs from './process/Breadcrumbs.vue'
 
 import { Process } from '@/classes/model/Process'
 
@@ -120,7 +122,6 @@ Vue.use(VueMaterial)
 export default {
   name: 'DialogProcess',
   components: {
-    'breadcrumbs': Breadcrumbs,
     'location-tab': Location,
     'stakeholder-tab': Stakeholder,
     'result-tab': Result
@@ -130,8 +131,7 @@ export default {
     return {
       dom: {},
       process: new Process(),
-      parentProcess: new Process(),
-      showBreadcrumbs: false,
+      showProcessButton: false,
       info: {
         start: '',
         end: ''
@@ -157,13 +157,12 @@ export default {
   },
 
   methods: {
-    open (child, parent, a, breadcrumbs) {
+    open (child, a, showProcessButton) {
       console.log('DialogProcess open()')
       console.log(child)
       this.process = child
-      this.parentProcess = parent
       this.setAction(a)
-      this.showBreadcrumbs = breadcrumbs === true
+      this.showProcessButton = showProcessButton === true
 
       this.info.start = typeof child.start !== 'undefined' && child.start !== null ? dateFormat(child.start, 'yyyy-mm-dd') : ''
       this.info.end = typeof child.end !== 'undefined' && child.end !== null ? dateFormat(child.end, 'yyyy-mm-dd') : ''
@@ -192,9 +191,8 @@ export default {
       this.$refs['dialog'].close()
     },
 
-    onOpenLayer (layer) {
-      console.log('onOpenLayer', layer)
-      this.response = 'openLayer-' + layer
+    onChangeProcess (layer) {
+      this.response = 'changeProcess-' + layer
       this.$refs['dialog'].close()
     },
 

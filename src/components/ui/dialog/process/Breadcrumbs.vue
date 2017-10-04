@@ -1,10 +1,12 @@
 <template>
   <div class="process-breadcrumbs">
-    <md-button class="md-dense" @click="openLayer('parent')">{{ process.parent }}</md-button>
-    <md-icon>keyboard_arrow_right</md-icon>
-    <md-button class="md-raised md-accent">{{ process.id }}</md-button>
-    <md-icon>keyboard_arrow_right</md-icon>
-    <md-button class="md-dense" @click="openLayer('child')">Teilaufgaben: {{ process.childs.length }}</md-button>
+
+      <md-button class="md-dense" @click="onChangeProcess('parent')">{{ getPrev() }}</md-button>
+      <md-icon>keyboard_arrow_right</md-icon>
+      <md-button class="md-raised md-accent" @click="onShowProcess">{{ process.id }}</md-button>
+      <md-icon>keyboard_arrow_right</md-icon>
+      <md-button class="md-dense">Teilaufgaben: {{ process.childs.length }}</md-button>
+
   </div>
 </template>
 
@@ -38,8 +40,16 @@ export default {
   },
 
   methods: {
-    openLayer (layer) {
-      this.$emit('openLayer', layer)
+    onChangeProcess (direction) {
+      this.$emit('changeProcess', direction)
+    },
+
+    onShowProcess () {
+      this.$emit('showProcess')
+    },
+
+    getPrev () {
+      return !this.process || this.process.parent === '' ? 'ANLEGEN' : this.process.parent
     }
   }
 }
