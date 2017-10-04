@@ -7,7 +7,9 @@ export class Location {
     this.zip = typeof zip === 'string' ? zip : ''
     this.city = typeof city === 'string' ? city : ''
     this.room = typeof room === 'string' ? room : ''
-    this.geoCoords = typeof geoCoords === 'object' ? geoCoords : {}
+
+    this.geoCoords = { lat: null, lng: null }
+    this.mGeoCoords = geoCoords
   }
 
   get mAddress () { return this.address }
@@ -67,25 +69,20 @@ export class Location {
 
   get mGeoCoords () { return this.geoCoords }
   set mGeoCoords (geoCoords) {
-    if (typeof geoCoords !== 'object') {
-      console.warn('Location.mGeoCoords expects an Object')
+    if (typeof geoCoords !== 'object' || !geoCoords || !geoCoords.hasOwnProperty('lat') || !geoCoords.hasOwnProperty('lng')) {
+      console.warn('Location.mGeoCoords expects an Object with lat and lng')
       return false
     }
 
-    if (!geoCoords.hasOwnProperty('lat') || !geoCoords.hasOwnProperty('lat')) {
-      console.warn('Location.mGeoCoords expects an Object')
-      return false
-    }
-
-    this.geoCoords = geoCoords
+    this.geoCoords = { lat: geoCoords.lat, lng: geoCoords.lng }
 
     return true
   }
 
   get props () { return this }
   set props (serializedLocation) {
-    if (!serializedLocation || typeof serializedLocation === 'undefined') {
-      console.warn('Location.props() - serializedLocation is undefined')
+    if (typeof serializedLocation !== 'object' || !serializedLocation) {
+      console.warn('Location.props() - serializedLocation expects and object')
       return
     }
 

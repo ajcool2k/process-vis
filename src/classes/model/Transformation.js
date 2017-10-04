@@ -3,8 +3,9 @@ export class Transformation {
   constructor (type, info, decision) {
     this.type = typeof type === 'string' ? type : '='
     this.info = typeof info === 'string' ? info : ''
+
     this.decision = 'false'
-    // this.mDecision = decision
+    this.mDecision = decision
   }
 
   get mType () { return this.type }
@@ -61,12 +62,14 @@ export class Transformation {
 
   get props () { return this }
   set props (serializedTransformation) {
-    if (!serializedTransformation || typeof serializedTransformation === 'undefined') {
-      console.warn('Transformation.props() - serializedTransformation is undefined')
-      return
+    if (typeof serializedTransformation !== 'object' || !serializedTransformation) {
+      console.warn('Transformation.props() - serializedTransformation expects an object')
+      return false
     }
     this.type = serializedTransformation.type
     this.info = serializedTransformation.info
     this.decision = serializedTransformation.decision
+
+    return true
   }
 }

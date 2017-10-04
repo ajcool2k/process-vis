@@ -111,7 +111,7 @@ export class Result {
 
   get props () { return this }
   set props (serializedResult) {
-    if (!serializedResult || typeof serializedResult === 'undefined') {
+    if (typeof serializedResult !== 'object' || !serializedResult) {
       console.warn('Result.props() - serializedResult is undefined')
       return
     }

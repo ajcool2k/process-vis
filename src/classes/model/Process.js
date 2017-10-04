@@ -52,9 +52,9 @@ export class Process {
   // IMPL getter and setter
   get props () { return this }
   set props (serializedProcess) {
-    if (!serializedProcess || typeof serializedProcess === 'undefined') {
-      console.warn('Process.props() - serializedProcess is undefined')
-      return
+    if (typeof serializedProcess !== 'object' || !serializedProcess) {
+      console.warn('Process.props() - serializedProcess expects an object')
+      return false
     }
 
     this.id = serializedProcess.id
@@ -103,23 +103,65 @@ export class Process {
     // timestamps
     this.created = serializedProcess.created ? new Date(serializedProcess.created) : null
     this.modified = serializedProcess.modified ? new Date(serializedProcess.modified) : null
+
+    return true
   }
 
   get mInitiator () { return this.initiator }
-  set mInitiator (initiator) { this.initiator = typeof initiator !== 'undefined' ? initiator : 1 }
+  set mInitiator (initiator) {
+    if (typeof initiator !== 'string') {
+      console.warn('Process.mInitiator - expects string')
+      return false
+    }
+
+    this.initiator = initiator
+    return true
+  }
+
+  get mReference () { return this.reference }
+  set mReference (reference) {
+    if (typeof reference !== 'string') {
+      console.warn('Process.mReference - expects string')
+      return false
+    }
+
+    this.reference = reference
+    return true
+  }
 
   get mName () { return this.name }
-  set mName (name) { this.name = name }
+  set mName (name) {
+    if (typeof name !== 'string') {
+      console.warn('Process.mName - expects string')
+      return false
+    }
+
+    this.name = name
+    return true
+  }
+
+  get mDescription () { return this.description }
+  set mDescription (description) {
+    if (typeof description !== 'string') {
+      console.warn('Process.mDescription - expects string')
+      return false
+    }
+
+    this.description = description
+    return true
+  }
 
   get mStart () { return this.start }
   set mStart (start) {
     if (start instanceof Date === false) {
       console.warn('Process: start is not a date')
-      return
+      return false
     }
     this.start = new Date(start.valueOf()) // create copy of date
 
     if (this.start instanceof Date && this.end instanceof Date) this._duration = this.end - this.start
+
+    return true
   }
 
   get mEnd () {
@@ -138,34 +180,39 @@ export class Process {
   set mEnd (end) {
     if (end instanceof Date === false) {
       console.warn('Process: end is not a date')
-      return
+      return false
     }
 
     this.end = new Date(end.valueOf()) // create copy of date
     this._defaultEndDate = this.end
 
     if (this.start instanceof Date && this.end instanceof Date) this._duration = this.end - this.start
+
+    return true
   }
 
   setChilds (childs) {
     if (childs instanceof Array === false) {
       console.warn('Process.setChilds - expected childs as type Array')
-      return
+      return false
     }
 
     this.childs = []
     childs.forEach(elem => { this.addChild(elem) })
+    return true
   }
 
   addChild (child) {
-    if (typeof child === 'undefined' || child instanceof Process === false) {
+    if (child instanceof Process === false) {
       console.warn('Process.addChild - expected child as type Process')
-      return
+      return false
     }
 
     child.parent = this.id
     this.childs.push(child)
     this.addParticipant(child.initiator)
+
+    return true
   }
 
   addParticipant (id) {
@@ -185,7 +232,7 @@ export class Process {
   }
 
   addStakeholder (stakeholder) {
-    if (typeof stakeholder === 'undefined' || stakeholder instanceof Stakeholder === false) {
+    if (stakeholder instanceof Stakeholder === false) {
       console.warn('Process.addStakeholder() - expected string')
       return false
     }
@@ -220,14 +267,14 @@ export class Process {
   removeChild (id) {
     if (typeof id !== 'string') {
       console.warn('Process.removeChild - expected id as a string')
-      return
+      return false
     }
 
     let index = this.childs.findIndex(elem => elem.id === id)
 
     if (index === -1) {
       console.warn('Process.removeChild - id not found')
-      return
+      return false
     }
 
     let child = this.childs[index]
@@ -239,10 +286,11 @@ export class Process {
     })
 
     this.childs.splice(index, 1)
+    return true
   }
 
   addConnectionTo (target) {
-    if (typeof target !== 'object') {
+    if (typeof target !== 'object' || !target) {
       console.warn('Process.addConnectionTo() - expected object')
       return false
     }
@@ -255,7 +303,7 @@ export class Process {
   }
 
   removeConnectionTo (target) {
-    if (typeof target !== 'object') {
+    if (typeof target !== 'object' || !target) {
       console.warn('Process.addConnectionTo() - expected object')
       return false
     }
@@ -269,17 +317,19 @@ export class Process {
   }
 
   setResults (results) {
-    if (typeof results === 'undefined' || results instanceof Array === false) {
+    if (results instanceof Array === false) {
       console.warn('Process.setResults() - expected Array')
       return false
     }
 
     this.results = []
     results.forEach(elem => { this.addResult(elem) })
+
+    return true
   }
 
   addResult (result) {
-    if (typeof result === 'undefined' || result instanceof Result === false) {
+    if (result instanceof Result === false) {
       console.warn('Process.addResult() - expected Result')
       return false
     }
@@ -343,13 +393,45 @@ export class Process {
   }
 
   get mDuration () { return isNaN(this._duration) ? 0 : this._duration }
-  set mDuration (duration) { console.warn('duration cannot be set') }
+  set mDuration (duration) {
+    if (typeof duration !== 'number' || duration < 1) {
+      console.warn('Process.mDuration - expected number > 1')
+      return false
+    }
+
+    this.end = new Date(this.start.valueOf() + duration)
+    this._duration = duration
+
+    return true
+  }
 
   get mParticipation () { return this.participation }
-  set mParticipation (participation) { this.participation = participation }
+  set mParticipation (participation) {
+    if (typeof participation !== 'string') {
+      console.warn('Process.mParticipation() - expected string')
+      return false
+    }
+    let whitelist = [ 'closed', 'open' ]
+    if (whitelist.indexOf(participation) === -1) {
+      console.warn('Process.mParticipation() - expected string from the whitelist ' + whitelist.toString)
+      return false
+    }
+
+    this.participation = participation
+
+    return true
+  }
 
   get mPosition () { return this._position }
-  set mPosition (position) { this._position = position }
+  set mPosition (position) {
+    if (typeof position !== 'object' || !position || !position.hasOwnPropety('x') || !position.hasOwnPropety('y')) {
+      console.warn('Process.mParticipation() - expected object with attributes x and y')
+      return false
+    }
+
+    this._position = { x: position.x, y: position.y }
+    return true
+  }
 
   get mPrivates () {
     let keys = Object.keys(this)
