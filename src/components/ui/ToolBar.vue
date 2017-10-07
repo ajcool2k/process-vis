@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import Breadcrumbs from './dialog/process/Breadcrumbs.vue'
+import Breadcrumbs from './Breadcrumbs.vue'
 
 import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
