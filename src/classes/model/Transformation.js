@@ -4,8 +4,7 @@ export class Transformation {
     this.type = typeof type === 'string' ? type : '='
     this.info = typeof info === 'string' ? info : ''
 
-    this.decision = 'false'
-    this.mDecision = decision
+    this.decision = decision === true
   }
 
   get mType () { return this.type }
@@ -39,7 +38,7 @@ export class Transformation {
     return true
   }
 
-  get mDecision () { return this.decision === 'true' }
+  get mDecision () { return this.decision }
   set mDecision (decision) {
     if (typeof decision !== 'boolean' && typeof decision !== 'string') {
       console.warn('Transformation.mDecision expects a string or boolean')
@@ -51,8 +50,8 @@ export class Transformation {
       return false
     }
 
-    if (typeof decision === 'boolean') {
-      decision = decision === true ? 'true' : 'false'
+    if (typeof decision === 'string') {
+      decision = decision === 'true'
     }
 
     this.decision = decision

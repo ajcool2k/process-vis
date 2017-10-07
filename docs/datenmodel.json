@@ -38,7 +38,7 @@
     "transformation": {
       "type": "=",
       "info": "",
-      "decision": ""
+      "decision": false
     },
     "results (optional)": [
       {
