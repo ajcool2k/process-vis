@@ -1,3 +1,4 @@
+import { Metadata } from '@/classes/model/Metadata'
 import { Stakeholder } from '@/classes/model/Stakeholder'
 import { Result } from '@/classes/model/Result'
 import { Location } from '@/classes/model/Location'
@@ -42,7 +43,6 @@ export class Process {
     this.results = []
     this.childs = []
     this.stakeholder = []
-    this.locations = []
 
     // timestamps
     this.created = new Date()
@@ -73,6 +73,8 @@ export class Process {
     this.participation = serializedProcess.participation
     this.transformation.props = serializedProcess.transformation
     this.participants = serializedProcess.participants
+    this.stakeholder = serializedProcess.stakeholder
+    this.location = serializedProcess.location
 
     serializedProcess.childs.forEach(child => {
       let childProcess = new Process()
@@ -80,25 +82,11 @@ export class Process {
       this.addChild(childProcess)
     })
 
-    serializedProcess.stakeholder.forEach(sh => {
-      let stakeholder = new Stakeholder()
-      stakeholder.props = sh
-      this.addStakeholder(stakeholder)
-    })
-
     serializedProcess.results.forEach(res => {
       let result = new Result()
       result.props = res
       this.addResult(result)
     })
-
-    serializedProcess.location.forEach(loc => {
-      let location = new Location()
-      location.props = loc
-      this.addLocation(location)
-    })
-
-    this.locations = serializedProcess.locations
 
     // timestamps
     this.created = serializedProcess.created ? new Date(serializedProcess.created) : null
@@ -237,13 +225,14 @@ export class Process {
       return false
     }
 
-    let found = this.stakeholder.find(elem => elem.id === stakeholder.id)
+    let found = this.stakeholder.find(elem => elem === stakeholder.id)
     if (typeof found !== 'undefined') {
       console.warn('Process.addStakeholder() - id is already set')
       return false
     }
 
-    this.stakeholder.push(stakeholder)
+    this.stakeholder.push(stakeholder.id)
+    Metadata.addStakeholder(stakeholder)
     return true
   }
 
@@ -253,7 +242,7 @@ export class Process {
       return false
     }
 
-    let index = this.stakeholder.findIndex(elem => elem.id === id)
+    let index = this.stakeholder.findIndex(elem => elem === id)
 
     if (index === -1) {
       console.warn('Process.removeStakeholder() - could not find stakeholder')
@@ -371,7 +360,8 @@ export class Process {
       return false
     }
 
-    this.location.push(location)
+    this.location.push(location.id)
+    Metadata.addLocation(location)
     return true
   }
 
@@ -381,7 +371,7 @@ export class Process {
       return false
     }
 
-    let index = this.location.findIndex(elem => elem.id === id)
+    let index = this.location.findIndex(elem => elem === id)
 
     if (index === -1) {
       console.warn('Process.removeLocation() - could not find location')

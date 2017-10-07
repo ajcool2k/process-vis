@@ -37,6 +37,7 @@ import { Calc } from '@/classes/utils/Calc'
 
 import { Data2 } from '@/classes/utils/Data2'
 
+import { Metadata } from '@/classes/model/Metadata'
 import { Process } from '@/classes/model/Process'
 import { Stakeholder } from '@/classes/model/Stakeholder'
 
@@ -51,6 +52,7 @@ export default {
   data: function () {
     return {
       isSaved: false,
+      metadata: Metadata.getData(),
       savedId: '',
       model: null,
       datamodel: new Process(),
@@ -62,13 +64,20 @@ export default {
 
   created: function () {
     console.log('App created')
+    Metadata.clear()
+
     console.log('Route data', this.$route.params)
+
     let routeInfo = this.$route.params
     if (routeInfo.hasOwnProperty('id')) {
       console.log('existing model requested')
+
+      let processWrapper = Exchange.openProcess(routeInfo.id)
+      console.log(processWrapper)
       let process = new Process()
-      let obj = Exchange.openProcess(routeInfo.id)
-      process.props = obj
+      process.props = processWrapper.model
+      this.metadata = Metadata.parse(processWrapper.metadata)
+
       this.model = process
       this.datamodel = this.model
       this.isSaved = true
@@ -180,7 +189,7 @@ export default {
           head.addStakeholder(headStakeholder)
 
           // set participant
-          let stakeholder = this.model.stakeholder.find(elem => elem.id === this.model.initiator)
+          let stakeholder = Metadata.findStakeholder(this.model.initiator)
           head.addStakeholder(stakeholder)
           head.addParticipant(stakeholder.id)
 
@@ -226,7 +235,7 @@ export default {
     addParticipant () {
       let stakeholder = new Stakeholder('[untitled]')
       console.log('stakeholder', stakeholder)
-      this.datamodel.stakeholder.push(stakeholder)
+      this.datamodel.addStakeholder(stakeholder)
       this.datamodel.addParticipant(stakeholder.id)
     },
 
@@ -278,7 +287,8 @@ export default {
 
     saveModel () {
       console.warn('saveModel')
-      Exchange.storeProcess(this.model)
+      let processWrapper = Exchange.wrapProcess(this.model, Metadata.getData())
+      Exchange.storeProcess(processWrapper)
       this.$router.replace('/process/' + this.model.id)
 
       // remove old Model

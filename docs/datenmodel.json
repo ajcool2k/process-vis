@@ -18,8 +18,9 @@
     "created": "2011-11-11T11:11:00+01:00",
     "modified": "2012-11-11T11:11:00+01:00"
   },
+
   "process": {
-    "_comment": "",
+    "_comment": "Struktur eines Prozesses",
     "id": "",
     "reference (optional)": "",
     "initiator": "",
@@ -96,22 +97,12 @@
         ]
       }
     ],
-    "stakeholder": [
-      {
-        "id": "",
-        "name": "",
-        "type": "",
-        "contact (optional)": {
-          "contactPerson  (optional)": "",
-          "postAddress (optional)": "",
-          "phone (optional)": "",
-          "telefax (optional)": "",
-          "email  (optional)": "",
-          "website  (optional)": ""
-        },
-		"participated": []
-      }
-    ],
+    "created": "",
+    "modified": ""
+  },
+
+  "metadata": {
+    "_comment": "Es handelt sich um Metadaten zum Prozess-Modell",
     "locations": [
       {
         "id": "",
@@ -125,7 +116,21 @@
         }
       }
     ],
-    "created": "",
-    "modified": ""
+    "stakeholder": [
+      {
+        "id": "",
+        "name": "",
+        "type": "",
+        "contact (optional)": {
+          "contactPerson  (optional)": "",
+          "postAddress (optional)": "",
+          "phone (optional)": "",
+          "telefax (optional)": "",
+          "email  (optional)": "",
+          "website  (optional)": ""
+        },
+		    "participated": []
+      }
+    ]
   }
 }

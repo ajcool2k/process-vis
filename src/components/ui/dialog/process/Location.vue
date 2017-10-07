@@ -1,15 +1,15 @@
 <template>
   <div class="location">
     <md-list class="custom-list md-triple-line">
-      <template v-for="(item, index) in process.location">
+      <template v-for="(locationId, index) in process.location">
         <md-list-item>
           <md-icon>place</md-icon>
           <div class="md-list-text-container">
-            <span>Adresse: {{ item.mAddress }} - {{ item.mZip }} {{ item.mCity }}</span>
-            <span>Ort: {{ item.mZip }} - {{ item.mCity }}</span>
-            <span>Raum: {{ item.mRoom }}</span>
+            <span>Adresse: {{ getLocation(locationId).mAddress }} - {{ getLocation(locationId).mZip }} {{ getLocation(locationId).mCity }}</span>
+            <span>Ort: {{ getLocation(locationId).mZip }} - {{ getLocation(locationId).mCity }}</span>
+            <span>Raum: {{ getLocation(locationId).mRoom }}</span>
           </div>
-          <md-button class="md-icon-button md-raised" @click="onRemove(item.id)"><md-icon>delete</md-icon></md-button>
+          <md-button class="md-icon-button md-raised" @click="onRemove(locationId)"><md-icon>delete</md-icon></md-button>
         </md-list-item>
       </template>
     </md-list>
@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { Metadata } from '@/classes/model/Metadata'
+import { Location } from '@/classes/model/Location'
 import LocationInput from './LocationInput.vue'
 
 import Vue from 'vue'
@@ -74,7 +76,24 @@ export default {
     onAdd (location) {
       console.log('onAdd', location)
       this.process.addLocation(location)
+    },
+
+    getLocation (id) {
+      if (typeof id !== 'string') {
+        console.warn('Location.getLocation() - expected a string')
+        return new Location('[error]')
+      }
+
+      let location = Metadata.findLocation(id)
+
+      if (typeof location === 'undefined') {
+        console.warn('Location.getLocation() - could not find id')
+        return new Location('[error]')
+      }
+
+      return location
     }
+
   }
 }
 </script>

@@ -4,22 +4,22 @@
       <md-input-container>
         <label for="initiator">Verantwortlicher</label>
         <md-select name="initiator" id="initiator" v-model="process.initiator">
-          <template v-for="(elem, index) in process.stakeholder">
-            <md-option :value="elem.id">{{ getStakeholder(elem.id) }}</md-option>
+          <template v-for="(stakeholderId, index) in process.stakeholder">
+            <md-option :value="stakeholderId">{{ getStakeholder(stakeholderId).name }}</md-option>
           </template>
         </md-select>
       </md-input-container>
     </template>
 
     <md-list class="custom-list md-triple-line">
-      <template v-for="(item, index) in process.stakeholder">
+      <template v-for="(stakeholderId, index) in process.stakeholder">
         <md-list-item>
           <md-icon>person</md-icon>
           <div class="md-list-text-container">
-            <span>Name: {{ item.name }}</span>
-            <span>Typ: {{ item.type }}</span>
+            <span>Name: {{ getStakeholder(stakeholderId).name }}</span>
+            <span>Typ: {{ getStakeholder(stakeholderId).type }}</span>
           </div>
-          <md-button class="md-icon-button md-raised" @click="onRemove(item.id)"><md-icon>delete</md-icon></md-button>
+          <md-button class="md-icon-button md-raised" @click="onRemove(stakeholderId)"><md-icon>delete</md-icon></md-button>
         </md-list-item>
       </template>
     </md-list>
@@ -31,6 +31,9 @@
 </template>
 
 <script>
+import { Metadata } from '@/classes/model/Metadata'
+import { Stakeholder } from '@/classes/model/Stakeholder'
+
 import StakeholderInput from './StakeholderInput.vue'
 
 import Vue from 'vue'
@@ -87,18 +90,18 @@ export default {
     },
 
     getStakeholder (id) {
-      if (typeof this.process === 'undefined' || !this.process) {
-        console.warn('Stakeholder.getStakeholder() - expected process')
-        return ''
+      if (typeof id !== 'string') {
+        console.warn('Stakeholder.getStakeholder() - expected a string')
+        return new Stakeholder('[error]')
       }
 
-      let stakeholder = this.process.stakeholder.find(elem => elem.id === id)
+      let stakeholder = Metadata.findStakeholder(id)
       if (typeof stakeholder === 'undefined') {
         console.warn('Stakeholder.getStakeholder() - could not find id')
-        return '[error]'
+        return new Stakeholder('[error]')
       }
 
-      return stakeholder.name
+      return stakeholder
     }
   }
 }

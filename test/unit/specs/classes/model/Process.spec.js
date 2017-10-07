@@ -2,6 +2,7 @@ import { Process } from '@/classes/model/Process'
 import { Result } from '@/classes/model/Result'
 import { File } from '@/classes/model/File'
 
+import { Metadata } from '@/classes/model/Metadata'
 import { Location } from '@/classes/model/Location'
 import { Stakeholder } from '@/classes/model/Stakeholder'
 import { Exchange } from '@/classes/utils/Exchange'
@@ -42,7 +43,6 @@ describe('Process.js', () => {
     expect(process.childs).to.be.an('array')
     expect(process.stakeholder).to.be.an('array')
     expect(process.location).to.be.an('array')
-    expect(process.locations).to.be.an('array')
     expect(process.participants).to.be.an('array')
 
     expect(process.description).to.equal('')
@@ -98,16 +98,21 @@ describe('Process.js', () => {
     child1.addParticipant(stakeholder.id)
 
     // export and import back
-    Exchange.storeProcess(processBefore)
+    let metadataBefore = Metadata.getData()
+    let processBeforeWrapper = Exchange.wrapProcess(processBefore, metadataBefore)
+    Exchange.storeProcess(processBeforeWrapper)
 
+    let processAfterWrapper = Exchange.openProcess(processBefore.id)
     let processAfter = new Process()
-    processAfter.props = Exchange.openProcess(processBefore.id)
+    processAfter.props = processAfterWrapper.model
+    let metadataAfter = Metadata.parse(processAfterWrapper.metadata)
 
     // console.log('processBefore', processBefore.participants)
     // console.log('processAfter', processAfter.participants)
 
     // check for deep equal state
     expect(_.isEqual(processAfter, processBefore)).to.equal(true)
+    expect(_.isEqual(metadataAfter, metadataBefore)).to.equal(true)
 
     // clear Storage
     Exchange.removeProcess(processBefore.id)

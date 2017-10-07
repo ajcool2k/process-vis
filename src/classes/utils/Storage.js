@@ -1,14 +1,14 @@
 import dateFormat from 'dateformat'
 
 export class Storage {
-  static save (process) {
+  static save (processWrapper) {
     console.log('Storage.save()')
     let store = global.localStorage
 
-    let indexName = Storage.prefix + process.id
+    let indexName = Storage.prefix + processWrapper.id
     let index = Storage.getIndex()
 
-    store.setItem(indexName, JSON.stringify(process)) // save json
+    store.setItem(indexName, JSON.stringify(processWrapper)) // save json
     index = index.filter(elem => elem.id !== indexName)
     index.push({ id: indexName, updated: new Date() }) // add to index
 

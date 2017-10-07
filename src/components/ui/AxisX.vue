@@ -5,7 +5,7 @@
     <md-layout v-if="(this.participants.length > 0)" :md-gutter="this.participants.length">
         <template v-for="(item, index) in this.participants">
           <md-layout md-align="center">
-            <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item">{{ getStakeholder(item) }}</md-button>
+            <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item">{{ getStakeholder(item).name }}</md-button>
           </md-layout>
         </template>
 
@@ -22,6 +22,9 @@ import { _ } from 'underscore'
 import { Dialog } from '@/classes/ui/Dialog'
 import { Helper } from '@/classes/utils/Helper'
 import DialogStakeholder from './dialog/DialogStakeholder.vue'
+
+import { Stakeholder } from '@/classes/model/Stakeholder'
+import { Metadata } from '@/classes/model/Metadata'
 
 Vue.use(VueMaterial)
 
@@ -60,7 +63,7 @@ export default {
       console.log('onShowActorDialog')
       event.stopPropagation()
       let actionId = event.target.getAttribute('data-id')
-      let stakeholder = this.stakeholder.find(elem => elem.id === Helper.parse(actionId))
+      let stakeholder = Metadata.findStakeholder(Helper.parse(actionId))
       this.$refs['dialog-stakeholder'].open(stakeholder, 'update')
     },
 
@@ -68,15 +71,15 @@ export default {
       this.$emit('closeDialog', data)
     },
 
-    getStakeholder (participant) {
-      let stakeholder = this.stakeholder.find(elem => elem.id === participant)
+    getStakeholder (id) {
+      let stakeholder = Metadata.findStakeholder(id)
 
       if (typeof stakeholder === 'undefined') {
         console.warn('AxisX.getStakeholder() - could not find id')
-        return '[error]'
+        return new Stakeholder('[error]')
       }
 
-      return stakeholder.name
+      return stakeholder
     }
 
   }

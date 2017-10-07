@@ -1,17 +1,38 @@
-Anmerkungen:
+Anmerkungen Datenmodell:
 
-- true/false sollten boolean Values sein, keine String -> transformation.decision
+- Booleans
+	- true/false sollten boolean Values sein, keine String
+	- Beispiel: transformation.decision
 
-- Wie ist die Struktur einer Datei im Datenmodell?
-	"files (optional)": []
+- Files
+	- Wie ist die Struktur einer Datei im Datenmodell?
+	- Beispiel: "files": []
 
-- Wie Verfahren wir mit nicht gesetzten Attributen wie this.parent im Datenmodell
- 	-> leer, null, nicht vorhanden?
+- Leer-Werte
+	- Wie Verfahren wir mit nicht gesetzten Attributen
+	- Beispiel: this.parent
+ 	- Möglichkeiten: leer, null, nicht vorhanden?
 
-- Wie Verfahrne wir mit optionalen Attributen wie copyright
+- Optionale-Attribute
+	- Wie Verfahrne wir mit optionalen Attributen
+	- Beispiel: wie copyright
 
-- Wofür brauchen wir this.locations? Diese Daten könnten auch direkt aus den childs gelesen werden
+- Zulässige Werte
+	- einige Felder haben noch keine vordefinierten Werten
+	- Beispiel: contactPerson (String/Stakeholder)?, participation ('open' / 'closed')
+
+- Werden Meta-Informationen im Head-Prozess gespeichert?
+	- Beispiel: this.locations, stakeholder, ..
+
+- Für stellt die Angabe pariticpated in der Entität Stakeholder dar?
+	- List aus ProzessIDs?
+
+Weitere:
 
 - Validator würde ich gern verwenden, wenn vorhanden
 
-- contactPerson: zulässige Werte?
+
+Erkenntnisse:
+
+- locations, stakeholder und location auf top-level oder als meta-infomation
+- wird nicht im prozess in der datenbank gespeichert, sondern als eigenständiges Document
