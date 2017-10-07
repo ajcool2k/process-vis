@@ -1,3 +1,4 @@
+import { File } from '@/classes/model/File'
 
 export class Result {
   constructor (name, description, text, copyright) {
@@ -64,6 +65,7 @@ export class Result {
       console.warn('Result.mFiles expects an Array')
       return false
     }
+
     this.files = files
 
     return true
@@ -84,8 +86,8 @@ export class Result {
   }
 
   addFile (file) {
-    if (typeof file !== 'object') {
-      console.warn('Result.addFile() - expected object as a file')
+    if (file instanceof File !== false) {
+      console.warn('Result.addFile() - expected instanceof File')
       return false
     }
 
@@ -122,6 +124,13 @@ export class Result {
     this.text = serializedResult.text
     this.copyright = serializedResult.copyright
     this.files = serializedResult.files
+
+    serializedResult.files.forEach(serializedFile => {
+      let file = new File()
+      file.props = serializedFile
+      this.files.addFile(file)
+    })
+
     this.created = serializedResult.created ? new Date(serializedResult.created) : null
     this.modified = serializedResult.modified ? new Date(serializedResult.modified) : null
   }

@@ -82,7 +82,14 @@
             "description": "",
             "copyright (optional)": "",
             "text (optional)": "",
-            "files (optional)": [],
+            "files (optional)": [
+              {
+                "id": "",
+                "name": "",
+                "size": 0,
+                "mimeType": ""
+              }
+            ],
             "created": "",
             "modified": ""
           }

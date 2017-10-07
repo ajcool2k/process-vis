@@ -1,5 +1,7 @@
 import { Process } from '@/classes/model/Process'
 import { Result } from '@/classes/model/Result'
+import { File } from '@/classes/model/File'
+
 import { Location } from '@/classes/model/Location'
 import { Stakeholder } from '@/classes/model/Stakeholder'
 import { Exchange } from '@/classes/utils/Exchange'
@@ -81,6 +83,11 @@ describe('Process.js', () => {
 
     // add some sub types to child1
     let result = new Result()
+
+    let file = new File()
+    file.mSize = 1024 * 1024
+    result.addFile(file)
+
     child1.addResult(result)
 
     let location = new Location('Friedrich-List-Platz 1', '01069', 'Dresden', 'A117', { lat: '51.035467', lng: '13.736129' })
