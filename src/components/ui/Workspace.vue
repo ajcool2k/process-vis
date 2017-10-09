@@ -27,7 +27,7 @@
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
       <!-- child components -->
         <axis-x class="ignore-container-events" :stakeholder="processModel.stakeholder" :participants="processModel.participants" :scale="containerScale" v-on:closeDialog="onCloseParticipantDialog"></axis-x>
-        <vue-slider class="range-timeSlice ignore-container-events" :value="timeSlice" :width="100" :min="1" :max="100" @callback="onRangeChange"></vue-slider>
+        <vue-slider class="range-timeSlice ignore-container-events" :value="timeSlice" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="'backgroundColor: #3f51b5'" :tooltipStyle="'backgroundColor: #3f51b5; borderColor: #3f51b5'"></vue-slider>
         <axis-y class="ignore-container-events" :participants="processModel.participants" :processes="processModel.childs" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
 
@@ -166,6 +166,10 @@ export default {
       actionId: null,
       time: Date.now(),
       fireCounter: 0,
+
+      clickCounts: {
+        process: 0
+      },
 
       // Options
       options: {
@@ -387,6 +391,7 @@ export default {
       // Processs
       let dragProcess = this.fsm.addState('dragProcess')
       let droppedProcess = this.fsm.addState('droppedProcess')
+      let openProcess = this.fsm.addState('openProcess')
 
       let resizeProcessStart = this.fsm.addState('resizeProcessStart')
       let resizeProcessMove = this.fsm.addState('resizeProcessMove')
@@ -497,6 +502,25 @@ export default {
 
       this.fsm.addEvent(droppedProcess, idle, {
         name: 'onProcessClick',
+        action: (event) => {
+        }
+      })
+
+      this.fsm.addEvent(idle, openProcess, {
+        name: 'onProcessDoubleClick',
+        action: (event) => {
+          let id = event.target.getAttribute('data-id')
+          this.$emit('changeProcess', id)
+
+          setTimeout(() => {
+            if (!this.fsm.hasEvent('timeout')) return
+            this.fsm.run('timeout')
+          }, 200)
+        }
+      })
+
+      this.fsm.addEvent(openProcess, idle, {
+        name: 'timeout',
         action: (event) => {
         }
       })
@@ -1078,11 +1102,26 @@ export default {
 
     onProcessClick (event) {
       console.warn('onProcessClick')
+      this.clickCounts.process++
+      // wait for second click
 
-      if (!this.fsm.hasEvent('onProcessClick')) return
-      this.fsm.run('onProcessClick', event)
-
-      event.preventDefault()
+      setTimeout(event => {
+        let clicks = this.clickCounts.process
+        this.clickCounts.process = 0
+        switch (clicks) {
+          case 1:
+            if (!this.fsm.hasEvent('onProcessClick')) return
+            this.fsm.run('onProcessClick', event)
+            break
+          case 2:
+            if (!this.fsm.hasEvent('onProcessDoubleClick')) return
+            this.fsm.run('onProcessDoubleClick', event)
+            break
+          default:
+            break
+        }
+        event.preventDefault()
+      }, 200, event)
     },
 
     onProcessDrag (event) {
