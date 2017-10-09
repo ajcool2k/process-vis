@@ -20,6 +20,9 @@ npm run dev
 # build for production with minification
 npm run build
 
+# build for production against a public web path
+WEB_DIR=/process-vis/ npm run build
+
 # build for production and view the bundle analyzer report
 npm run build --report
 
@@ -37,5 +40,19 @@ npm run dump
 
 # update project to latest compatible versions
 npm update
+
+```
+
+## Troubleshooting
+
+``` bash
+# phantomjs prebuild installer crashes -> skip installer
+npm install phantomjs-prebuilt@2.1.14 --ignore-scripts
+
+# node-sass not available for your architecture -> compile against own system
+npm rebuild node-sass
+
+# web-links are broken -> build against a public web dir: server/appRoute/
+WEB_DIR=/my-app-path/ npm run build
 
 ```
