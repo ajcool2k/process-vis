@@ -19,62 +19,52 @@ export class Result {
   set mName (name) {
     if (typeof name !== 'string') {
       console.warn('Result.mName expects a string')
-      return false
+      return
     }
     this.name = name
-
-    return true
   }
 
   get mDescription () { return this.description }
   set mDescription (description) {
     if (typeof description !== 'string') {
       console.warn('Result.mDescription expects a string')
-      return false
+      return
     }
     this.description = description
-
-    return true
   }
 
   get mText () { return this.text }
   set mText (text) {
     if (typeof text !== 'string') {
       console.warn('Result.mText expects a string')
-      return false
+      return
     }
     this.text = text
-
-    return true
   }
 
   get mCopyright () { return this.copyright }
   set mCopyright (copyright) {
     if (typeof copyright !== 'string') {
       console.warn('Result.mCopyright expects a string')
-      return false
+      return
     }
     this.copyright = copyright
-
-    return true
   }
 
   get mFiles () { return this.files }
   set mFiles (files) {
     if (files instanceof Array !== false) {
       console.warn('Result.mFiles expects an Array')
-      return false
+      return
     }
 
     this.files = files
-
-    return true
   }
 
   getFile (id) {
     if (typeof id !== 'string') {
       console.warn('Result.getFile() - expected string as an id')
-      return false
+      return
     }
 
     let file = this.files.find(elem => elem.id === id)
@@ -88,27 +78,25 @@ export class Result {
   addFile (file) {
     if (file instanceof File !== false) {
       console.warn('Result.addFile() - expected instanceof File')
-      return false
+      return
     }
 
     this.files.push(file)
-    return true
   }
 
   removeFile (id) {
     if (typeof id !== 'string') {
       console.warn('Result.removeFile() - expected string as an id')
-      return false
+      return
     }
 
     let index = this.files.findIndex(elem => elem.id === id)
 
     if (index === -1) {
       console.warn('Result.removeFile() - could not find file')
-      return false
+      return
     }
     this.files.splice(index, 1)
-    return true
   }
 
   get props () { return this }

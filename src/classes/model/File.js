@@ -12,33 +12,27 @@ export class File {
   set mName (name) {
     if (typeof name !== 'string') {
       console.warn('File.mName expects a string')
-      return false
+      return
     }
     this.name = name
-
-    return true
   }
 
   get mMimeType () { return this.mimeType }
   set mMimeType (mimeType) {
     if (typeof mimeType !== 'string') {
       console.warn('File.mMimeType expects a string')
-      return false
+      return
     }
     this.mimeType = mimeType
-
-    return true
   }
 
   get mSize () { return this.size }
   set mSize (size) {
     if (typeof size !== 'number') {
       console.warn('File.mSize expects a number')
-      return false
+      return
     }
     this.size = size
-
-    return true
   }
 
   get props () { return this }

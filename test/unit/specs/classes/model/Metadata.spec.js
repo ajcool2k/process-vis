@@ -75,19 +75,16 @@ describe('Metadata.js', () => {
     let locationList = [ location1, location2, location3 ]
     Metadata.locations = locationList
 
-    let ret = null
-    ret = Metadata.setLocations()
-    expect(ret).to.equal(false)
+    Metadata.setLocations()
+    expect(Metadata.getLocations()).to.equal(locationList)
 
-    ret = Metadata.setLocations(null)
-    expect(ret).to.equal(false)
+    Metadata.setLocations(null)
+    expect(Metadata.getLocations()).to.equal(locationList)
 
-    ret = Metadata.setLocations(location1)
-    expect(ret).to.equal(false)
+    Metadata.setLocations(location1)
+    expect(Metadata.getLocations()).to.equal(locationList)
 
-    ret = Metadata.setLocations({})
-    expect(ret).to.equal(false)
-
+    Metadata.setLocations({})
     expect(Metadata.getLocations()).to.equal(locationList)
   })
 
@@ -135,9 +132,7 @@ describe('Metadata.js', () => {
 
     Metadata.locations = [ location1, location2, location3 ]
 
-    let ret = Metadata.removeLocation(location2.id)
-    expect(ret).to.equal(true)
-
+    Metadata.removeLocation(location2.id)
     let metadata = Metadata.getData()
 
     expect(metadata).to.be.an('object')
@@ -155,21 +150,14 @@ describe('Metadata.js', () => {
 
     Metadata.addLocation(location)
 
-    let ret = null
+    Metadata.removeLocation(location.id + '#007')
+    expect(Metadata.getLocations().length).to.equal(1)
 
-    ret = Metadata.removeLocation(location.id + '#007')
-    expect(ret).to.equal(false)
+    Metadata.removeLocation()
+    expect(Metadata.getLocations().length).to.equal(1)
 
-    ret = Metadata.removeLocation()
-    expect(ret).to.equal(false)
-
-    ret = Metadata.removeLocation(null)
-    expect(ret).to.equal(false)
-
-    let metadata = Metadata.getData()
-    expect(metadata).to.be.an('object')
-    expect(metadata.locations).to.be.an('Array')
-    expect(metadata.locations.length).to.equal(1)
+    Metadata.removeLocation(null)
+    expect(Metadata.getLocations().length).to.equal(1)
   })
 
   it('should add a stakeholder', () => {
@@ -222,19 +210,16 @@ describe('Metadata.js', () => {
     let stakeholderList = [ stakeholder1, stakeholder2, stakeholder3 ]
     Metadata.stakeholder = stakeholderList
 
-    let ret = null
-    ret = Metadata.setStakeholder()
-    expect(ret).to.equal(false)
+    Metadata.setStakeholder()
+    expect(Metadata.getStakeholder()).to.equal(stakeholderList)
 
-    ret = Metadata.setStakeholder(null)
-    expect(ret).to.equal(false)
+    Metadata.setStakeholder(null)
+    expect(Metadata.getStakeholder()).to.equal(stakeholderList)
 
-    ret = Metadata.setStakeholder(stakeholder1)
-    expect(ret).to.equal(false)
+    Metadata.setStakeholder(stakeholder1)
+    expect(Metadata.getStakeholder()).to.equal(stakeholderList)
 
-    ret = Metadata.setStakeholder({})
-    expect(ret).to.equal(false)
-
+    Metadata.setStakeholder({})
     expect(Metadata.getStakeholder()).to.equal(stakeholderList)
   })
 
@@ -282,11 +267,9 @@ describe('Metadata.js', () => {
 
     Metadata.stakeholder = [ stakeholder1, stakeholder2, stakeholder3 ]
 
-    let ret = Metadata.removeStakeholder(stakeholder2.id)
-    expect(ret).to.equal(true)
+    Metadata.removeStakeholder(stakeholder2.id)
 
     let metadata = Metadata.getData()
-
     expect(metadata).to.be.an('object')
     expect(metadata.stakeholder).to.be.an('Array')
     expect(metadata.stakeholder.length).to.equal(2)
@@ -302,21 +285,14 @@ describe('Metadata.js', () => {
 
     Metadata.addStakeholder(stakeholder)
 
-    let ret = null
+    Metadata.removeStakeholder(stakeholder.id + '#007')
+    expect(Metadata.getStakeholder().length).to.equal(1)
 
-    ret = Metadata.removeStakeholder(stakeholder.id + '#007')
-    expect(ret).to.equal(false)
+    Metadata.removeStakeholder()
+    expect(Metadata.getStakeholder().length).to.equal(1)
 
-    ret = Metadata.removeStakeholder()
-    expect(ret).to.equal(false)
-
-    ret = Metadata.removeStakeholder(null)
-    expect(ret).to.equal(false)
-
-    let metadata = Metadata.getData()
-    expect(metadata).to.be.an('object')
-    expect(metadata.stakeholder).to.be.an('Array')
-    expect(metadata.stakeholder.length).to.equal(1)
+    Metadata.removeStakeholder(null)
+    expect(Metadata.getStakeholder().length).to.equal(1)
   })
 
   it('should be singleton', () => {

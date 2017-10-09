@@ -54,7 +54,7 @@ export class Process {
   set props (serializedProcess) {
     if (typeof serializedProcess !== 'object' || !serializedProcess) {
       console.warn('Process.props() - serializedProcess expects an object')
-      return false
+      return
     }
 
     this.id = serializedProcess.id
@@ -91,65 +91,57 @@ export class Process {
     // timestamps
     this.created = serializedProcess.created ? new Date(serializedProcess.created) : null
     this.modified = serializedProcess.modified ? new Date(serializedProcess.modified) : null
-
-    return true
   }
 
   get mInitiator () { return this.initiator }
   set mInitiator (initiator) {
     if (typeof initiator !== 'string') {
       console.warn('Process.mInitiator - expects string')
-      return false
+      return
     }
 
     this.initiator = initiator
-    return true
   }
 
   get mReference () { return this.reference }
   set mReference (reference) {
     if (typeof reference !== 'string') {
       console.warn('Process.mReference - expects string')
-      return false
+      return
     }
 
     this.reference = reference
-    return true
   }
 
   get mName () { return this.name }
   set mName (name) {
     if (typeof name !== 'string') {
       console.warn('Process.mName - expects string')
-      return false
+      return
     }
 
     this.name = name
-    return true
   }
 
   get mDescription () { return this.description }
   set mDescription (description) {
     if (typeof description !== 'string') {
       console.warn('Process.mDescription - expects string')
-      return false
+      return
     }
 
     this.description = description
-    return true
   }
 
   get mStart () { return this.start }
   set mStart (start) {
     if (start instanceof Date === false) {
       console.warn('Process: start is not a date')
-      return false
+      return
     }
     this.start = new Date(start.valueOf()) // create copy of date
 
     if (this.start instanceof Date && this.end instanceof Date) this._duration = this.end - this.start
-
-    return true
   }
 
   get mEnd () {
@@ -168,26 +160,23 @@ export class Process {
   set mEnd (end) {
     if (end instanceof Date === false) {
       console.warn('Process: end is not a date')
-      return false
+      return
     }
 
     this.end = new Date(end.valueOf()) // create copy of date
     this._defaultEndDate = this.end
 
     if (this.start instanceof Date && this.end instanceof Date) this._duration = this.end - this.start
-
-    return true
   }
 
   setChilds (childs) {
     if (childs instanceof Array === false) {
       console.warn('Process.setChilds - expected childs as type Array')
-      return false
+      return
     }
 
     this.childs = []
     childs.forEach(elem => { this.addChild(elem) })
-    return true
   }
 
   addChild (child) {
@@ -199,8 +188,6 @@ export class Process {
     child.parent = this.id
     this.childs.push(child)
     this.addParticipant(child.initiator)
-
-    return true
   }
 
   addParticipant (id) {
@@ -216,7 +203,6 @@ export class Process {
     }
 
     this.participants.push(id)
-    return true
   }
 
   addStakeholder (stakeholder) {
@@ -233,7 +219,6 @@ export class Process {
 
     this.stakeholder.push(stakeholder.id)
     Metadata.addStakeholder(stakeholder)
-    return true
   }
 
   removeStakeholder (id) {
@@ -250,7 +235,6 @@ export class Process {
     }
 
     this.stakeholder.splice(index, 1)
-    return true
   }
 
   removeChild (id) {
@@ -275,7 +259,6 @@ export class Process {
     })
 
     this.childs.splice(index, 1)
-    return true
   }
 
   addConnectionTo (target) {
@@ -288,7 +271,6 @@ export class Process {
     target.connection.from.push(this.id)
 
     this._connections.push({ id: this.id + '->' + target.id, source: this.id, target: target.id })
-    return true
   }
 
   removeConnectionTo (target) {
@@ -301,8 +283,6 @@ export class Process {
     this.connection.to = this.connection.to.filter(elem => elem !== target.id) // remove to process
     target.connection.from = target.connection.from.filter(elem => elem !== this.id) // remove from process
     this._connections = this._connections.filter(elem => elem.id !== connectionId) // remove from private connection object
-
-    return true
   }
 
   setResults (results) {
@@ -313,8 +293,6 @@ export class Process {
 
     this.results = []
     results.forEach(elem => { this.addResult(elem) })
-
-    return true
   }
 
   addResult (result) {
@@ -324,7 +302,6 @@ export class Process {
     }
 
     this.results.push(result)
-    return true
   }
 
   removeResult (id) {
@@ -341,7 +318,6 @@ export class Process {
     }
 
     this.results.splice(index, 1)
-    return true
   }
 
   setLocations (locations) {
@@ -362,7 +338,6 @@ export class Process {
 
     this.location.push(location.id)
     Metadata.addLocation(location)
-    return true
   }
 
   removeLocation (id) {
@@ -379,7 +354,6 @@ export class Process {
     }
 
     this.location.splice(index, 1)
-    return true
   }
 
   get mDuration () { return isNaN(this._duration) ? 0 : this._duration }
@@ -391,8 +365,6 @@ export class Process {
 
     this.end = new Date(this.start.valueOf() + duration)
     this._duration = duration
-
-    return true
   }
 
   get mParticipation () { return this.participation }
@@ -408,8 +380,6 @@ export class Process {
     }
 
     this.participation = participation
-
-    return true
   }
 
   get mPosition () { return this._position }
@@ -420,7 +390,6 @@ export class Process {
     }
 
     this._position = { x: position.x, y: position.y }
-    return true
   }
 
   get mPrivates () {
