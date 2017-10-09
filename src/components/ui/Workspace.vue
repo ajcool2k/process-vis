@@ -27,7 +27,7 @@
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
       <!-- child components -->
         <axis-x class="ignore-container-events" :stakeholder="processModel.stakeholder" :participants="processModel.participants" :scale="containerScale" v-on:closeDialog="onCloseParticipantDialog"></axis-x>
-        <vue-slider class="range-timeSlice ignore-container-events" :value="timeSlice" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="'backgroundColor: #3f51b5'" :tooltipStyle="'backgroundColor: #3f51b5; borderColor: #3f51b5'"></vue-slider>
+        <vue-slider class="range-timeSlice ignore-container-events" :value="timeSlice" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
         <axis-y class="ignore-container-events" :participants="processModel.participants" :processes="processModel.childs" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
 
