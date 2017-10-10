@@ -46,7 +46,7 @@
 
           <!-- draw Processes -->
           <template v-if="item._width" v-for="(item, index) in processModel.childs">
-            <g :key="item.id" class="process draggable drag-drop" :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
+            <g :key="item.id + '-process'" class="process draggable drag-drop" :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
               <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :style="'height: ' + item._height + 'px; width: ' + item._width + 'px'"></rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :style="'cy: ' + (item._height - 20) + '; cx: '+ (item._width / 2 ) + ';'"></circle>
               <text class="process-text" :data-id="item.id" :x="(item._width / 2)" y="20">{{item.id}} - {{item._height}}</text>
@@ -56,7 +56,7 @@
           <!-- draw Connections -->
           <template v-for="(item, index) in processModel.childs">
             <template v-for="(con, index) in item._connections">
-              <g :key="con.id" class="connection" :data-id="con.id">
+              <g :key="con.id + '-connection'" class="connection" :data-id="con.id">
                 <polyline class="connection-outline" :data-id="con.id" points="" @click.stop="openRemoveConnectionDialog" />
                 <polyline class="connection-line" :data-id="con.id" points="" />
               </g>
@@ -66,7 +66,7 @@
           <!-- draw Transition-Info -->
           <template v-for="(item, index) in processModel.childs">
             <template v-for="(con, index) in item._connections">
-              <g :key="con.id" class="connection-transition" :data-id="con.id" :data-process="item.id" @click.stop="onOpenTransformationDialog">
+              <g :key="con.id + '-connection-transition'" class="connection-transition" :data-id="con.id" :data-process="item.id" @click.stop="onOpenTransformationDialog">
                 <circle class="connection-transition-circle" r="20" />
                 <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
                 <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transformation.type}}</text>
