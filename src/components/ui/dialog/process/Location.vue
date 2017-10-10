@@ -2,7 +2,7 @@
   <div class="location">
     <md-list class="custom-list md-triple-line">
       <template v-for="(locationId, index) in process.location">
-        <md-list-item>
+        <md-list-item :key="locationId">
           <md-icon>place</md-icon>
           <div class="md-list-text-container">
             <span>Adresse: {{ getLocation(locationId).mAddress }} - {{ getLocation(locationId).mZip }} {{ getLocation(locationId).mCity }}</span>

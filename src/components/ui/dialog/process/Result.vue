@@ -2,7 +2,7 @@
   <div class="result">
     <md-list class="custom-list md-triple-line">
       <template v-for="(item, index) in process.results">
-        <md-list-item>
+        <md-list-item :key="item.id">
           <md-icon>work</md-icon>
           <div class="md-list-text-container">
             <span>Name: {{ item.mName }}</span>

@@ -4,7 +4,7 @@
     <dialog-stakeholder ref="dialog-stakeholder" v-on:closeDialog="onCloseDialog"></dialog-stakeholder>
     <md-layout v-if="(this.participants.length > 0)" :md-gutter="this.participants.length">
         <template v-for="(item, index) in this.participants">
-          <md-layout md-align="center">
+          <md-layout :key="item" md-align="center">
             <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item">{{ getStakeholder(item).name }}</md-button>
           </md-layout>
         </template>
@@ -18,7 +18,6 @@
 import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 import VueMaterial from 'vue-material'
-import { _ } from 'underscore'
 import { Dialog } from '@/classes/ui/Dialog'
 import { Helper } from '@/classes/utils/Helper'
 import DialogStakeholder from './dialog/DialogStakeholder.vue'

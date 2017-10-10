@@ -5,7 +5,7 @@
         <label for="initiator">Verantwortlicher</label>
         <md-select name="initiator" id="initiator" v-model="process.initiator">
           <template v-for="(stakeholderId, index) in process.stakeholder">
-            <md-option :value="stakeholderId">{{ getStakeholder(stakeholderId).name }}</md-option>
+            <md-option :key="stakeholderId" :value="stakeholderId">{{ getStakeholder(stakeholderId).name }}</md-option>
           </template>
         </md-select>
       </md-input-container>
@@ -13,7 +13,7 @@
 
     <md-list class="custom-list md-triple-line">
       <template v-for="(stakeholderId, index) in process.stakeholder">
-        <md-list-item>
+        <md-list-item :key="stakeholderId">
           <md-icon>person</md-icon>
           <div class="md-list-text-container">
             <span>Name: {{ getStakeholder(stakeholderId).name }}</span>

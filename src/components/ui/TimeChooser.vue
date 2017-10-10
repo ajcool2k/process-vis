@@ -16,7 +16,6 @@
 </template>
 
 <script>
-
 import Vue from 'vue'
 import 'vue-material/dist/vue-material.css'
 
@@ -61,7 +60,6 @@ export default {
     }
   }
 }
-
 </script>
 
 <style lang="scss" scoped>
