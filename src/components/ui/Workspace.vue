@@ -47,8 +47,8 @@
           <!-- draw Processes -->
           <template v-if="item._width" v-for="(item, index) in processModel.childs">
             <g :key="item.id + '-process'" class="process draggable drag-drop" :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
-              <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :style="'height: ' + item._height + 'px; width: ' + item._width + 'px'"></rect>
-              <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :style="'cy: ' + (item._height - 20) + '; cx: '+ (item._width / 2 ) + ';'"></circle>
+              <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :height="item._height" :width="item._width"></rect>
+              <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :cy="(item._height - 20)" :cx="(item._width / 2 )"></circle>
               <text class="process-text" :data-id="item.id" :x="(item._width / 2)" y="20">{{item.id}} - {{item._height}}</text>
             </g>
           </template>
@@ -652,6 +652,8 @@ export default {
       source.setAttribute('data-y', process._position.y)
 
       // transform
+      source.setAttribute('transform', 'translate(' + process._position.x + ',' + process._position.y + ')')
+      // Bugfix for Firefox (svg elem needs to have attribute and style prop)
       source.style.webkitTransform = source.style.transform = 'translate(' + process._position.x + 'px ,' + process._position.y + 'px)'
 
       return source
@@ -842,9 +844,9 @@ export default {
       this.timeRuler.setAttribute('data-y', y)
 
       // update view
-      this.timeRuler.style.webkitTransform =
-      this.timeRuler.style.transform =
-          'translate(0px,' + y + 'px)'
+      this.timeRuler.setAttribute('transform', 'translate(0,' + y + ')')
+      // Bugfix for Firefox (svg elem needs to have attribute and style prop)
+      this.timeRuler.style.webkitTransform = this.timeRuler.style.transform = 'translate(0px,' + y + 'px)'
     },
 
     updateAxisPosition () {
@@ -1058,7 +1060,7 @@ export default {
       // read from model
       let groupX = (parseFloat(group.getAttribute('data-x')) || 0)
       let groupY = (parseFloat(group.getAttribute('data-y')) || 0)
-      let anchorY = parseInt(anchor.style.cy)
+      let anchorY = parseInt(anchor.getAttribute('cy') || 0)
 
       // update model
       // translate when resizing from top or left cons
@@ -1075,13 +1077,15 @@ export default {
       group.style.display = 'none' // avoid reflows by multiple style changes
 
       // update the element's style
-      rect.style.width = Math.round(event.rect.width / this.containerScale.x) + 'px'
-      rect.style.height = Math.round(event.rect.height / this.containerScale.y) + 'px'
-      anchor.style.cy = anchorY
+      rect.setAttribute('width', Math.round(event.rect.width / this.containerScale.x))
+      rect.setAttribute('height', Math.round(event.rect.height / this.containerScale.y))
+      anchor.setAttribute('cy', anchorY)
 
       group.style.display = displayValue
 
       // translate when resizing from top or left cons
+      group.setAttribute('transform', 'translate(' + groupX + ',' + groupY + ')')
+      // Bugfix for Firefox (svg elem needs to have attribute and style prop)
       group.style.webkitTransform = group.style.transform = 'translate(' + groupX + 'px,' + groupY + 'px)'
     },
 
@@ -1155,9 +1159,9 @@ export default {
       event.target.setAttribute('data-y', y)
 
       // update view
-      event.target.style.webkitTransform =
-      event.target.style.transform =
-          'translate(' + x + 'px, ' + y + 'px)'
+      event.target.setAttribute('transform', 'translate(' + x + ',' + y + ')')
+      // Bugfix for Firefox (svg elem needs to have attribute and style prop)
+      event.target.style.webkitTransform = event.target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
 
       // update connections of the process
       this.redrawConnection(processId)
@@ -1329,21 +1333,8 @@ svg {
     }
 
     &.animation-highlight  {
-
       animation-name: bounceIn;
       animation-duration: 600ms;
-
-      @keyframes bounceIn{
-        0%{
-          opacity: 0;
-        }
-        50%{
-          opacity: 0.9;
-        }
-        100%{
-          opacity: 0.5;
-        }
-      }
     }
 
     rect {
@@ -1351,24 +1342,10 @@ svg {
       transform: scale(0);
 
       &.animation-morph {
-
         animation-name: morphIn;
         animation-fill-mode: forwards;
         animation-duration: 50ms;
         transform-origin: center;
-
-
-        @keyframes morphIn{
-          0%{
-            transform: scale(0);
-          }
-          80%{
-            transform: scale(1.1);
-          }
-          100%{
-            transform: scale(1);
-          }
-        }
       }
 
       &.process-drop {
@@ -1524,6 +1501,18 @@ svg {
   0% { opacity: 0.5; }
   40% { opacity: 0.5; }
   100% { opacity: 1; }
+}
+
+@keyframes morphIn{
+  0% { transform: scale(0); }
+  80% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes bounceIn{
+  0% { opacity: 0; }
+  50% { opacity: 0.9; }
+  100% { opacity: 0.5; }
 }
 
 </style>
