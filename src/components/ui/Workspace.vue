@@ -1319,7 +1319,9 @@ svg {
     opacity: 0.5;
 
     &:hover {
-      opacity: 1;
+      animation-name: fadeIn;
+      animation-duration: 600ms;
+      animation-fill-mode: forwards;
 
       rect {
         fill: $accepntColor;
@@ -1437,7 +1439,8 @@ svg {
       stroke: $primaryColor;
       stroke-width: 3;
       stroke-dasharray: none;
-      opacity: 1;
+      animation-name: fadeIn;
+      animation-duration: 300ms;
     }
   }
 
@@ -1446,6 +1449,10 @@ svg {
     cursor: pointer;
 
     &:hover {
+      animation-name: fadeIn;
+      animation-duration: 200ms;
+      animation-fill-mode: forwards;
+
       .connection-transition-text {
         fill: #fff;
       }
@@ -1454,7 +1461,6 @@ svg {
         fill: $accepntColor;
       }
     }
-
 
     .connection-transition-circle {
       fill: $bgColor;
@@ -1512,4 +1518,12 @@ svg {
   margin-top: -40px;
   width: 100px;
 }
+
+
+@keyframes fadeIn {
+  0% { opacity: 0.5; }
+  40% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
 </style>
