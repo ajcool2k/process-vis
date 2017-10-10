@@ -140,7 +140,37 @@ export default {
 
     removeProcess (processId) {
       console.log('Process (removeProcess): ' + processId)
-      this.datamodel.removeChild(processId)
+
+      let process = Helper.getElement(processId, this.model, 'childs')
+
+      if (typeof process === 'undefined') {
+        console.warn('Could not find process')
+        return
+      }
+
+      let head = this.model
+
+      // Fall 1 (Head mit einem Kind, Kind soll neuer Head werden)
+      if (head.id === process.id) {
+        if (process.childs.length !== 1) {
+          console.log('Process.removeProcess() - head can only get removed when it has 1 child')
+          return
+        }
+
+        this.model = process.childs[0]
+        this.model.parent = ''
+        this.datamodel = this.model
+        return
+      }
+
+      // Fall 2 (Prozess ohne Kinder, aber nicht Head)
+      if (process.childs.length === 0) {
+        let parentProcess = Helper.getElement(process.parent, this.model, 'childs')
+        parentProcess.removeChild(processId)
+        return
+      }
+
+      console.log('Process.removeProcess() - Process cannot be removed')
     },
 
     updateProcess (processId) {
