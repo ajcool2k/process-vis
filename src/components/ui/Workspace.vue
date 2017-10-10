@@ -68,13 +68,16 @@
             <template v-for="(con, index) in item._connections">
               <g :key="con.id" class="connection-transition" :data-id="con.id" :data-process="item.id" @click.stop="onOpenTransformationDialog">
                 <circle class="connection-transition-circle" r="20" />
-                <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transformation.type}}</text>
                 <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
+                <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transformation.type}}</text>
               </g>
              </template>
           </template>
 
-          <polyline class="tmpConnection" points="" />
+          <g class="connection tmp">
+            <polyline class="tmpConnection" points="" />
+          </g>
+
           <line class="timeRuler" />
         </svg>
       </div>
@@ -1224,7 +1227,7 @@ export default {
 
 $primaryColor: #3f51b5;
 $secondayColor: #29e;
-
+$accepntColor: #e91e63;
 $bgColor: #eee;
 
 @media print {
@@ -1288,6 +1291,10 @@ $bgColor: #eee;
   &.drop-active {
     border-color: #aaa;
   }
+
+  &.participant0 {
+    border-left: 0
+  }
 }
 
 svg {
@@ -1295,6 +1302,107 @@ svg {
   height:100% !important;
   width:100% !important;
   z-index: 1;
+
+  .process {
+    position: absolute;
+    display: flex;
+    left: 0;
+    top: 0;
+    width: 100px;
+    color: #fff;
+    font-size: 1.2em;
+    border-radius: 4px;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    z-index: 2;
+    opacity: 0.5;
+
+    &:hover {
+      opacity: 1;
+
+      rect {
+        fill: $accepntColor;
+      }
+    }
+
+    &.animation-highlight  {
+
+      animation-name: bounceIn;
+      animation-duration: 600ms;
+
+      @keyframes bounceIn{
+        0%{
+          opacity: 0;
+        }
+        50%{
+          opacity: 0.9;
+        }
+        100%{
+          opacity: 0.5;
+        }
+      }
+    }
+
+    rect {
+      transform-origin: center;
+      transform: scale(0);
+
+      &.animation-morph {
+
+        animation-name: morphIn;
+        animation-fill-mode: forwards;
+        animation-duration: 50ms;
+        transform-origin: center;
+
+
+        @keyframes morphIn{
+          0%{
+            transform: scale(0);
+          }
+          80%{
+            transform: scale(1.1);
+          }
+          100%{
+            transform: scale(1);
+          }
+        }
+      }
+
+      &.process-drop {
+        fill: #e91e63;
+      }
+    }
+
+    .process-content {
+      fill: $secondayColor;
+      stroke-width: 1;
+      stroke: white;
+    }
+
+    .has-child-true {
+      fill: #3f51b5;
+    }
+
+    .has-child-false {
+      fill: #8e8e8e;
+    }
+
+    $anchorSize: 20px;
+
+    .process-anchor {
+      width: $anchorSize;
+      height: $anchorSize;
+      fill:rgb(255,255,255);
+      cursor: crosshair;
+    }
+
+    .process-text {
+      fill: white;
+      text-anchor: middle;
+      pointer-events: none
+    }
+  }
 
   marker {
     fill: rgb(100, 100, 100);
@@ -1326,14 +1434,27 @@ svg {
     }
 
     .connection-outline:hover + .connection-line {
-      stroke: $secondayColor;
+      stroke: $primaryColor;
       stroke-width: 3;
+      stroke-dasharray: none;
+      opacity: 1;
     }
   }
 
   .connection-transition {
     pointer-events: all;
     cursor: pointer;
+
+    &:hover {
+      .connection-transition-text {
+        fill: #fff;
+      }
+
+      .connection-transition-circle {
+        fill: $accepntColor;
+      }
+    }
+
 
     .connection-transition-circle {
       fill: $bgColor;
@@ -1347,7 +1468,7 @@ svg {
     }
 
     .connection-transition-circle-outline:hover {
-      stroke: $secondayColor;
+      stroke: $accepntColor;
       stroke-width: 3;
     }
 
@@ -1358,7 +1479,7 @@ svg {
     }
 
     .connection-transition-text:hover + .connection-transition-circle-outline {
-      stroke: $secondayColor;
+      stroke: $accepntColor;
       stroke-width: 3;
     }
   }
@@ -1383,100 +1504,6 @@ svg {
 .axis-y  {
   margin-left: -120px;
   z-index: 3
-}
-
-.process {
-  position: absolute;
-  display: flex;
-  left: 0;
-  top: 0;
-  width: 100px;
-  color: #fff;
-  font-size: 1.2em;
-  border-radius: 4px;
-  flex-direction: column;
-  justify-content: flex-end;
-
-  z-index: 2;
-  opacity: 0.5;
-
-  &.animation-highlight  {
-
-    animation-name: bounceIn;
-    animation-duration: 600ms;
-
-    @keyframes bounceIn{
-      0%{
-        opacity: 0;
-      }
-      50%{
-        opacity: 0.9;
-      }
-      100%{
-        opacity: 0.5;
-      }
-    }
-  }
-
-  rect {
-    transform-origin: center;
-    transform: scale(0);
-
-    &.animation-morph {
-
-      animation-name: morphIn;
-      animation-fill-mode: forwards;
-      animation-duration: 50ms;
-      transform-origin: center;
-
-
-      @keyframes morphIn{
-        0%{
-          transform: scale(0);
-        }
-        80%{
-          transform: scale(1.1);
-        }
-        100%{
-          transform: scale(1);
-        }
-      }
-    }
-
-    &.process-drop {
-      fill: #e91e63;
-    }
-
-  }
-
-  .process-content {
-    fill: $secondayColor;
-    stroke-width: 1;
-    stroke: white;
-  }
-
-  .has-child-true {
-    fill: #3f51b5;
-  }
-
-  .has-child-false {
-    fill: #8e8e8e;
-  }
-
-  $anchorSize: 20px;
-
-  .process-anchor {
-    width: $anchorSize;
-    height: $anchorSize;
-    fill:rgb(255,255,255);
-    cursor: crosshair;
-  }
-
-  .process-text {
-    fill: white;
-    text-anchor: middle;
-    pointer-events: none
-  }
 }
 
 .range-timeSlice {
