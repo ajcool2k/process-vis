@@ -14,15 +14,8 @@
         ref="removeConnectionDialog">
       </md-dialog-confirm>
 
-      <md-dialog-alert
-        :md-title="dialog.showTransitionDialog.title"
-        :md-content-html="dialog.showTransitionDialog.contentHtml"
-        :md-ok-text="dialog.showTransitionDialog.ok"
-        @close="onCloseTransitionDialog"
-        ref="showTransition">
-      </md-dialog-alert>
-
       <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
+      <dialog-transformation ref="dialog-transformation" v-on:closeDialog="onCloseTransformationDialog"></dialog-transformation>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
@@ -73,7 +66,7 @@
           <!-- draw Transition-Info -->
           <template v-for="(item, index) in processModel.childs">
             <template v-for="(con, index) in item._connections">
-              <g class="connection-transition" :data-id="con.id" @click.stop="openTransitionDialog">
+              <g class="connection-transition" :data-id="con.id" :data-process="item.id" @click.stop="onOpenTransformationDialog">
                 <circle class="connection-transition-circle" r="20" />
                 <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transformation.type}}</text>
                 <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
@@ -115,6 +108,7 @@ import AxisX from './AxisX.vue'
 import AxisY from './AxisY.vue'
 
 import DialogProcess from './dialog/DialogProcess.vue'
+import DialogTransformation from './dialog/DialogTransformation.vue'
 
 import { interact } from 'interactjs'
 import { _ } from 'underscore'
@@ -140,7 +134,8 @@ export default {
     'time-chooser': TimeChooser,
     'axis-x': AxisX,
     'axis-y': AxisY,
-    'dialog-process': DialogProcess
+    'dialog-process': DialogProcess,
+    'dialog-transformation': DialogTransformation
   },
   props: [ 'processModel', 'isSaved', 'changes' ],
 
@@ -409,7 +404,7 @@ export default {
       // Dialogs
       let showProcess = this.fsm.addState('showProcess')
       let showRemoveConnection = this.fsm.addState('showRemoveConnection')
-      let showTransition = this.fsm.addState('showTransition')
+      let showTransformation = this.fsm.addState('showTransformation')
 
       this.fsm.addEvent(idle, drawConnection, {
         name: 'activateConnectionConnect',
@@ -578,14 +573,14 @@ export default {
         action: (event) => {}
       })
 
-      this.fsm.addEvent(idle, showTransition, {
-        name: 'openTransitionDialog',
+      this.fsm.addEvent(idle, showTransformation, {
+        name: 'onOpenTransformationDialog',
         action: (event) => {
         }
       })
 
-      this.fsm.addEvent(showTransition, idle, {
-        name: 'onCloseTransitionDialog',
+      this.fsm.addEvent(showTransformation, idle, {
+        name: 'onCloseTransformationDialog',
         action: (event) => {}
       })
 
@@ -996,18 +991,25 @@ export default {
       this.removeConnection(this.actionId)
     },
 
-    openTransitionDialog (event) {
-      console.warn('openTransitionDialog')
-      if (!this.fsm.hasEvent('openTransitionDialog')) return
-      this.fsm.run('openTransitionDialog', event)
+    onOpenTransformationDialog (event) {
+      console.warn('onOpenTransformationDialog')
+      if (!this.fsm.hasEvent('onOpenTransformationDialog')) return
+      this.fsm.run('onOpenTransformationDialog', event)
 
-      this.actionId = event.currentTarget.getAttribute('data-id')
-      this.$refs['showTransition'].open()
+      let processId = event.target.parentNode.getAttribute('data-process')
+      let process = this.processModel.childs.find(elem => elem.id === processId)
+
+      if (typeof process === 'undefined') {
+        console.warn('Could not find process for id ' + processId)
+        return
+      }
+
+      this.$refs['dialog-transformation'].open(process)
     },
 
-    onCloseTransitionDialog (type) {
-      if (!this.fsm.hasEvent('onCloseTransitionDialog')) return
-      this.fsm.run('onCloseTransitionDialog')
+    onCloseTransformationDialog (type) {
+      if (!this.fsm.hasEvent('onCloseTransformationDialog')) return
+      this.fsm.run('onCloseTransformationDialog')
     },
 
     onChangeProcess () {
@@ -1020,6 +1022,13 @@ export default {
       if (!this.fsm.hasEvent('onCloseProcessDialog')) return
       this.fsm.run('onCloseProcessDialog', data)
       console.log('onCloseProcessDialog run!')
+    },
+
+    onCloseTransformationDialog (data) {
+      console.log('onCloseTransformationDialog called')
+      if (!this.fsm.hasEvent('onCloseTransformationDialog')) return
+      this.fsm.run('onCloseTransformationDialog', data)
+      console.log('onCloseTransformationDialog run!')
     },
 
     onCloseParticipantDialog (data) {

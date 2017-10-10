@@ -64,26 +64,7 @@
             </md-tab>
 
             <md-tab id="transformation" md-label="Transformation">
-
-              <md-layout md-gutter>
-                <md-layout md-flex="70" md-vertical-align="center" class="md-subheading">Entscheidung</md-layout>
-                <md-layout md-align="end" ><md-switch v-model="process.transformation.mDecision" id="decision" name="decision" class="md-primary"></md-switch></md-layout>
-              </md-layout>
-
-              <md-input-container>
-                <label for="transformation-type">Art</label>
-                <md-select name="transformation-type" id="transformation-type" v-model="process.transformation.type">
-                  <md-option value="=">Information</md-option>
-                  <md-option value="<">Kreation</md-option>
-                  <md-option value=">">Entscheidung</md-option>
-                </md-select>
-              </md-input-container>
-
-              <md-input-container>
-                <label>Hinweis</label>
-                <md-input type="text" v-model="process.transformation.info"></md-input>
-              </md-input-container>
-
+              <transformation-tab :process="process"></transformation-tab>
             </md-tab>
 
             <md-tab id="results" md-label="Ergebnisse">
@@ -110,6 +91,7 @@
 import Location from './process/Location.vue'
 import Stakeholder from './process/Stakeholder.vue'
 import Result from './process/Result.vue'
+import Transformation from './process/Transformation.vue'
 
 import { Process } from '@/classes/model/Process'
 
@@ -124,7 +106,8 @@ export default {
   components: {
     'location-tab': Location,
     'stakeholder-tab': Stakeholder,
-    'result-tab': Result
+    'result-tab': Result,
+    'transformation-tab': Transformation
   },
   props: [],
   data: function () {
