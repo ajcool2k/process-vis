@@ -24,7 +24,7 @@
 
       <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
 
-      <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, 50)">
+      <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
         <axis-x class="ignore-container-events" :stakeholder="processModel.stakeholder" :participants="processModel.participants" :scale="containerScale" v-on:closeDialog="onCloseParticipantDialog"></axis-x>
         <vue-slider class="range-timeSlice ignore-container-events" :value="timeSlice" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
@@ -51,7 +51,8 @@
 
           </defs>
 
-          <template v-if="item._width" v-for="(item, index) in processModel.childs" :data-test="processModel.childs.length">
+          <!-- draw Processes -->
+          <template v-if="item._width" v-for="(item, index) in processModel.childs">
             <g class="process draggable drag-drop" :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
               <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :style="'height: ' + item._height + 'px; width: ' + item._width + 'px'"></rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :style="'cy: ' + (item._height - 20) + '; cx: '+ (item._width / 2 ) + ';'"></circle>
@@ -59,19 +60,27 @@
             </g>
           </template>
 
+          <!-- draw Connections -->
           <template v-for="(item, index) in processModel.childs">
             <template v-for="(con, index) in item._connections">
               <g class="connection" :data-id="con.id">
                 <polyline class="connection-outline" :data-id="con.id" points="" @click.stop="openRemoveConnectionDialog" />
                 <polyline class="connection-line" :data-id="con.id" points="" />
-                <g class="connection-transition" :data-id="con.id" @click.stop="openTransitionDialog">
-                  <circle class="connection-transition-circle" r="20" />
-                  <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transformation.type}}</text>
-                  <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
-                </g>
               </g>
              </template>
           </template>
+
+          <!-- draw Transition-Info -->
+          <template v-for="(item, index) in processModel.childs">
+            <template v-for="(con, index) in item._connections">
+              <g class="connection-transition" :data-id="con.id" @click.stop="openTransitionDialog">
+                <circle class="connection-transition-circle" r="20" />
+                <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transformation.type}}</text>
+                <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
+              </g>
+             </template>
+          </template>
+
           <polyline class="tmpConnection" points="" />
           <line class="timeRuler" />
         </svg>
@@ -673,7 +682,7 @@ export default {
       let connectionGroup = this.svgNode.querySelector('.connection[data-id="' + con.id + '"]')
       let line = connectionGroup.querySelector('.connection-line[data-id="' + con.id + '"]')
       let outline = connectionGroup.querySelector('.connection-outline[data-id="' + con.id + '"]')
-      let transition = connectionGroup.querySelector('.connection-transition[data-id="' + con.id + '"]')
+      let transition = this.svgNode.querySelector('.connection-transition[data-id="' + con.id + '"]')
 
       // ----------------------------------------------
       // source könnte ausgelagert werden, aber nicht performance kritisch
@@ -798,8 +807,8 @@ export default {
       Events.scheduledAnimationFrame['drawLine'] = false
     },
 
-    throttle (fn, wait) {
-      this.time = Events.throttle(fn, wait, this.time)
+    throttle (fn, fnEvent, wait) {
+      this.time = Events.throttle(fn, fnEvent, wait, this.time)
     },
 
     detectFireRate () {

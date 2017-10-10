@@ -3,7 +3,6 @@ var path = require('path')
 
 // CALL: WEB_DIR=/process-vis/ npm run build
 const webRoot = typeof process.env.WEB_DIR !== 'undefined' ? process.env.WEB_DIR : '/'
-console.log('Buildung web-links against: [SERVER:PORT]' + webRoot)
 
 module.exports = {
   build: {

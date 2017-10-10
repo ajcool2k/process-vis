@@ -24,19 +24,20 @@ export class Events {
 
   /**
    * Ausbremsen von CPU intensiven Funktionen, zum Beispiel für Eventhandler
-   * @param {function} fn Funktion die ausgeführt werden soll. Events werden unterstützt
+   * @param {function} fn Funktion die ausgeführt werden soll.
+   * @param {Event} fnEvent Event der Funktion
    * @param {Number} wait Zeit in ms
    * @param {Number} lastRun letzte Ausführungszeit durch Date.now()
    */
-  static throttle (fn, wait, lastRun) {
+  static throttle (fn, fnEvent, wait, lastRun) {
     // Check if Setting is enabled
     if (!Events.throttleFunctions || wait < 1) {
       // if (Events.benchmarkFireRate) Events.detectFireRate()
-      return fn(event)
+      return fn(fnEvent)
     }
 
     if ((lastRun + wait - Date.now()) < 0) {
-      fn(event)
+      fn(fnEvent)
       // if (Events.benchmarkFireRate) Events.detectFireRate()
       lastRun = Date.now()
     }
