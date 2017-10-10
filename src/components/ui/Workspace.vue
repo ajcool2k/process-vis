@@ -1227,32 +1227,19 @@ $secondayColor: #29e;
 
 $bgColor: #eee;
 
-  @media print {
+@media print {
 
-    .process {
-      -webkit-print-color-adjust: exact;
-    }
-
-    .processContainer {
-      top: 0 !important
-    }
-
-    .tool-bar {
-      display: none
-    }
+  .process {
+    -webkit-print-color-adjust: exact;
   }
 
-#vue-workspace {
-  position: relative;
-  width: 100vw;
-  min-height: 100vh;
-}
+  .processContainer {
+    top: 0 !important
+  }
 
-.tool-bar {
-  position: fixed;
-  width: 100vw;
-  z-index: 9;
-  height: 48px;
+  .tool-bar {
+    display: none
+  }
 }
 
 .workspace {
@@ -1264,6 +1251,13 @@ $bgColor: #eee;
   min-width: 100vw;
   overflow: hidden;
   background: $bgColor;
+}
+
+.tool-bar {
+  position: fixed;
+  width: 100vw;
+  z-index: 9;
+  height: 48px;
 }
 
 .processContainer {
@@ -1281,21 +1275,93 @@ $bgColor: #eee;
   box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
 }
 
+.participant {
+  border-left: 2px dashed #ccc;
+  text-align: center;
+  transition: all 1s;
+
+  &.pariticipant-drop {
+    background-color: $secondayColor;
+    opacity: 0.3;
+  }
+
+  &.drop-active {
+    border-color: #aaa;
+  }
+}
+
 svg {
   position: absolute;
   height:100% !important;
   width:100% !important;
   z-index: 1;
-}
 
-.participant {
-  border-left: 2px dashed #ccc;
-  text-align: center;
-  transition: all 1s;
-}
+  marker {
+    fill: rgb(100, 100, 100);
+    stroke-width: 2;
+    stroke: #888;
+  }
 
-.participant0 {
-  border-left: none;
+  .connection {
+    .connection-line, .tmpConnection {
+      fill: none;
+      stroke: #888;
+      stroke-width: 2;
+      stroke-dasharray: 5,5;
+      marker-end: url(#marker-triangle);
+      pointer-events: none;
+    }
+
+    .connection-outline {
+      fill: none;
+      stroke: red;
+      stroke-width: 50;
+      stroke-opacity: 0.01;
+      pointer-events: all;
+      cursor: pointer;
+    }
+
+    .connection-outline:hover {
+      opacity: 0.01;
+    }
+
+    .connection-outline:hover + .connection-line {
+      stroke: $secondayColor;
+      stroke-width: 3;
+    }
+  }
+
+  .connection-transition {
+    pointer-events: all;
+    cursor: pointer;
+
+    .connection-transition-circle {
+      fill: $bgColor;
+    }
+
+    .connection-transition-circle-outline {
+      fill: none;
+      stroke: $primaryColor;
+      stroke-width: 2;
+      stroke-opacity: 0.5
+    }
+
+    .connection-transition-circle-outline:hover {
+      stroke: $secondayColor;
+      stroke-width: 3;
+    }
+
+    .connection-transition-text {
+      font-style: normal;
+      font-size: 28px;
+      fill: #888;
+    }
+
+    .connection-transition-text:hover + .connection-transition-circle-outline {
+      stroke: $secondayColor;
+      stroke-width: 3;
+    }
+  }
 }
 
 .timeRuler {
@@ -1307,72 +1373,6 @@ svg {
   marker-start: url(#marker-circle);
   pointer-events:all;
 
-}
-
-.connection-line, .tmpConnection {
-  fill: none;
-  stroke: #888;
-  stroke-width: 2;
-  stroke-dasharray: 5,5;
-  marker-end: url(#marker-triangle);
-  pointer-events: none;
-}
-
-.connection-outline {
-  fill: none;
-  stroke: red;
-  stroke-width: 50;
-  stroke-opacity: 0.01;
-  pointer-events: all;
-  cursor: pointer;
-}
-
-.connection-outline:hover {
-  opacity: 0.01;
-}
-
-.connection-outline:hover + .connection-line {
-  stroke: $secondayColor;
-  stroke-width: 3;
-}
-
-
-.connection-transition {
-  pointer-events: all;
-  cursor: pointer;
-}
-
-.connection-transition-circle {
-  fill: $bgColor;
-}
-
-.connection-transition-circle-outline {
-  fill: none;
-  stroke: $primaryColor;
-  stroke-width: 2;
-  stroke-opacity: 0.5
-}
-
-.connection-transition-circle-outline:hover {
-  stroke: $secondayColor;
-  stroke-width: 3;
-}
-
-.connection-transition-text {
-  font-style: normal;
-  font-size: 28px;
-  fill: #888;
-}
-
-.connection-transition-text:hover + .connection-transition-circle-outline {
-  stroke: $secondayColor;
-  stroke-width: 3;
-}
-
-marker {
-  fill: rgb(100, 100, 100);
-  stroke-width: 2;
-  stroke: #888;
 }
 
 .axis-x  {
@@ -1479,21 +1479,10 @@ marker {
   }
 }
 
-
-.drop-active {
-  border-color: #aaa;
-}
-
-.pariticipant-drop {
-  background-color: $secondayColor;
-  opacity: 0.3;
-}
-
 .range-timeSlice {
   position: absolute;
   margin-left: -120px;
   margin-top: -40px;
   width: 100px;
 }
-
 </style>
