@@ -28,7 +28,6 @@
 
 <script>
 // Dependencies
-import { _ } from 'underscore'
 
 // Classes
 import { Exchange } from '@/classes/utils/Exchange'
@@ -207,18 +206,17 @@ export default {
 
         // return an existing Process
         let processId = this.datamodel.parent
-        if (processId === this.model.id) {
-          this.datamodel = this.model // return head
-          return
-        } else {
-          let process = this.model.childs.find(elem => elem.id === processId)
-          if (typeof process === 'undefined') {
-            console.warn('Could not find parentProcess')
-            return
-          }
-          this.datamodel = process
+
+        // find process
+        let process = Helper.getElement(processId, this.model, 'childs')
+
+        if (typeof process === 'undefined') {
+          console.warn('Could not find parentProcess')
           return
         }
+
+        this.datamodel = process
+        return
       }
 
       // lower level requested

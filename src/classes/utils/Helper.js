@@ -14,6 +14,25 @@ export class Helper {
   }
 
   /**
+   * Methode dient zum Rekursiven Durchsuchen von Objekten
+   * @param {String} id ID des des Elements
+   * @param {Object} scope Object das durchsucht werden soll
+   * @param {String} childProp Attribut im scope, dass Kindelement beinhaltet
+   */
+  static getElement (id, scope, childProp) {
+    if (scope.id === id) return scope
+
+    let result
+
+    for (let child of scope[childProp]) {
+      result = child.id === id ? child : this.getElement(id, child, childProp)
+      if (result) break // avoid further search
+    }
+
+    return result
+  }
+
+  /**
    * Methode dient zum Entfernen von Properties von einem Array
    * Objekte behalten den Type
    * Achtung: Circular Objects führen zu Infinite Loop!!
