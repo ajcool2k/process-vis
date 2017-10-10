@@ -72,6 +72,12 @@ export default {
       console.log('existing model requested')
 
       let processWrapper = Exchange.openProcess(routeInfo.id)
+
+      if (typeof processWrapper === 'undefined') {
+        console.warn('Local Model ' + routeInfo.id + ' not found')
+        return
+      }
+
       console.log(processWrapper)
       let process = new Process()
       process.props = processWrapper.model
