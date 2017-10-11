@@ -129,6 +129,12 @@ export default {
 
     addProcess (process) {
       console.log('addProcess', process)
+
+      if (this.datamodel.participants.length === 0) {
+        this.addParticipant()
+        process.mInitiator = this.datamodel.participants[0]
+      }
+
       this.datamodel.addChild(process)
     },
 
