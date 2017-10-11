@@ -295,11 +295,12 @@ export default {
       .on('dragstart', event => {
         console.warn('dragstart process')
         if (!this.fsm.hasEvent('dragstart')) return
-        this.fsm.run('dragstart')
+        this.fsm.run('dragstart', event)
       })
       .on('dragmove', this.onProcessDrag)
       .on('dragend', event => {
         console.warn('dragend process')
+        this.timeRuler.style.display = 'none'
       })
       .resizable({
         preserveAspectRatio: false,
@@ -309,7 +310,7 @@ export default {
       .on('resizestart', event => {
         console.log('resizestart event', event)
         if (!this.fsm.hasEvent('resizeProcessStart')) return
-        this.fsm.run('resizeProcessStart')
+        this.fsm.run('resizeProcessStart', event)
       })
       .on('resizemove', event => {
         if (!this.fsm.hasEvent('resizeProcessMove')) return
@@ -490,6 +491,9 @@ export default {
       this.fsm.addEvent(idle, dragProcess, {
         name: 'dragstart',
         action: (event) => {
+          let parent = event.target.parentNode
+          this.timeRuler.setAttribute('data-y', parent.getAttribute('data-y'))
+          this.timeRuler.style.display = 'inline'
         }
       })
 
@@ -498,10 +502,37 @@ export default {
         action: (event) => {
           let draggableElement = event.relatedTarget
           let dropzoneElement = event.target
+
           let data = {
             processId: Helper.parse(draggableElement.getAttribute('data-id')),
             participantId: Helper.parse(dropzoneElement.getAttribute('data-id'))
           }
+
+          // change start date on y change
+          let dy = event.dragEvent.dy
+          let diffTimeSlice = Math.round(dy / this.timeSlice)
+
+          if (Math.abs(diffTimeSlice) > 0) {
+            let process = this.processModel.childs.find(elem => elem.id === data.processId)
+
+            switch (this.timeFormat) {
+              case 'days':
+                process.mStart.setDate(process.mStart.getDate() + diffTimeSlice)
+                process.mEnd.setDate(process.mEnd.getDate() + diffTimeSlice)
+                break
+              case 'months':
+                process.mStart.setMonth(process.mStart.getMonth() + diffTimeSlice)
+                process.mEnd.setMonth(process.mEnd.getMonth() + diffTimeSlice)
+                break
+              case 'hours':
+                process.mStart.setHours(process.mStart.getHours() + diffTimeSlice)
+                process.mEnd.setHours(process.mEnd.getHours() + diffTimeSlice)
+                break
+            }
+            this.$emit('updateProcess', process.id)
+          }
+
+          // move process
           console.log(JSON.stringify(data))
           this.$emit('moveProcess', data)
         }
@@ -1165,6 +1196,9 @@ export default {
 
       // update connections of the process
       this.redrawConnection(processId)
+
+      // update ruler
+      this.drawRuler(event)
     },
 
     onRangeChange (event) {
