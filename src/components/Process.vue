@@ -51,7 +51,7 @@ export default {
   data: function () {
     return {
       isSaved: false,
-      metadata: Metadata.getData(),
+      metadata: {},
       savedId: '',
       model: null,
       datamodel: new Process(),
@@ -64,6 +64,7 @@ export default {
   created: function () {
     console.log('App created')
     Metadata.clear()
+    this.metadata = Metadata.getData()
 
     console.log('Route data', this.$route.params)
 
