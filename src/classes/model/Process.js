@@ -135,7 +135,7 @@ export class Process {
 
   get mStart () { return this.start }
   set mStart (start) {
-    if (start instanceof Date === false) {
+    if (start instanceof Date === false || isNaN(start)) {
       console.warn('Process: start is not a date')
       return
     }
@@ -158,7 +158,7 @@ export class Process {
   }
 
   set mEnd (end) {
-    if (end instanceof Date === false) {
+    if (end instanceof Date === false || isNaN(end)) {
       console.warn('Process: end is not a date')
       return
     }
