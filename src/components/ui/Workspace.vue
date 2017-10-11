@@ -412,9 +412,7 @@ export default {
 
       this.fsm.addEvent(idle, drawConnection, {
         name: 'activateConnectionConnect',
-        action: (event) => {
-          console.log('drawConnection', event)
-        }
+        action: (event) => {}
       })
 
       this.fsm.addEvent(drawConnection, idle, {
@@ -425,7 +423,7 @@ export default {
           this.svgNode.classList.remove('tmpConnection-active')
 
           // reset anchor
-          let anchor = this.svgNode.querySelector('circle[data-id="' + event.target.getAttribute('data-id') + '"]')
+          let anchor = this.svgNode.querySelector('circle[data-id="' + this.tmpLine.getAttribute('data-id') + '"]')
           anchor.classList.remove('active')
         }
       })
@@ -791,7 +789,6 @@ export default {
       event.preventDefault()
 
       console.log('activateConnectionConnect:', event.type)
-      console.log('activateConnectionConnect:', event)
 
       let source = event.target
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
