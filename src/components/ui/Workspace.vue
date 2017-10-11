@@ -412,7 +412,9 @@ export default {
 
       this.fsm.addEvent(idle, drawConnection, {
         name: 'activateConnectionConnect',
-        action: (event) => {}
+        action: (event) => {
+          console.log('drawConnection', event)
+        }
       })
 
       this.fsm.addEvent(drawConnection, idle, {
@@ -420,6 +422,11 @@ export default {
         action: (event) => {
           this.actions.drawingMode = false
           this.tmpLine.removeAttribute('points')
+          this.svgNode.classList.remove('tmpConnection-active')
+
+          // reset anchor
+          let anchor = this.svgNode.querySelector('circle[data-id="' + event.target.getAttribute('data-id') + '"]')
+          anchor.classList.remove('active')
         }
       })
 
@@ -435,6 +442,11 @@ export default {
           this.addConnection(sourceId, targetId)
           this.actions.drawingMode = false
           this.tmpLine.removeAttribute('points')
+          this.svgNode.classList.remove('tmpConnection-active')
+
+          // reset anchor
+          let anchor = this.svgNode.querySelector('circle[data-id="' + sourceId + '"]')
+          anchor.classList.remove('active')
         }
       })
 
@@ -778,7 +790,8 @@ export default {
 
       event.preventDefault()
 
-      console.log('activateConnectionConnect: ' + event.type)
+      console.log('activateConnectionConnect:', event.type)
+      console.log('activateConnectionConnect:', event)
 
       let source = event.target
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
@@ -789,8 +802,13 @@ export default {
       }
 
       this.actionPosition = sourcePoint
-      this.tmpLine.setAttribute('data-id', event.target.getAttribute('data-id'))
+      let processId = event.target.getAttribute('data-id')
+      this.tmpLine.setAttribute('data-id', processId)
+      this.svgNode.classList.add('tmpConnection-active')
 
+      // set anchor to active class
+      let anchor = this.svgNode.querySelector('circle[data-id="' + processId + '"]')
+      anchor.classList.add('active')
       this.actions.drawingMode = true
     },
 
@@ -1340,6 +1358,10 @@ svg {
   height:100% !important;
   width:100% !important;
   z-index: 1;
+
+  &.tmpConnection-active .process-anchor:not(.active) {
+    display: none;
+  }
 
   .process {
     position: absolute;
