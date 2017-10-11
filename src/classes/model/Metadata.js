@@ -143,3 +143,4 @@ export class Metadata {
 // init
 Metadata.locations = []
 Metadata.stakeholder = []
+Metadata.dependencies = []

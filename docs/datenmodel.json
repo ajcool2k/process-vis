@@ -97,6 +97,7 @@
         ]
       }
     ],
+    "dependencies": [],
     "created": "",
     "modified": ""
   },
@@ -131,6 +132,7 @@
         },
 		    "participated": []
       }
-    ]
+    ],
+    "dependencies": []
   }
 }
