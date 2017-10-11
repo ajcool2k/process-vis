@@ -46,7 +46,9 @@
         </md-input-container>
 
       </md-card-content>
-      <md-button @click="onAddButton">Hinzufügen</md-button>
+
+      <md-button v-if="action !== 'edit'" @click="onAddButton">Hinzufügen</md-button>
+
     </md-card>
 
   </div>
@@ -62,7 +64,7 @@ Vue.use(VueMaterial)
 
 export default {
   name: 'StakeholderInput',
-  props: [],
+  props: [ 'action' ],
   data: function () {
     return {
       stakeholder: new Stakeholder()
@@ -92,6 +94,11 @@ export default {
     onAddButton () {
       this.$emit('add', this.stakeholder)
       this.stakeholder = new Stakeholder()
+    },
+
+    setStakeholder (stakeholder) {
+      this.stakeholder = stakeholder
+      this.action = 'edit'
     }
 
   }

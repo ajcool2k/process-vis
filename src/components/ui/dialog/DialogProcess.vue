@@ -60,7 +60,7 @@
             </md-tab>
 
             <md-tab id="stakeholder" md-label="Beteiligte">
-              <stakeholder-tab :process="process"></stakeholder-tab>
+              <stakeholder-tab :process="process" ref="stakeholder-tab"></stakeholder-tab>
             </md-tab>
 
             <md-tab id="transformation" md-label="Transformation">
@@ -149,6 +149,8 @@ export default {
 
       this.info.start = typeof child.start !== 'undefined' && child.start !== null ? dateFormat(child.start, 'yyyy-mm-dd') : ''
       this.info.end = typeof child.end !== 'undefined' && child.end !== null ? dateFormat(child.end, 'yyyy-mm-dd') : ''
+
+      this.$refs['stakeholder-tab'].refresh(this.process)
       this.$refs['dialog'].open()
 
       // Fix initial scrollbar
