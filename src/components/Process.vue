@@ -186,6 +186,11 @@ export default {
       console.log('processSource', processSource)
       console.log('processTarget', processTarget)
 
+      if (processSource === processTarget) {
+        console.log('Process.addConnection() - self connection not possible')
+        return
+      }
+
       processSource.addConnectionTo(processTarget)
     },
 
