@@ -184,11 +184,11 @@ export default {
     },
 
     onChangeStart (dateString) {
-      this.process.start = new Date(dateString)
+      this.process.mStart = new Date(dateString)
     },
 
     onChangeEnd (dateString) {
-      this.process.end = new Date(dateString)
+      this.process.mEnd = new Date(dateString)
     },
 
     resetScrollbar () {
