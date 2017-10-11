@@ -15,5 +15,15 @@
   <body>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+
+    <script>
+    // add service worker file
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('./static/service-worker.js')
+        .then(() => { console.log('Service Worker Registered') })
+    }
+    </script>
+
   </body>
 </html>
