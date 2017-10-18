@@ -24,7 +24,7 @@
             <md-table-cell>{{elem.other}}</md-table-cell>
             <md-table-cell class="action">
               <md-button class="md-icon-button md-raised" @click="onEditInput(elem.id)"><md-icon>edit</md-icon></md-button>
-              <md-button :disabled="elem.other === ''" class="md-icon-button md-raised" @click="onRemove(elem.id)"><md-icon>delete</md-icon></md-button>
+              <md-button :disabled="elem.participant === '' && elem.other === ''" class="md-icon-button md-raised" @click="onRemove(elem.id)"><md-icon>delete</md-icon></md-button>
             </md-table-cell>
           </md-table-row>
         </md-table-body>
@@ -34,7 +34,7 @@
     <md-button class="md-raised showButton" @click="onShowInput($event)">Erstellen</md-button>
     <!-- <md-button class="md-raised choiceButton" @click="onShowChoice($event)">Auswählen</md-button> -->
 
-    <stakeholder-input ref="stakeholder-input" v-if="showInput" :action="action" v-on:add="onAdd"></stakeholder-input>
+    <stakeholder-input ref="stakeholder-input" v-if="showInput" :action="action" v-on:add="onAdd" v-on:changeType="onChangeType"></stakeholder-input>
 
   </div>
 </template>
@@ -94,12 +94,16 @@ export default {
       this.process = p
       this.initiator = this.getStakeholder(this.process.initiator).name
 
+      let isParticipant = (id) => {
+        return this.process.participants.indexOf(id) > -1 ? 'x' : ''
+      }
+
       // add initaitor
       let mapA = [ { id: this.process.initiator, name: this.getStakeholder(this.process.initiator).name, type: this.getStakeholder(this.process.initiator).type, initiator: 'x', delegate: '', participant: '', other: '' } ]
       // add delegates
-      let mapB = this.process.mDelegates.map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: 'x', participant: '', other: '' } })
+      let mapB = this.process.mDelegates.map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: 'x', participant: isParticipant(id), other: '' } })
       // add participants
-      let mapC = this.process.participants.map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', participant: 'x', other: '' } })
+      let mapC = this.process.participants.filter(id => this.process.mDelegates.indexOf(id) === -1).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', participant: 'x', other: '' } })
       // add others
       let mapD = this.process.stakeholder.filter(id => this.process.participants.indexOf(id) === -1 && id && this.process.mDelegates.indexOf(id) === -1 && id !== this.process.initiator).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', other: 'x' } })
 
@@ -111,9 +115,9 @@ export default {
       this.action = 'edit'
       let stakeholder = Metadata.getStakeholder().find(elem => elem.id === id)
       this.showInput = true
-
+      let isParticipant = this.process.participants.indexOf(stakeholder.id) > -1
       this.$nextTick(function () {
-        this.$refs['stakeholder-input'].setStakeholder(stakeholder)
+        this.$refs['stakeholder-input'].setStakeholder(stakeholder, isParticipant)
       })
     },
 
@@ -136,14 +140,24 @@ export default {
     },
     onRemove (id) {
       console.log('onRemove', id)
+      this.process.removeParticipant(id)
       this.process.removeStakeholder(id)
       this.refresh(this.process)
     },
 
-    onAdd (stakeholder) {
-      console.log('onAdd', stakeholder)
-      this.process.addStakeholder(stakeholder)
+    onAdd (data) {
+      console.log('onAdd', data)
+      this.process.addStakeholder(data.stakeholder)
+      if (data.isParticipant === true) this.process.addParticipant(data.stakeholder.id)
       this.refresh(this.process)
+    },
+
+    onChangeType (data) {
+      if (data.isParticipant === true) {
+        this.process.addParticipant(data.stakeholder.id)
+      } else {
+        this.process.removeParticipant(data.stakeholder.id)
+      }
     },
 
     getStakeholder (id) {

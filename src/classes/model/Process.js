@@ -250,6 +250,22 @@ export class Process {
     this.participants.push(id)
   }
 
+  removeParticipant (id) {
+    if (typeof id !== 'string') {
+      console.warn('Process.removeParticipant() - expected string')
+      return false
+    }
+
+    let index = this.participants.findIndex(elem => elem === id)
+
+    if (index === -1) {
+      console.warn('Process.removeParticipant() - could not find participant')
+      return false
+    }
+
+    this.participants.splice(index, 1)
+  }
+
   addStakeholder (stakeholder) {
     if (stakeholder instanceof Stakeholder === false) {
       console.warn('Process.addStakeholder() - expected string')

@@ -4,10 +4,17 @@
     <md-card md-with-hover>
       <md-card-content>
 
-        <label for="stakeholder-type">Typ</label>
-        <md-select name="stakeholder-type" id="stakeholder-type" v-model="stakeholder.type">
-          <md-option value="Person">Person</md-option>
-        </md-select>
+        <md-layout md-gutter>
+          <md-layout md-flex="70" md-vertical-align="center" class="md-subheading">Ist Teilnehmer</md-layout>
+          <md-layout md-align="end" ><md-switch @change="onChangeType" v-model="isParticipant" id="isParticipant" name="isParticipant" class="md-primary"></md-switch></md-layout>
+        </md-layout>
+
+        <md-input-container>
+          <label for="stakeholder-type">Typ</label>
+          <md-select name="stakeholder-type" id="stakeholder-type" v-model="stakeholder.type">
+            <md-option value="Person">Person</md-option>
+          </md-select>
+        </md-input-container>
 
         <md-input-container>
           <label>Name</label>
@@ -67,6 +74,7 @@ export default {
   props: [ 'action' ],
   data: function () {
     return {
+      isParticipant: false,
       stakeholder: new Stakeholder()
     }
   },
@@ -91,16 +99,23 @@ export default {
       this.$emit('hide')
     },
 
+    onChangeType () {
+      if (this.action !== 'edit') return
+      this.$nextTick(function () {
+        this.$emit('changeType', { stakeholder: this.stakeholder, isParticipant: this.isParticipant })
+      })
+    },
+
     onAddButton () {
-      this.$emit('add', this.stakeholder)
+      this.$emit('add', { stakeholder: this.stakeholder, isParticipant: this.isParticipant })
       this.stakeholder = new Stakeholder()
     },
 
-    setStakeholder (stakeholder) {
-      this.stakeholder = stakeholder
+    setStakeholder (stakeholder, isParticipant) {
       this.action = 'edit'
+      this.stakeholder = stakeholder
+      this.isParticipant = isParticipant
     }
-
   }
 }
 </script>
