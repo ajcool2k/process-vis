@@ -6,6 +6,8 @@ import { Transformation } from '@/classes/model/Transformation'
 
 export class Process {
   constructor (name, initiator, start, end) {
+    this.dmv = '1.0' // based on datamodel version
+
     // Privates (not in the datamodel included)
     this._comment = 'Process'
     this._position = { x: 0, y: 0 }
@@ -94,6 +96,7 @@ export class Process {
     // timestamps
     this.created = serializedProcess.created ? new Date(serializedProcess.created) : null
     this.modified = serializedProcess.modified ? new Date(serializedProcess.modified) : null
+    this.dmv = typeof serializedProcess.dmv === 'string' ? serializedProcess.dmv  : 'unknown'
   }
 
   get mInitiator () { return this.initiator }

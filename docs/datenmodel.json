@@ -21,6 +21,7 @@
 
   "process": {
     "_comment": "Struktur eines Prozesses",
+    "dmv": "",
     "id": "",
     "reference (optional)": "",
     "initiator": "",
@@ -56,6 +57,7 @@
     "childs": [
       {
         "id": "https://process.stadt.de/process/11",
+        "dmv": "",
         "reference (optional)": "",
         "initiator": "",
         "connection": {
