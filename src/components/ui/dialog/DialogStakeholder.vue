@@ -1,21 +1,30 @@
 <template>
-  <div class="dialog-stakeholder">
+  <div>
     <md-dialog
+      class="dialog-stakeholder"
       md-ok-text="OK"
-      @close="onCloseDialog"
+      @close="emitEvent(initiator.id)"
       ref="dialog">
       <md-dialog-title>Neuer Zuständigkeitsbereich</md-dialog-title>
       <md-dialog-content>
 
       <form novalidate @submit.stop.prevent="submit">
+
+        <md-input-container>
+          <label for="stakeholder">Auswahl</label>
+          <md-select name="stakeholder" id="stakeholder" :value="initiator.id" @change="onChange">
+            <md-option v-for="(item, index) in stakeholder" :data-name="item.name"  :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
+          </md-select>
+        </md-input-container>
+
         <md-input-container>
           <label>Akteur-ID</label>
-          <md-input type="text" readonly v-model="stakeholder.id"></md-input>
+          <md-input type="text" readonly v-model="initiator.id"></md-input>
         </md-input-container>
 
         <md-input-container>
           <label>Akteur-Name</label>
-          <md-input type="text" v-model="stakeholder.name"></md-input>
+          <md-input type="text" v-model="initiator.name" @change="onChangeName"></md-input>
         </md-input-container>
 
         <md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button>
@@ -38,7 +47,8 @@ export default {
   props: [],
   data: function () {
     return {
-      stakeholder: {},
+      stakeholder: [],
+      initiator: {},
       action: 'create',
       response: 'update'
     }
@@ -60,13 +70,17 @@ export default {
   },
 
   methods: {
-    open (s, a) {
+    open (i, s, a) {
       console.log('DialogStakeholder open()')
-      console.log(s)
+      console.log(i)
+      this.update(i, s, a)
+      this.$refs['dialog'].open()
+    },
+
+    update (i, s, a) {
+      this.initiator = i
       this.stakeholder = s
       this.setAction(a)
-
-      this.$refs['dialog'].open()
     },
 
     setAction (a) {
@@ -76,6 +90,19 @@ export default {
       }
 
       this.action = a
+    },
+
+    onChange (id) {
+      console.log('onChange', id)
+      if (typeof this.$refs['dialog'].close !== 'function') return
+
+      this.emitEvent(id)
+    },
+
+    onChangeName () {
+      console.log('onChangeName')
+      this.stakeholder = this.stakeholder.map(elem => elem)
+      document.querySelector('.dialog-stakeholder .md-select-value').innerHTML = this.initiator.name
     },
 
     onCloseButton () {
@@ -88,8 +115,8 @@ export default {
       this.$refs['dialog'].close()
     },
 
-    onCloseDialog () {
-      this.$emit('closeDialog', { id: this.stakeholder.id, response: this.response })
+    emitEvent (id) {
+      this.$emit('updateStakeholder', { id: id, previousId: this.initiator.id, response: this.response })
     }
   }
 }

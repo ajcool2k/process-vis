@@ -1,16 +1,14 @@
 <template>
   <div class="axis-x">
 
-    <dialog-stakeholder ref="dialog-stakeholder" v-on:closeDialog="onCloseDialog"></dialog-stakeholder>
-    <md-layout v-if="(this.delegates.length > 0)" :md-gutter="this.delegates.length">
-        <template v-for="(item, index) in this.delegates">
+    <dialog-stakeholder ref="dialog-stakeholder" v-on:updateStakeholder="updateStakeholder"></dialog-stakeholder>
+      <md-layout v-if="(process.mDelegates.length > 0)" :md-gutter="process.mDelegates.length">
+        <template v-for="(item, index) in process.mDelegates">
           <md-layout :key="item" md-align="center">
             <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item">{{ getStakeholder(item).name }}</md-button>
           </md-layout>
         </template>
-
     </md-layout>
-
   </div>
 </template>
 
@@ -32,7 +30,7 @@ export default {
   components: {
     'dialog-stakeholder': DialogStakeholder
   },
-  props: ['delegates', 'stakeholder', 'scale'],
+  props: ['process', 'scale'],
   data: function () {
     return {
 
@@ -62,12 +60,31 @@ export default {
       console.log('onShowActorDialog')
       event.stopPropagation()
       let actionId = event.target.getAttribute('data-id')
-      let stakeholder = Metadata.findStakeholder(Helper.parse(actionId))
-      this.$refs['dialog-stakeholder'].open(stakeholder, 'update')
+      let initiator = Metadata.findStakeholder(Helper.parse(actionId))
+      let stakeholder = Metadata.getStakeholder()
+      this.$refs['dialog-stakeholder'].open(initiator, stakeholder, 'update')
     },
 
-    onCloseDialog (data) {
-      this.$emit('closeDialog', data)
+    updateStakeholder (data) {
+      console.log('updateStakeholder', data)
+
+      if (data.id === data.previousId) {
+        if (typeof this.$refs['dialog.stakeholder'] !== 'undefined') this.$refs['dialog-stakeholder'].close()
+        this.$emit('closeDialog', data)
+        return
+      }
+
+      // update model
+      this.process.childs.forEach(elem => {
+        if (elem.initiator === data.previousId) elem.initiator = data.id
+      })
+
+      let childInitators = this.process.childs.map(elem => elem.initiator).filter(delegateId => delegateId !== '')
+      this.process.mDelegates = childInitators.filter((elem, index, self) => index === self.indexOf(elem)) // remove duplicates
+      // update view
+      let initiator = Metadata.findStakeholder(Helper.parse(data.id))
+      let stakeholder = Metadata.getStakeholder()
+      this.$refs['dialog-stakeholder'].update(initiator, stakeholder, 'update')
     },
 
     getStakeholder (id) {
