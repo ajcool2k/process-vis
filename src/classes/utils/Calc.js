@@ -41,20 +41,20 @@ export class Calc {
   /**
    * Dient zur Berechnung einer Spaltenbreite
    * @param {Object} containerSize aktuelle Größe des Containers
-   * @param {Array} participants  Array mit Akteuren
+   * @param {Array} delegates  Array mit Akteuren
    */
-  static columnSize (containerSize, participants) {
+  static columnSize (containerSize, delegates) {
     if (typeof containerSize === 'undefined' || containerSize === null || !containerSize.hasOwnProperty('x')) {
       console.warn('Calc.columnSize: param containerSize not correctly passed.')
       return 0
     }
 
-    if (typeof participants === 'undefined' || participants === null) {
-      console.warn('Calc.columnSize: param participants not correctly passed.')
+    if (typeof delegates === 'undefined' || delegates === null) {
+      console.warn('Calc.columnSize: param delegates not correctly passed.')
       return 0
     }
 
-    return Math.floor(containerSize.x / participants.length)
+    return Math.floor(containerSize.x / delegates.length)
   }
 
   /**
@@ -115,11 +115,11 @@ export class Calc {
   /**
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    * @param {Array} processes  Array mit allen Prozessen
-   * @param {Array} participants  Array mit Akteuren
+   * @param {Array} delegates  Array mit Akteuren
    * @param {Object} containerSize aktuelle Größe des Containers
    * @param {String} timeFormat das aktuell gewählte Zeitformat
    */
-  static processPosition (processes, participants, containerSize, timeFormat) {
+  static processPosition (processes, delegates, containerSize, timeFormat) {
     console.warn('processPosition')
 
     if (typeof processes === 'undefined' || processes instanceof Array === false) {
@@ -127,8 +127,8 @@ export class Calc {
       return
     }
 
-    if (typeof participants === 'undefined' || participants instanceof Array === false) {
-      console.warn('processPosition: participants are missing')
+    if (typeof delegates === 'undefined' || delegates instanceof Array === false) {
+      console.warn('processPosition: delegates are missing')
       return
     }
 
@@ -148,7 +148,7 @@ export class Calc {
     let processesCopy = Helper.deepClone(processes)
     const timeSlice = Calc.timeSlice
 
-    let colWidth = Calc.columnSize(containerSize, participants)
+    let colWidth = Calc.columnSize(containerSize, delegates)
     let processWidth = Math.min(colWidth / 2, 100) // Bug Math.max(colWidth / 2, 100)) liefert dynamische Ergebnisse
 
     let divider = Calc.getDivider(timeFormat)
@@ -166,7 +166,7 @@ export class Calc {
       // console.log('Calc.processPosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem._height)
 
       // find workspace lane
-      let laneNumber = participants.indexOf(elem.initiator) + 1
+      let laneNumber = delegates.indexOf(elem.initiator) + 1
 
       if (laneNumber === 0) {
         console.warn('Calc.processPosition: Process is not applied to any lane')
@@ -351,11 +351,11 @@ export class Calc {
    * Methode berechnet die größe des benötigten Containers für Elemente.
    * Zur Berechnung ist es notwendig, dass addElementPosition zuvor aufgerufen wurde.
    * @param {Array} processes  Kindprozesse
-   * @param {Array} participants  Akteure des Prozesses (Initiatoren der Kindprozesse)
+   * @param {Array} delegates  Akteure des Prozesses (Initiatoren der Kindprozesse)
    * @param {Boolean} fit  (optional) true/false - fit X-Achse in minContainerSize
    * @see addElementPosition
    */
-  static containerSize (processes, participants, fit) {
+  static containerSize (processes, delegates, fit) {
     let containerX = 0
     let containerY = 0
 
@@ -366,7 +366,7 @@ export class Calc {
     })
 
     // easy approch
-    containerX = fit === true ? Calc.minContainerWidth : participants.length * Calc.colWidth
+    containerX = fit === true ? Calc.minContainerWidth : delegates.length * Calc.colWidth
 
     containerY = Math.max(containerY, Calc.minContainerHeight)
     containerX = Math.max(containerX, Calc.minContainerWidth)

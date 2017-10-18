@@ -19,13 +19,13 @@
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
-        <axis-x class="ignore-container-events" :stakeholder="processModel.stakeholder" :participants="processModel.participants" :scale="containerScale" v-on:closeDialog="onCloseParticipantDialog"></axis-x>
+        <axis-x class="ignore-container-events" :stakeholder="processModel.stakeholder" :delegates="processModel.mDelegates" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
         <vue-slider class="range-timeSlice ignore-container-events" :value="timeSlice" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
-        <axis-y class="ignore-container-events" :participants="processModel.participants" :processes="processModel.childs" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
+        <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.childs" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
 
-        <template v-for="(item, index) in processModel.participants">
-          <div :key="item" :class="'participant participant' + index" :data-id="item" :style="'width: ' + ( containerSize.x / processModel.participants.length ) + 'px'"></div>
+        <template v-for="(item, index) in processModel.mDelegates">
+          <div :key="item" :class="'delegate delegate' + index" :data-id="item" :style="'width: ' + ( containerSize.x / processModel.mDelegates.length ) + 'px'"></div>
         </template>
 
         <svg class="svgNode">
@@ -46,7 +46,7 @@
 
           <!-- draw Processes -->
           <template v-if="item._width" v-for="(item, index) in processModel.childs">
-            <g :key="item.id + '-process'" class="process draggable drag-drop" :data-id="item.id" :data-participant="item.initiator" @click.stop="onProcessClick">
+            <g :key="item.id + '-process'" class="process draggable drag-drop" :data-id="item.id" @click.stop="onProcessClick">
               <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :height="item._height" :width="item._width"></rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :cy="(item._height - 20)" :cx="(item._width / 2 )"></circle>
               <text class="process-text" :data-id="item.id" :x="(item._width / 2)" y="20">{{item.id}} - {{item._height}}</text>
@@ -84,7 +84,7 @@
     </div>
 
     <!-- <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser> -->
-    <item-chooser v-on:onProcessCreate="processCreate" v-on:participantChange="applyParticipantChange"></item-chooser>
+    <item-chooser v-on:onProcessCreate="processCreate" v-on:delegateChange="applyDelegateChange"></item-chooser>
 
   </div>
 </template>
@@ -233,14 +233,14 @@ export default {
     this.scopeProp = Helper.getScopeProp(this.svgNode)
 
     // prepare Container and Workspace
-    Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.timeFormat) // set position on the model
-    this.containerSize = Calc.containerSize(this.processModel.childs, this.processModel.participants) // calc layout based on model
+    Calc.processPosition(this.processModel.childs, this.processModel.mDelegates, this.containerSize, this.timeFormat) // set position on the model
+    this.containerSize = Calc.containerSize(this.processModel.childs, this.processModel.mDelegates) // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
     this.updateWorkspaceSize() // forces reflow
     // remove existing event handlers
     interact('.processContainer').unset()
-    interact('.participant').unset()
+    interact('.delegate').unset()
     interact('.process rect').unset()
 
     // add new event handlers
@@ -321,7 +321,7 @@ export default {
         this.fsm.run('resizeProcessFinished', event)
       })
 
-    interact('.participant')
+    interact('.delegate')
       .dropzone({
         // only accept elements matching this CSS selector
         accept: '.process rect',
@@ -364,8 +364,8 @@ export default {
 
   beforeUpdate: function () {
     console.warn('Workspace updating ...', document.querySelectorAll('.process').length)
-    Calc.processPosition(this.processModel.childs, this.processModel.participants, this.containerSize, this.timeFormat)
-    let size = Calc.containerSize(this.processModel.childs, this.processModel.participants, true) // calc layout based on model
+    Calc.processPosition(this.processModel.childs, this.processModel.mDelegates, this.containerSize, this.timeFormat)
+    let size = Calc.containerSize(this.processModel.childs, this.processModel.mDelegates, true) // calc layout based on model
 
     // diff between actual containerSize and Calculation
     let delta = { x: size.x - this.containerSize.x, y: size.y - this.containerSize.y }
@@ -512,10 +512,11 @@ export default {
         action: (event) => {
           let draggableElement = event.relatedTarget
           let dropzoneElement = event.target
+          console.log(dropzoneElement)
 
           let data = {
             processId: Helper.parse(draggableElement.getAttribute('data-id')),
-            participantId: Helper.parse(dropzoneElement.getAttribute('data-id'))
+            delegateId: Helper.parse(dropzoneElement.getAttribute('data-id'))
           }
 
           // change start date on y change
@@ -953,13 +954,13 @@ export default {
     },
 
     // Listener for horizontal-bar emits
-    applyParticipantChange (data) {
+    applyDelegateChange (data) {
       switch (data) {
         case 'add':
-          this.$emit('addParticipant')
+          this.$emit('addDelegate')
           return
         case 'remove':
-          this.$emit('removeParticipant')
+          this.$emit('removeDelegate')
           return
         default:
           console.warn('data has unexpected information')
@@ -1006,7 +1007,7 @@ export default {
 
       if (isSingleChild) {
         start = new Date()
-        initiator = this.processModel.participants[0] // use last participant
+        initiator = this.processModel.mDelegates[0] // use first delegate
       } else {
         let lastProcess = Calc.getEndProcess(this.processModel.childs) // process at the bottom
         console.log('lastProcess', lastProcess)
@@ -1077,14 +1078,14 @@ export default {
       console.log('onCloseTransformationDialog run!')
     },
 
-    onCloseParticipantDialog (data) {
-      console.log('onCloseParticipantDialog called')
+    onCloseDelegateDialog (data) {
+      console.log('onCloseDelegateDialog called')
       switch (data.response) {
         case 'update':
-          this.$emit('updateParticipant', data.id)
+          this.$emit('updateDelegate', data.id)
           break
         case 'remove':
-          this.$emit('removeParticipant', data.id)
+          this.$emit('removeDelegate', data.id)
           break
       }
     },
@@ -1331,7 +1332,7 @@ $bgColor: #eee;
   box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
 }
 
-.participant {
+.delegate {
   border-left: 2px dashed #ccc;
   text-align: center;
   transition: all 1s;
@@ -1345,7 +1346,7 @@ $bgColor: #eee;
     border-color: #aaa;
   }
 
-  &.participant0 {
+  &.delegate0 {
     border-left: 0
   }
 }

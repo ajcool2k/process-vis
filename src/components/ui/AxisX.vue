@@ -2,8 +2,8 @@
   <div class="axis-x">
 
     <dialog-stakeholder ref="dialog-stakeholder" v-on:closeDialog="onCloseDialog"></dialog-stakeholder>
-    <md-layout v-if="(this.participants.length > 0)" :md-gutter="this.participants.length">
-        <template v-for="(item, index) in this.participants">
+    <md-layout v-if="(this.delegates.length > 0)" :md-gutter="this.delegates.length">
+        <template v-for="(item, index) in this.delegates">
           <md-layout :key="item" md-align="center">
             <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item">{{ getStakeholder(item).name }}</md-button>
           </md-layout>
@@ -32,7 +32,7 @@ export default {
   components: {
     'dialog-stakeholder': DialogStakeholder
   },
-  props: ['participants', 'stakeholder', 'scale'],
+  props: ['delegates', 'stakeholder', 'scale'],
   data: function () {
     return {
 

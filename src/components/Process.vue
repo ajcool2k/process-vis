@@ -18,8 +18,8 @@
         v-on:updateProcess="updateProcess"
         v-on:changeProcess="changeProcess"
 
-        v-on:addParticipant="addParticipant"
-        v-on:removeParticipant="removeParticipant"
+        v-on:addDelegate="addDelegate"
+        v-on:removeDelegate="removeDelegate"
 
     ></workspace>
 
@@ -128,7 +128,6 @@ export default {
       console.log('App addData')
 
       // add column
-      this.addParticipant()
       let generatedData = Data2.generateData()
       this.model = generatedData.datamodel
       this.datamodel = this.model
@@ -138,9 +137,9 @@ export default {
     addProcess (process) {
       console.log('addProcess', process)
 
-      if (this.datamodel.participants.length === 0) {
-        this.addParticipant()
-        process.mInitiator = this.datamodel.participants[0]
+      if (this.datamodel.mDelegates.length === 0) {
+        this.addDelegate()
+        process.mInitiator = this.datamodel.mDelegates[0]
       }
 
       this.datamodel.addChild(process)
@@ -149,7 +148,7 @@ export default {
     moveProcess (processData) {
       console.log('moveProcess', processData)
       let process = this.datamodel.childs.find(elem => elem.id === processData.processId)
-      process.initiator = processData.participantId
+      process.initiator = processData.delegateId
       this.forceRedraw()
     },
 
@@ -240,13 +239,13 @@ export default {
 
           // set initiator
           let headStakeholder = new Stakeholder('[untitled-initator-for-' + head.id + ']')
-          head.mInitiator = headStakeholder.id
           head.addStakeholder(headStakeholder)
+          head.mInitiator = headStakeholder.id
 
-          // set participant
+          // set last head stakeholde as delegate
           let stakeholder = Metadata.findStakeholder(this.model.initiator)
           head.addStakeholder(stakeholder)
-          head.addParticipant(stakeholder.id)
+          head.addDelegate(stakeholder.id)
 
           // set startTime
           let startProcess = Calc.getStartProcess(this.model.childs)
@@ -286,44 +285,44 @@ export default {
       this.datamodel = process
     },
 
-    addParticipant () {
+    addDelegate () {
       let stakeholder = new Stakeholder('[untitled]')
-      console.log('stakeholder', stakeholder)
+      console.log('addDelegate', stakeholder)
       this.datamodel.addStakeholder(stakeholder)
-      this.datamodel.addParticipant(stakeholder.id)
+      this.datamodel.addDelegate(stakeholder.id)
     },
 
-    removeParticipant (participantId) {
-      console.log('remove Participant', participantId)
+    removeDelegate (delegateId) {
+      console.log('remove Delegate', delegateId)
 
-      if (typeof participantId === 'undefined' || participantId.length < 1) {
-        console.warn('Could not remove participant, id missing')
+      if (typeof delegateId === 'undefined' || delegateId.length < 1) {
+        console.warn('Could not remove delegate, id missing')
         return
       }
 
       // check if id exists
-      let found = this.datamodel.participants.filter(elem => elem === participantId)
+      let found = this.datamodel.mDelegates.filter(elem => elem === delegateId)
       if (found.length < 1) {
-        console.warn('Could not remove participant, id not found')
+        console.warn('Could not remove delegate, id not found')
         return
       }
 
-      // avoid if child processes are on this Participant to keep them in container
-      let used = this.datamodel.childs.filter(elem => elem.initiator === participantId)
+      // avoid if child processes are on this Delegate to keep them in container
+      let used = this.datamodel.childs.filter(elem => elem.initiator === delegateId)
 
       if (used.length > 0) {
-        console.warn('Could not remove Participant, there are still processes applied')
+        console.warn('Could not remove Delegate, there are still processes applied')
         return
       }
 
-      // avoid if only one Participant is left
-      if (this.datamodel.participants.length < 2) {
-        console.warn('Could not remove more Participants')
+      // avoid if only one Delegate is left
+      if (this.datamodel.mDelegates.length < 2) {
+        console.warn('Could not remove more Delegates')
         return
       }
 
       // remove id from model
-      this.datamodel.participants = this.datamodel.participants.filter(elem => elem !== participantId)
+      this.datamodel.mDelegates = this.datamodel.mDelegates.filter(elem => elem !== delegateId)
     },
 
     forceRedraw () {

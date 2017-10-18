@@ -7,8 +7,9 @@
             <md-table-head>Name</md-table-head>
             <!-- <md-table-head>Typ</md-table-head> -->
             <md-table-head>Initiator</md-table-head>
-            <md-table-head>Beteiligter</md-table-head>
-            <md-table-head>Sontige</md-table-head>
+            <md-table-head>Delegierter</md-table-head>
+            <md-table-head>Teilnehmer</md-table-head>
+            <md-table-head>Sonstiger</md-table-head>
             <md-table-head>&nbsp;</md-table-head>
           </md-table-row>
         </md-table-header>
@@ -18,6 +19,7 @@
             <md-table-cell class="person"><md-icon>person</md-icon>{{elem.name}}</md-table-cell>
             <!-- <md-table-cell>{{elem.type}}</md-table-cell> -->
             <md-table-cell>{{elem.initiator}}</md-table-cell>
+            <md-table-cell>{{elem.delegate}}</md-table-cell>
             <md-table-cell>{{elem.participant}}</md-table-cell>
             <md-table-cell>{{elem.other}}</md-table-cell>
             <md-table-cell class="action">
@@ -93,13 +95,15 @@ export default {
       this.initiator = this.getStakeholder(this.process.initiator).name
 
       // add initaitor
-      let mapA = [ { id: this.process.initiator, name: this.getStakeholder(this.process.initiator).name, type: this.getStakeholder(this.process.initiator).type, initiator: 'x', participant: '', other: '' } ]
+      let mapA = [ { id: this.process.initiator, name: this.getStakeholder(this.process.initiator).name, type: this.getStakeholder(this.process.initiator).type, initiator: 'x', delegate: '', participant: '', other: '' } ]
+      // add delegates
+      let mapB = this.process.mDelegates.map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: 'x', participant: '', other: '' } })
       // add participants
-      let mapB = this.process.participants.map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', participant: 'x', other: '' } })
+      let mapC = this.process.participants.map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', participant: 'x', other: '' } })
       // add others
-      let mapC = this.process.stakeholder.filter(id => this.process.participants.indexOf(id) === -1 && id !== this.process.initiator).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', participant: '', other: 'x' } })
+      let mapD = this.process.stakeholder.filter(id => this.process.participants.indexOf(id) === -1 && id && this.process.mDelegates.indexOf(id) === -1 && id !== this.process.initiator).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', other: 'x' } })
 
-      this.matrix = mapA.concat(mapB.concat(mapC))
+      this.matrix = mapA.concat(mapB.concat(mapC.concat(mapD)))
     },
 
     onEditInput (id) {

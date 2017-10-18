@@ -10,6 +10,7 @@ export class Process {
     this._comment = 'Process'
     this._position = { x: 0, y: 0 }
     this._connections = [] // wrapper for connection
+    this._delegates = [] // initators for childs
     this._width = 0
     this._height = 0
     this._defaultEndDate = null
@@ -81,6 +82,8 @@ export class Process {
       childProcess.props = child
       this.addChild(childProcess)
     })
+
+    this.mDelegates = this.childs.map(elem => elem.initiator).filter(elem => elem !== '')
 
     serializedProcess.results.forEach(res => {
       let result = new Result()
@@ -169,6 +172,14 @@ export class Process {
     if (this.start instanceof Date && this.end instanceof Date) this._duration = this.end - this.start
   }
 
+  clean () {
+    this.removeObsoleteDelegates()
+  }
+
+  removeObsoleteDelegates () {
+    this.mDelegates = this.mDelegates.filter(delegateId => this.childs.map(elem => elem.initiator).indexOf(delegateId) > -1)
+  }
+
   setChilds (childs) {
     if (childs instanceof Array === false) {
       console.warn('Process.setChilds - expected childs as type Array')
@@ -187,7 +198,38 @@ export class Process {
 
     child.parent = this.id
     this.childs.push(child)
-    this.addParticipant(child.initiator)
+    this.addDelegate(child.initiator)
+  }
+
+  addDelegate (id) {
+    if (typeof id !== 'string' || id === '') {
+      console.warn('Process.addDelegate() - expected non empty string')
+      return false
+    }
+
+    let found = this.mDelegates.find(elem => elem === id)
+    if (typeof found !== 'undefined') {
+      console.warn('Process.addDelegate() - id is already set')
+      return false
+    }
+
+    this._delegates.push(id)
+  }
+
+  removeDelegate (id) {
+    if (typeof id !== 'string') {
+      console.warn('Process.removeDelegate() - expected string')
+      return false
+    }
+
+    let index = this.mDelegates.findIndex(elem => elem === id)
+
+    if (index === -1) {
+      console.warn('Process.removeDelegate() - could not find delegate')
+      return false
+    }
+
+    this._delegates.splice(index, 1)
   }
 
   addParticipant (id) {
@@ -390,6 +432,16 @@ export class Process {
     }
 
     this._position = { x: position.x, y: position.y }
+  }
+
+  get mDelegates () { return this._delegates }
+  set mDelegates (delegates) {
+    if (typeof delegates === 'undefined' || delegates instanceof Array === false) {
+      console.warn('Process.mDelegates - expected Array')
+      return
+    }
+
+    this._delegates = delegates
   }
 
   get mPrivates () {

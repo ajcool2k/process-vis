@@ -72,9 +72,13 @@ describe('Process.js', () => {
     // prepare object to export
     let processBefore = new Process()
 
-    let child1 = new Process()
-    let child2 = new Process()
-    let child3 = new Process()
+    let stakeholder1 = new Stakeholder()
+    let stakeholder2 = new Stakeholder()
+    let stakeholder3 = new Stakeholder()
+
+    let child1 = new Process('child 1', stakeholder1.id)
+    let child2 = new Process('child 2', stakeholder2.id)
+    let child3 = new Process('child 3', stakeholder3.id)
 
     processBefore.setChilds([child1, child2, child3])
 
@@ -93,9 +97,15 @@ describe('Process.js', () => {
     let location = new Location('Friedrich-List-Platz 1', '01069', 'Dresden', 'A117', { lat: '51.035467', lng: '13.736129' })
     child1.addLocation(location)
 
+    // add a participant
     let stakeholder = new Stakeholder('Moon Inc.')
     processBefore.addStakeholder(stakeholder)
     child1.addParticipant(stakeholder.id)
+
+    // add a delegate
+    let delegate = new Stakeholder('Sun Inc.')
+    processBefore.addStakeholder(delegate)
+    processBefore.addDelegate(delegate.id)
 
     // export and import back
     let metadataBefore = Metadata.getData()
@@ -107,10 +117,11 @@ describe('Process.js', () => {
     processAfter.props = processAfterWrapper.model
     let metadataAfter = Metadata.parse(processAfterWrapper.metadata)
 
-    // console.log('processBefore', processBefore.participants)
-    // console.log('processAfter', processAfter.participants)
+    // console.log('processBefore', JSON.stringify(processBefore))
+    // console.log('processAfter', JSON.stringify(processAfter))
 
     // check for deep equal state
+    processBefore.clean() // remove tmp vars
     expect(_.isEqual(processAfter, processBefore)).to.equal(true)
     expect(_.isEqual(metadataAfter, metadataBefore)).to.equal(true)
 

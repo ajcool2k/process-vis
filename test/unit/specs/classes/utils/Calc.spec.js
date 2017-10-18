@@ -38,12 +38,12 @@ describe('Calc.js (containerSize)', () => {
       { _position: { x: 0, y: 600 }, _height: 100 },
       { _position: { x: 0, y: 300 }, _height: 100 }
     ]
-    let participants = [1, 2, 3, 4]
-    let ret = Calc.containerSize(childs, participants)
+    let delegates = [1, 2, 3, 4]
+    let ret = Calc.containerSize(childs, delegates)
 
     let maxElem = _.max(childs, elem => elem._height)
     expect(ret).to.be.an('object')
-    expect(ret.x).to.equal(Calc.colWidth * participants.length)
+    expect(ret.x).to.equal(Calc.colWidth * delegates.length)
     expect(ret.y).to.equal(600 + Calc.containerPaddingBottom + maxElem._height)
   })
 
@@ -54,8 +54,8 @@ describe('Calc.js (containerSize)', () => {
       { _position: { x: 0, y: 600 }, _height: 100 },
       { _position: { x: 0, y: 300 }, _height: 100 }
     ]
-    let participants = [1, 2, 3, 4]
-    let ret = Calc.containerSize(childs, participants, true)
+    let delegates = [1, 2, 3, 4]
+    let ret = Calc.containerSize(childs, delegates, true)
 
     let maxElem = _.max(childs, elem => elem._height)
     expect(ret).to.be.an('object')
@@ -67,8 +67,8 @@ describe('Calc.js (containerSize)', () => {
     let childs = [
       { _position: { x: 0, y: 0 }, _height: 100 }
     ]
-    let participants = [1]
-    let ret = Calc.containerSize(childs, participants)
+    let delegates = [1]
+    let ret = Calc.containerSize(childs, delegates)
     expect(ret).to.be.an('object')
     expect(ret.x).to.equal(Calc.minContainerWidth)
     expect(ret.y).to.equal(Calc.minContainerHeight)
@@ -78,29 +78,29 @@ describe('Calc.js (containerSize)', () => {
 describe('Calc.js (columnSize)', () => {
   it('should calc correctly', () => {
     let columnsize = { x: 100, y: 100 }
-    let participants = [1, 2, 3, 4]
-    let ret = Calc.columnSize(columnsize, participants)
+    let delegates = [1, 2, 3, 4]
+    let ret = Calc.columnSize(columnsize, delegates)
     expect(ret).to.equal(25)
   })
 
   it('should calc round correctly', () => {
     let columnsize = { x: 100, y: 100 }
-    let participants = [1, 2, 3]
-    let ret = Calc.columnSize(columnsize, participants)
+    let delegates = [1, 2, 3]
+    let ret = Calc.columnSize(columnsize, delegates)
     expect(ret).to.equal(33)
   })
 
   it('should not crash on missing param 1', () => {
     let columnsize
-    let participants = [1, 2, 3, 4]
-    let ret = Calc.columnSize(columnsize, participants)
+    let delegates = [1, 2, 3, 4]
+    let ret = Calc.columnSize(columnsize, delegates)
     expect(ret).to.equal(0)
   })
 
   it('should not crash on missing param 2', () => {
     let columnsize = { x: 100, y: 100 }
-    let participants
-    let ret = Calc.columnSize(columnsize, participants)
+    let delegates
+    let ret = Calc.columnSize(columnsize, delegates)
     expect(ret).to.equal(0)
   })
 })
@@ -253,12 +253,12 @@ describe('Calc.js (getDivider)', () => {
 
 describe('Calc.js (addSpace)', () => {
   it('should not add space', () => {
-    const participants = ['1', '2', '3', '4']
+    const delegates = ['1', '2', '3', '4']
 
     const childs = [
-      new Process('1', participants[0], new Date(2017, 0, 1)),
-      new Process('1', participants[1], new Date(2017, 0, 2)),
-      new Process('1', participants[2], new Date(2017, 0, 2))
+      new Process('1', delegates[0], new Date(2017, 0, 1)),
+      new Process('1', delegates[1], new Date(2017, 0, 2)),
+      new Process('1', delegates[2], new Date(2017, 0, 2))
     ]
 
     childs[0]._height = 100
@@ -281,11 +281,11 @@ describe('Calc.js (addSpace)', () => {
   })
 
   it('should add space to one', () => {
-    const participants = ['1', '2']
+    const delegates = ['1', '2']
 
     const childs = [
-      new Process('1', participants[0], new Date(2017, 0, 1)),
-      new Process('1', participants[1], new Date(2017, 0, 1))
+      new Process('1', delegates[0], new Date(2017, 0, 1)),
+      new Process('1', delegates[1], new Date(2017, 0, 1))
     ]
 
     childs[0]._height = 100
@@ -308,12 +308,12 @@ describe('Calc.js (addSpace)', () => {
   })
 
   it('should add space to the first and second', () => {
-    const participants = ['1', '2', '3']
+    const delegates = ['1', '2', '3']
 
     const childs = [
-      new Process('1', participants[0], new Date(2017, 0, 1)),
-      new Process('1', participants[1], new Date(2017, 0, 1)),
-      new Process('1', participants[2], new Date(2017, 0, 1))
+      new Process('1', delegates[0], new Date(2017, 0, 1)),
+      new Process('1', delegates[1], new Date(2017, 0, 1)),
+      new Process('1', delegates[2], new Date(2017, 0, 1))
     ]
 
     childs[0]._height = 100
@@ -340,12 +340,12 @@ describe('Calc.js (addSpace)', () => {
   })
 
   it('should add space to the first and twice to the second', () => {
-    const participants = ['1', '2', '3']
+    const delegates = ['1', '2', '3']
 
     const childs = [
-      new Process('1', participants[0], new Date(2017, 0, 1)),
-      new Process('1', participants[1], new Date(2017, 0, 1)),
-      new Process('1', participants[2], new Date(2017, 0, 1))
+      new Process('1', delegates[0], new Date(2017, 0, 1)),
+      new Process('1', delegates[1], new Date(2017, 0, 1)),
+      new Process('1', delegates[2], new Date(2017, 0, 1))
     ]
 
     childs[0]._height = 100
@@ -372,13 +372,13 @@ describe('Calc.js (addSpace)', () => {
   })
 
   it('should add space to the first and twice to the second and third', () => {
-    const participants = ['1', '2', '3']
+    const delegates = ['1', '2', '3']
 
     const childs = [
-      new Process('1', participants[0], new Date(2017, 0, 1)),
-      new Process('1', participants[1], new Date(2017, 0, 2)),
-      new Process('1', participants[2], new Date(2017, 0, 3)),
-      new Process('1', participants[3], new Date(2017, 0, 3))
+      new Process('1', delegates[0], new Date(2017, 0, 1)),
+      new Process('1', delegates[1], new Date(2017, 0, 2)),
+      new Process('1', delegates[2], new Date(2017, 0, 3)),
+      new Process('1', delegates[3], new Date(2017, 0, 3))
     ]
 
     childs[0]._height = 100
@@ -412,12 +412,12 @@ describe('Calc.js (addSpace)', () => {
 describe('Calc.js (processPosition)', () => {
   const clone = require('clone')
 
-  const participants = ['1', '2', '3', '4']
+  const delegates = ['1', '2', '3', '4']
   const childsUntouched = [
-    new Process('1', participants[0], new Date(2017, 0, 1)),
-    new Process('1', participants[1], new Date(2017, 0, 4)),
-    new Process('1', participants[2], new Date(2017, 0, 7)),
-    new Process('1', participants[3], new Date(2017, 0, 10))
+    new Process('1', delegates[0], new Date(2017, 0, 1)),
+    new Process('1', delegates[1], new Date(2017, 0, 4)),
+    new Process('1', delegates[2], new Date(2017, 0, 7)),
+    new Process('1', delegates[3], new Date(2017, 0, 10))
   ]
 
   const containerSize = { x: Calc.minContainerWidth, y: Calc.minContainerHeight }
@@ -429,15 +429,15 @@ describe('Calc.js (processPosition)', () => {
     expect(_.isEqual(childs, childsUntouched)).to.equal(true)
     Calc.processPosition(childs, undefined, containerSize, timeFormat)
     expect(_.isEqual(childs, childsUntouched)).to.equal(true)
-    Calc.processPosition(childs, participants, undefined, timeFormat)
+    Calc.processPosition(childs, delegates, undefined, timeFormat)
     expect(_.isEqual(childs, childsUntouched)).to.equal(true)
-    Calc.processPosition(childs, participants, containerSize, undefined)
+    Calc.processPosition(childs, delegates, containerSize, undefined)
     expect(_.isEqual(childs, childsUntouched)).to.equal(true)
   })
 
   it('should add private properties', () => {
     const childs = clone(childsUntouched)
-    Calc.processPosition(childs, participants, containerSize, timeFormat)
+    Calc.processPosition(childs, delegates, containerSize, timeFormat)
     expect(childs).to.be.an('array')
     expect(childs.length).to.equal(4)
     expect(_.isEqual(childs, childsUntouched)).to.equal(false)
@@ -467,15 +467,15 @@ describe('Calc.js (processPosition)', () => {
 
   it('should calculate position x', () => {
     const childs = clone(childsUntouched)
-    Calc.processPosition(childs, participants, containerSize, timeFormat)
-    const colWidth = Calc.columnSize(containerSize, participants)
+    Calc.processPosition(childs, delegates, containerSize, timeFormat)
+    const colWidth = Calc.columnSize(containerSize, delegates)
 
     childs.forEach(elem => {
       expect(elem).to.have.property('_position')
       expect(elem._position).to.have.property('x')
       expect(elem._position.x).to.be.a('number')
       expect(elem._position.x).to.be.above(0)
-      let laneNumber = participants.indexOf(elem.initiator) + 1
+      let laneNumber = delegates.indexOf(elem.initiator) + 1
       let x = Math.floor((colWidth * laneNumber) - (colWidth / 2) - (elem._width / 2))
       expect(elem._position.x).to.equal(x)
     })
@@ -483,7 +483,7 @@ describe('Calc.js (processPosition)', () => {
 
   it('should calculate position y', () => {
     const childs = clone(childsUntouched)
-    Calc.processPosition(childs, participants, containerSize, timeFormat)
+    Calc.processPosition(childs, delegates, containerSize, timeFormat)
     let startProcess = Calc.getStartProcess(childs)
 
     childs.forEach(elem => {
@@ -506,25 +506,25 @@ describe('Calc.js (processPosition)', () => {
   })
 
   it('should calculate height without endDate', () => {
-    const participants = ['1', '2', '3']
+    const delegates = ['1', '2', '3']
     const childs = [
-      new Process('1', participants[0], new Date(2017, 0, 1))
+      new Process('1', delegates[0], new Date(2017, 0, 1))
     ]
 
-    Calc.processPosition(childs, participants, containerSize, timeFormat)
+    Calc.processPosition(childs, delegates, containerSize, timeFormat)
 
     let elem = childs[0]
     expect(elem._height).to.equal(Calc.timeSlice)
   })
 
   it('should calculate height with endDate', () => {
-    const participants = ['1', '2', '3']
+    const delegates = ['1', '2', '3']
     const childs = [
-      new Process('1', participants[1], new Date(2017, 0, 4), new Date(2017, 0, 5)),
-      new Process('1', participants[2], new Date(2017, 1, 4), new Date(2017, 1, 6))
+      new Process('1', delegates[1], new Date(2017, 0, 4), new Date(2017, 0, 5)),
+      new Process('1', delegates[2], new Date(2017, 1, 4), new Date(2017, 1, 6))
     ]
 
-    Calc.processPosition(childs, participants, containerSize, timeFormat)
+    Calc.processPosition(childs, delegates, containerSize, timeFormat)
 
     let elem
 

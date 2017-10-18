@@ -8,7 +8,7 @@
       </md-button>
 
       <md-button @click.native="addProcess()" class="md-fab md-mini md-clean"><md-icon>label</md-icon></md-button>
-      <md-button @click.native="addParticipant()" class="md-fab md-mini md-clean"><md-icon>face</md-icon></md-button>
+      <md-button @click.native="addDelegate()" class="md-fab md-mini md-clean"><md-icon>face</md-icon></md-button>
 
     </md-speed-dial>
   </div>
@@ -49,8 +49,8 @@ export default {
       this.$emit('onProcessCreate', 'new')
     },
 
-    addParticipant () {
-      this.$emit('participantChange', 'add')
+    addDelegate () {
+      this.$emit('delegateChange', 'add')
     }
   }
 }

@@ -13,7 +13,7 @@ import { Benchmark } from '@/classes/utils/Benchmark'
 
 export default {
   name: 'AxisY',
-  props: ['participants', 'processes', 'timeFormat', 'timeSlice', 'scale', 'containerSize'],
+  props: ['delegates', 'processes', 'timeFormat', 'timeSlice', 'scale', 'containerSize'],
   data: function () {
     return {
       domNode: null,
@@ -53,7 +53,7 @@ export default {
 
     drawAxis () {
       console.warn('AxisY drawAxis')
-      let actorNames = this.participants
+      let actorNames = this.delegates
       let processData = this.processes
       let timeFormat = this.timeFormat
 
