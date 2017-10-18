@@ -90,7 +90,7 @@ export default {
       this.savedId = this.model.id
     } else {
       console.log('new model requested')
-      this.addData()
+      this.create()
     }
     console.log('datamodel', this.datamodel)
   },
@@ -115,6 +115,14 @@ export default {
     }
   },
   methods: {
+
+    create () {
+      let initiator = new Stakeholder('[untitled]', 'person')
+      let process = new Process('[untitled]', initiator.id, new Date(), null)
+      process.addStakeholder(initiator)
+      this.model = process
+      this.datamodel = this.model
+    },
 
     addData () {
       console.log('App addData')
