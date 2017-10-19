@@ -24,8 +24,7 @@
 import { Project } from '@/classes/Project';
 import { Process } from '@/classes/Process';
 import { Participant } from '@/classes/Participant';
-import { _ } from 'underscore';
-
+const _ = require('lodash');
 
 export default {
   name: 'Flexbox',
@@ -107,7 +106,7 @@ export default {
 
     removeShapeById(removeId) {
       console.log("remove id: " + removeId);
-      
+
       var removedShape = null;
 
       this.cols.forEach(function(col) {
@@ -139,7 +138,7 @@ export default {
   }
 
   .col {
-    border: 1px dashed #ccc; 
+    border: 1px dashed #ccc;
     text-align: center;
   }
 
@@ -150,7 +149,7 @@ export default {
     margin-top: 25px;
     margin-bottom: 25px;
     width: 60%;
-    border-radius: 25px;    
+    border-radius: 25px;
   }
 
 </style>

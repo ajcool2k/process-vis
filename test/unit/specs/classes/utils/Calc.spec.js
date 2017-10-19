@@ -1,7 +1,7 @@
-import { _ } from 'underscore'
 import { Process } from '@/classes/model/Process'
 import { Calc } from '@/classes/utils/Calc'
 
+const _ = require('lodash')
 require('es6-shim') // for non supported browsers like phantom.js
 
 describe('Calc.js (getDefaultEndDate)', () => {
@@ -41,7 +41,7 @@ describe('Calc.js (containerSize)', () => {
     let delegates = [1, 2, 3, 4]
     let ret = Calc.containerSize(childs, delegates)
 
-    let maxElem = _.max(childs, elem => elem._height)
+    let maxElem = _.maxBy(childs, elem => elem._height)
     expect(ret).to.be.an('object')
     expect(ret.x).to.equal(Calc.colWidth * delegates.length)
     expect(ret.y).to.equal(600 + Calc.containerPaddingBottom + maxElem._height)
@@ -57,7 +57,7 @@ describe('Calc.js (containerSize)', () => {
     let delegates = [1, 2, 3, 4]
     let ret = Calc.containerSize(childs, delegates, true)
 
-    let maxElem = _.max(childs, elem => elem._height)
+    let maxElem = _.maxBy(childs, elem => elem._height)
     expect(ret).to.be.an('object')
     expect(ret.x).to.equal(Calc.minContainerWidth)
     expect(ret.y).to.equal(600 + Calc.containerPaddingBottom + maxElem._height)

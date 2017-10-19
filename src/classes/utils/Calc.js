@@ -1,5 +1,5 @@
-import { _ } from 'underscore'
 import { Helper } from '@/classes/utils/Helper'
+const _ = require('lodash')
 
 export class Calc {
   /**
@@ -226,12 +226,12 @@ export class Calc {
 
     if (processes.length === 0) return true
 
-    if (_.find(processes, elem => typeof elem._position.y !== 'number')) {
+    if (processes.find(elem => typeof elem._position.y !== 'number')) {
       console.error('addSpace: process needs to have position y value')
       return false
     }
 
-    if (_.find(processes, elem => typeof elem._height !== 'number')) {
+    if (processes.find(elem => typeof elem._height !== 'number')) {
       console.error('addSpace: process needs to have position y value')
       return false
     }
@@ -326,7 +326,7 @@ export class Calc {
 
     if (childs.length === 0) return undefined
 
-    let startProcess = _.min(childs, elem => elem.start)
+    let startProcess = _.minBy(childs, elem => elem.start)
 
     return startProcess
   }
@@ -343,7 +343,7 @@ export class Calc {
 
     if (childs.length === 0) return undefined
 
-    let endProcess = _.max(childs, elem => elem.mEnd)
+    let endProcess = _.maxBy(childs, elem => elem.mEnd)
     return endProcess
   }
 

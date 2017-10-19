@@ -7,7 +7,7 @@ import {select} from 'd3-selection'
 import {scaleOrdinal} from 'd3-scale'
 import {axisTop, axisLeft} from 'd3-axis'
 import dateFormat from 'dateformat'
-import { _ } from 'underscore'
+const _ = require('lodash')
 
 export class Axis {
   constructor () {

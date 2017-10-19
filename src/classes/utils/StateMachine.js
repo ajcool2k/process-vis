@@ -1,5 +1,3 @@
-import { _ } from 'underscore'
-
 export class StateMachine {
   constructor () {
     this.initialState = 'none'
@@ -55,7 +53,7 @@ export class StateMachine {
   }
 
   hasEvent (eventName) {
-    let stateEvent = _.find(this.actualState.events, e => e.name === eventName)
+    let stateEvent = this.actualState.events.find(e => e.name === eventName)
     console.log('FSM hasEvent: ' + eventName + ', actualState: ' + this.actualState.name)
     return typeof stateEvent === 'object'
   }
@@ -71,7 +69,7 @@ export class StateMachine {
     }
 
     // find event
-    let stateEvent = _.find(state.events, e => e.name === eventName)
+    let stateEvent = state.events.find(e => e.name === eventName)
     if (!stateEvent) {
       console.log('FSM: unknown event ' + eventName + ' called for state ' + this.actualState)
       return

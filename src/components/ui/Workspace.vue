@@ -114,7 +114,6 @@ import DialogProcess from './dialog/DialogProcess.vue'
 import DialogTransformation from './dialog/DialogTransformation.vue'
 
 import { interact } from 'interactjs'
-import { _ } from 'underscore'
 
 import { Dialog } from '@/classes/ui/Dialog'
 import { StateMachine } from '@/classes/utils/StateMachine'
@@ -583,7 +582,7 @@ export default {
           } else {
             // open child
             this.actionId = event.target.getAttribute('data-id')
-            let child = _.findWhere(this.processModel.childs, { id: Helper.parse(this.actionId) })
+            let child = this.processModel.childs.find(elem => elem.id === Helper.parse(this.actionId))
             this.$refs['dialog-process'].open(child, 'update', true)
           }
         }
