@@ -137,8 +137,8 @@ export class Calc {
           let ret = Helper.rangeIntersection({ start: process.start, end: process.end }, { start: otherProcess.start, end: otherProcess.end })
           if (!ret) return // only store intersected processes
 
-          intersectList.push(process.id)
-          intersectList.push(otherProcess.id)
+          if (intersectList.indexOf(process.id) === -1) intersectList.push(process.id)
+          if (intersectList.indexOf(otherProcess.id) === -1) intersectList.push(otherProcess.id)
         })
         if (intersectList.length === 0) return
         intersectedMap.push(intersectList)
@@ -158,7 +158,7 @@ export class Calc {
 
   static updateIntersected (processes, delegates, intersectedMap, containerSize) {
     let colWidth = Calc.columnSize(containerSize, delegates)
-    let processWidth = Math.min(colWidth / 2, 100) // Bug Math.max(colWidth / 2, 100)) liefert dynamische Ergebnisse
+    let processWidth = Math.floor(colWidth / 2)
 
     // update intersections
     processes.forEach(elem => {
@@ -173,18 +173,21 @@ export class Calc {
       if (list.length < 2) return
 
       // patch this process
-      let newWidth = processWidth / list.length
+      let newWidth = Math.floor(processWidth / list.length)
       elem._width = newWidth
 
       let laneNumber = delegates.indexOf(elem.initiator) + 1
-      let x = Math.floor((colWidth * laneNumber) - (colWidth / 2) - (processWidth / 2))
-      elem._position.x = x + newWidth * (list.indexOf(elem.id) + 1)
+      let center = Math.floor((colWidth * laneNumber) - (colWidth / 2))
+      let firstPositionX = center - newWidth * list.length
+
+      let offset = list.length % 2 === 0 ? 0 : Math.floor(newWidth / 2)
+      elem._position.x = firstPositionX + offset + newWidth * (list.indexOf(elem.id) + 1)
     })
   }
 
   static processPositionX (elem, colWidth, laneNumber) {
     let tmpWidth = colWidth / 2
-    let processWidth = Math.min(tmpWidth, 100) // Bug Math.max(tmpWidth, 100)) liefert dynamische Ergebnisse
+    let processWidth = Math.floor(colWidth / 2)
     let x = Math.floor((colWidth * laneNumber) - (tmpWidth) - (processWidth / 2))
 
     elem._width = processWidth
