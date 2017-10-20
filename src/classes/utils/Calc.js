@@ -61,8 +61,9 @@ export class Calc {
   * Methode zum Verändern des End-Datums, basiernd auf einem Duration-Faktors
   * @param {Array} process Kindprozesse
   * @param {Number} factor Faktor zur Veränderung der Duration
+  * @param {String} timeFormat
   */
-  static updateEndDate (process, factor) {
+  static updateEndDate (process, factor, timeFormat) {
     if (typeof process === 'undefined') {
       console.warn('updateEndDate: process expected')
       return
@@ -76,6 +77,54 @@ export class Calc {
     let durationMillis = process.mEnd - process.start
     let durationMillisChanged = Math.floor(durationMillis * factor)
     process.mEnd = new Date(process.start.valueOf() + durationMillisChanged)
+    process.mEnd = Calc.roundDate(process.mEnd, timeFormat)
+  }
+
+  static roundDate (date, timeFormat) {
+    let tmp = new Date(date.valueOf())
+    switch (timeFormat) {
+      case 'hours':
+        tmp.setHours(tmp.getHours() + Math.round(tmp.getMinutes() / 60))
+        tmp.setMinutes(0)
+        tmp.setSeconds(0)
+        tmp.setMilliseconds(0)
+        break
+
+      case 'days':
+        tmp.setDate(tmp.getDate() + Math.round(tmp.getHours() / 24))
+        tmp.setHours(0)
+        tmp.setMinutes(0)
+        tmp.setSeconds(0)
+        tmp.setMilliseconds(0)
+        break
+
+      case 'months':
+        tmp.setMonth(tmp.getMonth() + Math.round(tmp.getDays() / 30))
+        tmp.setDays(0)
+        tmp.setHours(0)
+        tmp.setMinutes(0)
+        tmp.setSeconds(0)
+        tmp.setMilliseconds(0)
+        break
+    }
+
+    return tmp
+  }
+
+  static incrementDate (date, timeFormat) {
+    let tmp = new Date(date.valueOf())
+    switch (timeFormat) {
+      case 'months':
+        tmp.setMonth(tmp.getMonth() + 1)
+        break
+      case 'days':
+        tmp.setDate(tmp.getDate() + 1)
+        break
+      case 'hours':
+        tmp.setHours(tmp.getHours() + 1)
+        break
+    }
+    return tmp
   }
 
   /**
@@ -134,7 +183,7 @@ export class Calc {
         delegatedProcesses.forEach(dP => {
           if (elem === dP) return
           let otherProcess = processes.find(p => p.id === dP)
-          let ret = Helper.rangeIntersection({ start: process.start, end: process.end }, { start: otherProcess.start, end: otherProcess.end })
+          let ret = Helper.rangeIntersection({ start: process.start, end: process.mEnd }, { start: otherProcess.start, end: otherProcess.mEnd })
           if (!ret) return // only store intersected processes
 
           if (intersectList.indexOf(process.id) === -1) intersectList.push(process.id)

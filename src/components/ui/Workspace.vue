@@ -479,7 +479,7 @@ export default {
           console.log('process', process)
           let resizeDelta = { x: Math.floor(event.dx / this.containerScale.x), y: Math.floor(event.dy / this.containerScale.y) }
           let factor = (process._height + resizeDelta.y) / process._height
-          Calc.updateEndDate(process, factor)
+          Calc.updateEndDate(process, factor, this.timeFormat)
           process._height += resizeDelta.y
           this.$emit('updateProcess', process.id)
         }
@@ -539,6 +539,10 @@ export default {
                 process.mEnd.setHours(process.mEnd.getHours() + diffTimeSlice)
                 break
             }
+
+            process.mStart = Calc.roundDate(process.mStart, this.timeFormat)
+            process.mEnd = Calc.roundDate(process.mEnd, this.timeFormat)
+
             this.$emit('updateProcess', process.id)
           }
 
@@ -1005,12 +1009,14 @@ export default {
       let initiator
 
       if (isSingleChild) {
-        start = new Date()
+        start = Calc.roundDate(new Date(), this.timeFormat)
+        start = Calc.incrementDate(start, this.timeFormat)
         initiator = this.processModel.mDelegates[0] // use first delegate
       } else {
         let lastProcess = Calc.getEndProcess(this.processModel.childs) // process at the bottom
         console.log('lastProcess', lastProcess)
-        start = lastProcess.mEnd
+        start = Calc.roundDate(lastProcess.mEnd, this.timeFormat)
+        start = Calc.incrementDate(start, this.timeFormat)
         initiator = lastProcess.initiator // use initator of lastProcess
       }
 
