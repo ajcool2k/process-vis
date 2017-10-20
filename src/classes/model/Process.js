@@ -460,7 +460,7 @@ export class Process {
       return
     }
 
-    this._delegates = delegates
+    delegates.forEach(elem => { this.addDelegate(elem) })
   }
 
   get mPrivates () {
