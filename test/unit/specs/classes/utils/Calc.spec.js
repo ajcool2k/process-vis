@@ -535,3 +535,30 @@ describe('Calc.js (processPosition)', () => {
     expect(elem._height).to.equal(Calc.timeSlice * 2)
   })
 })
+
+describe('Calc.js (Intersections)', () => {
+  const delegates = ['1', '2']
+  const childs = [
+    new Process('1', delegates[0], new Date(2017, 0, 1), new Date(2017, 0, 8)), // this
+    new Process('1', delegates[0], new Date(2017, 0, 4), new Date(2017, 0, 5)), // and this
+    new Process('1', delegates[0], new Date(2017, 0, 9), new Date(2017, 0, 10)),
+
+    new Process('1', delegates[1], new Date(2017, 0, 4))
+  ]
+
+  it('should find intersetionList', () => {
+    let intersectedMap = Calc.findIntersected(childs, delegates)
+    expect(intersectedMap.length).to.equal(1)
+
+    let entry = [ childs[0].id, childs[1].id ].sort().join()
+    expect(intersectedMap[0].join()).to.equal(entry)
+
+    // reverse
+    let reverseChilds = childs.reverse()
+    let intersectedMap2 = Calc.findIntersected(reverseChilds, delegates)
+    expect(intersectedMap2.length).to.equal(1)
+
+    let reverseEntry = [ reverseChilds[2].id, reverseChilds[3].id ].sort().join()
+    expect(intersectedMap2[0].join()).to.equal(reverseEntry)
+  })
+})

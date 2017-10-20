@@ -7,6 +7,27 @@ export class Helper {
     return Number.isNaN(parseInt(x)) ? x : Number.parseInt(x)
   }
 
+  static rangeIntersection (rangeA, rangeB) {
+    // rangeA.start     rangeA.end
+    // v                v
+    // #----------------#
+    //
+    //         #----------------------#
+    //         ^                      ^
+    //         rangeB.start          rangeB.end
+    //
+    // or
+    //
+    //              rangeA.start        rangeA.end
+    //                 v                v
+    //                 #----------------#
+    //
+    //         #------------------#
+    //         ^                  ^
+    //       rangeB.start              rangeB.end
+    return (rangeB.start >= rangeA.start && rangeB.start <= rangeA.end) || (rangeA.start >= rangeB.start && rangeA.start <= rangeB.end)
+  }
+
   static removeAttributes (collection, blacklist) {
     let copy = Helper.deepClone(collection)
     Helper.removeProps(copy, blacklist)

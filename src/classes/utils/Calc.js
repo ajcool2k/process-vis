@@ -112,6 +112,99 @@ export class Calc {
     return divider
   }
 
+  static findIntersected (processes, delegates) {
+    let map = []
+
+    // map processes against delegates
+    delegates.forEach(elem => {
+      map.push(processes.filter(p => p.initiator === elem).map(p => p.id))
+    })
+
+    // find intersections between delegate processes
+    let intersectedMap = []
+    // check procceses for each deleate
+    map.forEach(delegatedProcesses => {
+      // skip if delegate has less then 2 processes
+      if (delegatedProcesses.length < 2) return
+
+      delegatedProcesses.forEach(elem => {
+        let process = processes.find(p => p.id === elem)
+        let intersectList = []
+        // find intersection against others
+        delegatedProcesses.forEach(dP => {
+          if (elem === dP) return
+          let otherProcess = processes.find(p => p.id === dP)
+          let ret = Helper.rangeIntersection({ start: process.start, end: process.end }, { start: otherProcess.start, end: otherProcess.end })
+          if (!ret) return // only store intersected processes
+
+          intersectList.push(process.id)
+          intersectList.push(otherProcess.id)
+        })
+        if (intersectList.length === 0) return
+        intersectedMap.push(intersectList)
+      })
+    })
+
+    // remove duplicates
+    let ret = []
+    intersectedMap.forEach(elem => {
+      let sortedList = elem.sort()
+      let sortedListJoin = sortedList.join()
+      if (ret.some(elem => elem.join() === sortedListJoin) === false) ret.push(sortedList)
+    })
+
+    return ret
+  }
+
+  static updateIntersected (processes, delegates, intersectedMap, containerSize) {
+    let colWidth = Calc.columnSize(containerSize, delegates)
+    let processWidth = Math.min(colWidth / 2, 100) // Bug Math.max(colWidth / 2, 100)) liefert dynamische Ergebnisse
+
+    // update intersections
+    processes.forEach(elem => {
+      // check if process is in intersectedList
+      let list = []
+
+      intersectedMap.forEach(tmpList => {
+        if (tmpList.indexOf(elem.id) > -1) { list = tmpList.length > list.length ? tmpList : list }
+      })
+
+      // skip this process
+      if (list.length < 2) return
+
+      // patch this process
+      let newWidth = processWidth / list.length
+      elem._width = newWidth
+
+      let laneNumber = delegates.indexOf(elem.initiator) + 1
+      let x = Math.floor((colWidth * laneNumber) - (colWidth / 2) - (processWidth / 2))
+      elem._position.x = x + newWidth * (list.indexOf(elem.id) + 1)
+    })
+  }
+
+  static processPositionX (elem, colWidth, laneNumber) {
+    let tmpWidth = colWidth / 2
+    let processWidth = Math.min(tmpWidth, 100) // Bug Math.max(tmpWidth, 100)) liefert dynamische Ergebnisse
+    let x = Math.floor((colWidth * laneNumber) - (tmpWidth) - (processWidth / 2))
+
+    elem._width = processWidth
+    elem._position.x = x
+  }
+
+  static processPositionY (elem, startDate, divider) {
+    const timeSlice = Calc.timeSlice
+    let deltaStart = elem.start - startDate
+    let deltaTime = deltaStart / divider
+
+    let y = Math.ceil(deltaTime * timeSlice) + Calc.axisOffset
+    elem._position.y = y
+
+    // calc height
+    let durationMillis = elem._defaultEndDate - elem.start
+    let duration = durationMillis / divider
+    elem._height = Math.max(Math.ceil(timeSlice * duration), timeSlice)
+  }
+
   /**
    * Methode ergänt das Model um Positionsdaten der Elemente, damit diese im Container gezeichnet werden können.
    * @param {Array} processes  Array mit allen Prozessen
@@ -147,23 +240,13 @@ export class Calc {
     // create copy of processes to work with
     let processesCopy = Helper.deepClone(processes)
     const timeSlice = Calc.timeSlice
+    let divider = Calc.getDivider(timeFormat)
 
     let colWidth = Calc.columnSize(containerSize, delegates)
-    let processWidth = Math.min(colWidth / 2, 100) // Bug Math.max(colWidth / 2, 100)) liefert dynamische Ergebnisse
 
-    let divider = Calc.getDivider(timeFormat)
     processesCopy.forEach(elem => {
       let defaultEndDate = Calc.getDefaultEndDate(elem, timeFormat)
-
-      // calc height
-      let durationMillis = defaultEndDate - elem.start
-      let duration = durationMillis / divider
-
-      elem._height = Math.max(Math.ceil(timeSlice * duration), timeSlice)
-      elem._width = processWidth
-
       elem._defaultEndDate = defaultEndDate
-      // console.log('Calc.processPosition: ' + elem.id + ' - duration: ' + duration + ' - height: ' + elem._height)
 
       // find workspace lane
       let laneNumber = delegates.indexOf(elem.initiator) + 1
@@ -173,15 +256,12 @@ export class Calc {
       }
 
       // calc position
-      let x = Math.floor((colWidth * laneNumber) - (colWidth / 2) - (processWidth / 2))
-      let deltaStart = elem.start - startProcess.start
-      let deltaTime = deltaStart / divider
-      let y = Math.ceil(deltaTime * timeSlice) + Calc.axisOffset
+      Calc.processPositionY(elem, startProcess.start, divider) // set y position and height
+      Calc.processPositionX(elem, colWidth, laneNumber) // set x and width position
+      let intersectedMap = Calc.findIntersected(processesCopy, delegates)
+      if (intersectedMap.length === 0) return
 
-      elem._position = {
-        x: x,
-        y: y
-      }
+      Calc.updateIntersected(processesCopy, delegates, intersectedMap, containerSize) // detect overlapping processes and patch width and x position
     })
 
     Calc.addSpace(processesCopy, timeSlice)
