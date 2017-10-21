@@ -195,19 +195,32 @@ export class Calc {
     })
 
     // remove duplicates
-    let ret = []
+    let uniqueList = []
     intersectedMap.forEach(elem => {
       let sortedList = elem.sort()
       let sortedListJoin = sortedList.join()
-      if (ret.some(elem => elem.join() === sortedListJoin) === false) ret.push(sortedList)
+      if (uniqueList.some(elem => elem.join() === sortedListJoin) === false) uniqueList.push(sortedList)
     })
 
-    return ret
+    // sort by processList
+    let sortedList = uniqueList.sort((a, b) => {
+      let comparison = 0
+
+      if (processes.indexOf(a) > processes.indexOf(b)) {
+        comparison = 1
+      } else if (processes.indexOf(b) > processes.indexOf(a)) {
+        comparison = -1
+      }
+
+      return comparison
+    })
+
+    return sortedList
   }
 
   static updateIntersected (processes, delegates, intersectedMap, containerSize) {
     let colWidth = Calc.columnSize(containerSize, delegates)
-    let processWidth = Math.floor(colWidth / 2)
+    let processWidth = Calc.processWidth(colWidth)
 
     // update intersections
     processes.forEach(elem => {
@@ -222,21 +235,29 @@ export class Calc {
       if (list.length < 2) return
 
       // patch this process
-      let newWidth = Math.floor(processWidth / list.length)
+      let newWidth = processWidth
+      while ((newWidth * list.length) > (colWidth - 100)) newWidth = newWidth - 10 // reduce with of all processes until they fit a lane
+
       elem._width = newWidth
 
       let laneNumber = delegates.indexOf(elem.initiator) + 1
       let center = Math.floor((colWidth * laneNumber) - (colWidth / 2))
-      let firstPositionX = center - newWidth * list.length
+
+      let paddingLeft = 50
+      let firstPositionX = center - newWidth * (Math.floor(list.length / 2)) - (list.length - 1) * paddingLeft / 2
 
       let offset = list.length % 2 === 0 ? 0 : Math.floor(newWidth / 2)
-      elem._position.x = firstPositionX + offset + newWidth * (list.indexOf(elem.id) + 1)
+      elem._position.x = firstPositionX - offset + newWidth * list.indexOf(elem.id) + list.indexOf(elem.id) * paddingLeft
     })
+  }
+
+  static processWidth (colWidth) {
+    return Calc.processDynamicWidth === true ? Math.floor(colWidth / 2) : Math.min(Math.floor(colWidth / 2), Calc.processMinWidth)
   }
 
   static processPositionX (elem, colWidth, laneNumber) {
     let tmpWidth = colWidth / 2
-    let processWidth = Math.floor(colWidth / 2)
+    let processWidth = Calc.processWidth(colWidth)
     let x = Math.floor((colWidth * laneNumber) - (tmpWidth) - (processWidth / 2))
 
     elem._width = processWidth
@@ -513,6 +534,8 @@ Calc.timeSlice = 60
 Calc.minContainerHeight = 600
 Calc.minContainerWidth = 800
 Calc.colWidth = 400
+Calc.processDynamicWidth = false
+Calc.processMinWidth = 100
 Calc.containerPaddingBottom = 100
 Calc.axisOffset = 40
 Calc.timeFormats = {
