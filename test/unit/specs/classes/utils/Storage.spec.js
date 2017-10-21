@@ -7,12 +7,12 @@ require('es6-shim') // for non supported browsers like phantom.js
 
 describe('Storage.js ()', () => {
   const store = global.localStorage
-  store.clear()
-
   let process = new Process()
 
   it('should save an object', () => {
+    store.clear()
     Storage.save(process)
+
     expect(store.hasOwnProperty(Storage.prefix + process.id)).to.equal(true)
     let json = store.getItem([Storage.prefix + process.id])
 
@@ -43,7 +43,6 @@ describe('Storage.js ()', () => {
     // before
     let index = Storage.getIndex()
     let result = index.filter(elem => elem.id.startsWith(Storage.prefix) === true)
-    console.log('result', result)
     expect(result).to.be.an('Array')
     expect(result.length).to.equal(1)
 
@@ -58,7 +57,7 @@ describe('Storage.js ()', () => {
     expect(result.length).to.equal(2)
 
     // reset - remove test field
-    index.splice(1, 1)
+    index.splice(index.length - 1, 1)
     Storage.setIndex(index)
   })
 

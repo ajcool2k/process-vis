@@ -117,11 +117,12 @@ describe('Process.js', () => {
     processAfter.props = processAfterWrapper.model
     let metadataAfter = Metadata.parse(processAfterWrapper.metadata)
 
+    processBefore.clean() // remove tmp vars
+
     // console.log('processBefore', JSON.stringify(processBefore))
     // console.log('processAfter', JSON.stringify(processAfter))
 
     // check for deep equal state
-    processBefore.clean() // remove tmp vars
     expect(_.isEqual(processAfter, processBefore)).to.equal(true)
     expect(_.isEqual(metadataAfter, metadataBefore)).to.equal(true)
 

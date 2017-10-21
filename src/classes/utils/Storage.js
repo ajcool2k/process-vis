@@ -5,12 +5,13 @@ export class Storage {
     console.log('Storage.save()')
     let store = global.localStorage
 
-    let indexName = Storage.prefix + processWrapper.id
+    let indexId = Storage.prefix + processWrapper.id
+    let indexName = typeof processWrapper.model !== 'undefined' ? processWrapper.model.name : ''
     let index = Storage.getIndex()
 
-    store.setItem(indexName, JSON.stringify(processWrapper)) // save json
-    index = index.filter(elem => elem.id !== indexName)
-    index.push({ id: indexName, name: processWrapper.model.name, updated: new Date() }) // add to index
+    store.setItem(indexId, JSON.stringify(processWrapper)) // save json
+    index = index.filter(elem => elem.id !== indexId)
+    index.push({ id: indexId, name: indexName, updated: new Date() }) // add to index
     index.sort((a, b) => { return new Date(b.updated) - new Date(a.updated) }) // sort index
 
     Storage.setIndex(index) // save index

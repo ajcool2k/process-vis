@@ -46,6 +46,7 @@ export class Process {
     this.results = []
     this.childs = []
     this.stakeholder = []
+    this.dependencies = []
 
     // timestamps
     this.created = new Date()
@@ -91,6 +92,12 @@ export class Process {
       let result = new Result()
       result.props = res
       this.addResult(result)
+    })
+
+    serializedProcess.dependencies.forEach(dep => {
+      let dependency = new Process()
+      dependency.props = dep
+      this.addDependency(dependency)
     })
 
     // timestamps
@@ -180,7 +187,8 @@ export class Process {
   }
 
   removeObsoleteDelegates () {
-    this.mDelegates = this.mDelegates.filter(delegateId => this.childs.map(elem => elem.initiator).indexOf(delegateId) > -1)
+    const initiatorMap = this.childs.map(elem => elem.initiator)
+    this.mDelegates = this.mDelegates.filter(delegateId => initiatorMap.indexOf(delegateId) > -1)
   }
 
   setChilds (childs) {
@@ -202,6 +210,37 @@ export class Process {
     child.parent = this.id
     this.childs.push(child)
     this.addDelegate(child.initiator)
+  }
+
+  addDependency (dep) {
+    if (dep instanceof Process === false) {
+      console.warn('Process.addChild - expected dependency as type Process')
+      return false
+    }
+
+    let found = this.dependencies.find(elem => elem.id === dep.id)
+    if (typeof found !== 'undefined') {
+      console.warn('Process.addDependency() - id is already set')
+      return false
+    }
+
+    this.dependencies.push(dep)
+  }
+
+  removeDependency (id) {
+    if (typeof id !== 'string') {
+      console.warn('Process.removeDependency() - expected string')
+      return false
+    }
+
+    let index = this.dependencies.findIndex(elem => elem.id === id)
+
+    if (index === -1) {
+      console.warn('Process.removeDependency() - could not find delegate')
+      return false
+    }
+
+    this.dependencies.splice(index, 1)
   }
 
   addDelegate (id) {
@@ -455,11 +494,13 @@ export class Process {
 
   get mDelegates () { return this._delegates }
   set mDelegates (delegates) {
+    console.log(delegates)
     if (typeof delegates === 'undefined' || delegates instanceof Array === false) {
       console.warn('Process.mDelegates - expected Array')
       return
     }
 
+    this._delegates = []
     delegates.forEach(elem => { this.addDelegate(elem) })
   }
 
