@@ -7,6 +7,19 @@ export class Transformation {
     this.decision = decision === true
   }
 
+  get mName () {
+    switch (this.type) {
+      case '=':
+        return 'Information'
+      case '<':
+        return 'Kreation'
+      case '>':
+        return 'Reduktion'
+      default:
+        return ''
+    }
+  }
+
   get mType () { return this.type }
   set mType (type) {
     if (typeof type !== 'string') {

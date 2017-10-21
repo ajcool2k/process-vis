@@ -10,7 +10,7 @@
 			<md-select name="transformation-type" id="transformation-type" v-model="process.transformation.type">
 				<md-option value="=">Information</md-option>
 				<md-option value="<">Kreation</md-option>
-				<md-option value=">">Entscheidung</md-option>
+				<md-option value=">">Reduktion</md-option>
 			</md-select>
 		</md-input-container>
 

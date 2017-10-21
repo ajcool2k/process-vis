@@ -33,3 +33,12 @@ describe('Helper.js (rangeIntersection)', () => {
     expect(Helper.rangeIntersection(rangeB, rangeA)).to.equal(true)
   })
 })
+
+describe('Helper.js (shortName)', () => {
+  it('should create initials', () => {
+    let text = 'Eröffnung der Sitzung'
+
+    let ret = Helper.shortName(text, false, 4)
+    expect(ret.length).to.equal(4)
+  })
+})

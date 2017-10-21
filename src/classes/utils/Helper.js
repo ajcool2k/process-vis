@@ -146,4 +146,21 @@ export class Helper {
       target: tmp[1]
     }
   }
+
+  static shortName (text, isUpperCase, maxLength) {
+    if (typeof text !== 'string') {
+      console.log('Helper.shortName() - expected string')
+      return text
+    }
+
+    maxLength = typeof maxLength === 'number' ? maxLength : text.length
+
+    let length = text.length > maxLength ? maxLength : text.length
+    let tmp = text.match(/\b\w/g) || [] // get initials
+    tmp = tmp.slice(0, length) // cap to maxLength
+    tmp = tmp.join().replace(/,/g, '') // create string
+    if (isUpperCase) tmp = tmp.toUpperCase() // set uppercase
+
+    return tmp
+  }
 }

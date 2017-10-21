@@ -47,9 +47,19 @@
           <!-- draw Processes -->
           <template v-if="item._width" v-for="(item, index) in processModel.childs">
             <g :key="item.id + '-process'" class="process draggable drag-drop" :data-id="item.id" @click.stop="onProcessClick">
-              <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :height="item._height" :width="item._width"></rect>
+              <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :height="item._height" :width="item._width">
+                <title>Name: {{ item.name }} ({{ item.id }})</title>
+              </rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :cy="(item._height - 20)" :cx="(item._width / 2 )"></circle>
-              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" y="20">{{item.id}} - {{item._height}}</text>
+              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" y="20">{{ shortName(item.name) }}</text>
+
+              <g :data-process="item.id">
+                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 21)" y="1"  height="30" width="20" @click.stop="onOpenTransformationDialog">
+                  <title>Prozess-Transformation: {{item.transformation.mName}}</title>
+                </rect>
+                <text class="process-transform-text" :x="(item._width - 11)" y="20">{{item.transformation.mType}}</text>
+              </g>
+
             </g>
           </template>
 
@@ -240,7 +250,7 @@ export default {
     // remove existing event handlers
     interact('.processContainer').unset()
     interact('.delegate').unset()
-    interact('.process rect').unset()
+    interact('.process rect.process-content').unset()
 
     // add new event handlers
     interact('.processContainer')
@@ -275,7 +285,7 @@ export default {
         this.updateWorkspaceSize(scaledDragDelta) // forces reflow
       })
 
-    interact('.process rect')
+    interact('.process rect.process-content')
       .draggable({
         snap: {
           targets: [
@@ -323,7 +333,7 @@ export default {
     interact('.delegate')
       .dropzone({
         // only accept elements matching this CSS selector
-        accept: '.process rect',
+        accept: '.process rect.process-content',
         // Require a 75% element overlap for a drop to be possible
         overlap: 0.75,
 
@@ -362,7 +372,7 @@ export default {
   },
 
   beforeUpdate: function () {
-    console.warn('Workspace updating ...', document.querySelectorAll('.process').length)
+    console.warn('Workspace updating ...', this.svgNode.querySelectorAll('.process').length)
     Calc.processPosition(this.processModel.childs, this.processModel.mDelegates, this.containerSize, this.timeFormat)
     let size = Calc.containerSize(this.processModel.childs, this.processModel.mDelegates, true) // calc layout based on model
 
@@ -380,7 +390,7 @@ export default {
   },
 
   updated: function () {
-    console.warn('Workspace updated', document.querySelectorAll('.process').length)
+    console.warn('Workspace updated', this.svgNode.querySelectorAll('.process').length)
     Animate.clear()
     this.redraw()
   },
@@ -669,11 +679,11 @@ export default {
       this.processModel.childs.forEach(process => {
         // draw process at correct position
         let domNode = this.redrawProcessPosition(process)
+        domNode.querySelector('.process-content').classList.add('animation-morph')
 
         // draw connection
         let callback = () => {
           this.redrawConnection(process)
-          domNode.querySelector('rect').classList.add('animation-morph')
         }
         let animationName = '.process[data-id="' + process.id + '"]'
         Animate.afterTransition(domNode, animationName, callback)
@@ -945,6 +955,10 @@ export default {
 
     translate (dx, dy) {
       this.containerTranslation = {x: this.containerTranslation.x + dx, y: this.containerTranslation.y + dy}
+    },
+
+    shortName (text) {
+      return Helper.shortName(text, true, 4)
     },
 
     scale (multX, multY) {
@@ -1386,7 +1400,7 @@ svg {
       animation-duration: 600ms;
       animation-fill-mode: forwards;
 
-      rect {
+      rect.process-content {
         fill: $accepntColor;
       }
     }
@@ -1396,7 +1410,21 @@ svg {
       animation-duration: 600ms;
     }
 
-    rect {
+    rect.proces-transform {
+      fill: white;
+      cursor: pointer;
+    }
+
+    .process-transform-text {
+      fill: #8e8e8e;
+      text-anchor: middle;
+      pointer-events: none;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    rect.process-content {
       transform-origin: center;
       transform: scale(0);
 
@@ -1438,7 +1466,9 @@ svg {
     .process-text {
       fill: white;
       text-anchor: middle;
-      pointer-events: none
+      pointer-events: none;
+      font-style: normal;
+      font-weight: bold;
     }
   }
 
@@ -1451,9 +1481,9 @@ svg {
   .connection {
     .connection-line, .tmpConnection {
       fill: none;
-      stroke: #888;
-      stroke-width: 2;
-      stroke-dasharray: 5,5;
+      stroke: #BBB;
+      stroke-width: 3;
+      stroke-dasharray: 4,4;
       marker-end: url(#marker-triangle);
       pointer-events: none;
     }
