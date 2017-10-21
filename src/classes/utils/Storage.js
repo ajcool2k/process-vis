@@ -10,8 +10,7 @@ export class Storage {
 
     store.setItem(indexName, JSON.stringify(processWrapper)) // save json
     index = index.filter(elem => elem.id !== indexName)
-    index.push({ id: indexName, updated: new Date() }) // add to index
-
+    index.push({ id: indexName, name: processWrapper.model.name, updated: new Date() }) // add to index
     index.sort((a, b) => { return new Date(b.updated) - new Date(a.updated) }) // sort index
 
     Storage.setIndex(index) // save index
@@ -87,7 +86,7 @@ export class Storage {
   static list (limit) {
     console.log('Storage.list()')
     let index = Storage.getIndex()
-    let idList = index.map(elem => { return { id: elem.id.replace(Storage.prefix, ''), updated: dateFormat(elem.updated, 'yyyy-mm-dd - HH:MM:ss') } })
+    let idList = index.map(elem => { return { id: elem.id.replace(Storage.prefix, ''), name: elem.name, updated: dateFormat(elem.updated, 'yyyy-mm-dd - HH:MM:ss') } })
     return idList
   }
 }
