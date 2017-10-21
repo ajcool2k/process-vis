@@ -33,7 +33,7 @@
             <marker id="marker-triangle"
               viewBox="0 0 10 10" refX="0" refY="5"
               markerUnits="strokeWidth"
-              markerWidth="4" markerHeight="3"
+              markerWidth="5" markerHeight="5"
               orient="auto">
               <path d="M 0 0 L 10 5 L 0 10 z" />
             </marker>
@@ -1473,9 +1473,9 @@ svg {
   }
 
   marker {
-    fill: rgb(100, 100, 100);
-    stroke-width: 2;
-    stroke: #888;
+    fill: white;
+    stroke-width: 1;
+    stroke: #BBB;
   }
 
   .connection {
