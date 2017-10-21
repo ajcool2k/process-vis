@@ -236,14 +236,15 @@ export class Calc {
 
       // patch this process
       let newWidth = processWidth
-      while ((newWidth * list.length) > (colWidth - 100)) newWidth = newWidth - 10 // reduce with of all processes until they fit a lane
+      let paddingLeft = 40
+      let paddingSum = paddingLeft * (list.length + 1)
+      while ((newWidth * list.length) > (colWidth - paddingSum)) newWidth = newWidth - 10 // reduce with of all processes until they fit a lane
 
       elem._width = newWidth
 
       let laneNumber = delegates.indexOf(elem.initiator) + 1
       let center = Math.floor((colWidth * laneNumber) - (colWidth / 2))
 
-      let paddingLeft = 50
       let firstPositionX = center - newWidth * (Math.floor(list.length / 2)) - (list.length - 1) * paddingLeft / 2
 
       let offset = list.length % 2 === 0 ? 0 : Math.floor(newWidth / 2)
@@ -331,11 +332,13 @@ export class Calc {
       // calc position
       Calc.processPositionY(elem, startProcess.start, divider) // set y position and height
       Calc.processPositionX(elem, colWidth, laneNumber) // set x and width position
-      let intersectedMap = Calc.findIntersected(processesCopy, delegates)
-      if (intersectedMap.length === 0) return
-
-      Calc.updateIntersected(processesCopy, delegates, intersectedMap, containerSize) // detect overlapping processes and patch width and x position
     })
+
+    let intersectedMap = Calc.findIntersected(processesCopy, delegates)
+
+    if (intersectedMap.length > 0) {
+      Calc.updateIntersected(processesCopy, delegates, intersectedMap, containerSize) // detect overlapping processes and patch width and x position
+    }
 
     Calc.addSpace(processesCopy, timeSlice)
 
