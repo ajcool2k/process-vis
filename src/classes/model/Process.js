@@ -37,8 +37,9 @@ export class Process {
 
     this.start = null
     this.end = null
-    this.mStart = start // time of process start
-    this.mEnd = end // time of process end
+
+    if (typeof start !== 'undefined' && !start) this.mStart = start // time of process start
+    if (typeof end !== 'undefined' && !end) this.mEnd = end // time of process end
 
     this.participation = 'closed' // externe Beteiligung
     this.participants = []
@@ -88,17 +89,21 @@ export class Process {
 
     this.mDelegates = this.childs.map(elem => elem.initiator).filter(elem => elem !== '')
 
-    serializedProcess.results.forEach(res => {
-      let result = new Result()
-      result.props = res
-      this.addResult(result)
-    })
+    if (serializedProcess.hasOwnProperty('results')) {
+      serializedProcess.results.forEach(res => {
+        let result = new Result()
+        result.props = res
+        this.addResult(result)
+      })
+    }
 
-    serializedProcess.dependencies.forEach(dep => {
-      let dependency = new Process()
-      dependency.props = dep
-      this.addDependency(dependency)
-    })
+    if (serializedProcess.hasOwnProperty('dependencies')) {
+      serializedProcess.dependencies.forEach(dep => {
+        let dependency = new Process()
+        dependency.props = dep
+        this.addDependency(dependency)
+      })
+    }
 
     // timestamps
     this.created = serializedProcess.created ? new Date(serializedProcess.created) : null
@@ -494,7 +499,6 @@ export class Process {
 
   get mDelegates () { return this._delegates }
   set mDelegates (delegates) {
-    console.log(delegates)
     if (typeof delegates === 'undefined' || delegates instanceof Array === false) {
       console.warn('Process.mDelegates - expected Array')
       return

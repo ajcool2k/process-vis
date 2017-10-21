@@ -50,8 +50,8 @@
               <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :height="item._height" :width="item._width">
                 <title>Name: {{ item.name }} ({{ item.id }})</title>
               </rect>
-              <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :cy="(item._height - 20)" :cx="(item._width / 2 )"></circle>
-              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" y="20">{{ shortName(item.name) }}</text>
+              <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :cy="(item._height - 15)" :cx="(item._width / 2 )"></circle>
+              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="(item._height / 2)">{{ shortName(item.name) }}</text>
 
               <g :data-process="item.id">
                 <rect class="proces-transform" :data-id="item.id" :x="(item._width - 21)" y="1"  height="30" width="20" @click.stop="onOpenTransformationDialog">
@@ -74,15 +74,17 @@
           </template>
 
           <!-- draw Transition-Info -->
+          <!--
           <template v-for="(item, index) in processModel.childs">
             <template v-for="(con, index) in item._connections">
               <g :key="con.id + '-connection-transition'" class="connection-transition" :data-id="con.id" :data-process="item.id" @click.stop="onOpenTransformationDialog">
                 <circle class="connection-transition-circle" r="20" />
                 <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
-                <text class="connection-transition-text" dy="10" text-anchor="middle">{{item.transformation.type}}</text>
+                <text class="connection-transition-text" dy="10" text-anchor="middle">E</text>
               </g>
              </template>
           </template>
+          -->
 
           <g class="connection tmp">
             <polyline class="tmpConnection" points="" />
@@ -737,7 +739,7 @@ export default {
       let connectionGroup = this.svgNode.querySelector('.connection[data-id="' + con.id + '"]')
       let line = connectionGroup.querySelector('.connection-line[data-id="' + con.id + '"]')
       let outline = connectionGroup.querySelector('.connection-outline[data-id="' + con.id + '"]')
-      let transition = this.svgNode.querySelector('.connection-transition[data-id="' + con.id + '"]')
+      // let transition = this.svgNode.querySelector('.connection-transition[data-id="' + con.id + '"]')
 
       // ----------------------------------------------
       // source könnte ausgelagert werden, aber nicht performance kritisch
@@ -793,7 +795,7 @@ export default {
 
       line.setAttribute('points', attributes)
       outline.setAttribute('points', attributes)
-      transition.setAttribute('transform', 'translate(' + middlePoint1.x + ',' + middlePoint1.y + ')')
+      // transition.setAttribute('transform', 'translate(' + middlePoint1.x + ',' + middlePoint1.y + ')')
     },
 
     activateConnectionConnect (event) {
@@ -1264,7 +1266,6 @@ export default {
       if (this.options.isContainerResizeable === false) return
 
       // update position in model
-      console.log(event)
       this.resizeElement(event)
 
       // update view by model
@@ -1469,6 +1470,7 @@ svg {
       pointer-events: none;
       font-style: normal;
       font-weight: bold;
+      font-size: 20px;
     }
   }
 

@@ -340,7 +340,7 @@ export class Calc {
       Calc.updateIntersected(processesCopy, delegates, intersectedMap, containerSize) // detect overlapping processes and patch width and x position
     }
 
-    Calc.addSpace(processesCopy, timeSlice)
+    // Calc.addSpace(processesCopy, timeSlice)
 
     // copy back values on originals (avoid reactivity if no values changes)
     for (let i = 0; i < processes.length; i++) {
