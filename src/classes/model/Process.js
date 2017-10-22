@@ -38,8 +38,8 @@ export class Process {
     this.start = null
     this.end = null
 
-    if (typeof start !== 'undefined' && !start) this.mStart = start // time of process start
-    if (typeof end !== 'undefined' && !end) this.mEnd = end // time of process end
+    if (typeof start !== 'undefined' && start) this.mStart = start // time of process start
+    if (typeof end !== 'undefined' && end) this.mEnd = end // time of process end
 
     this.participation = 'closed' // externe Beteiligung
     this.participants = []
