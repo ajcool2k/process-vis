@@ -1,6 +1,6 @@
 <template>
   <div id="List">
-    Lokale Datenmodelle:
+    <span class="header">Lokale Datenmodelle</span>
     <md-list>
       <md-list-item v-for="item in processList" :key="item.id">
           <router-link :to="{ path: '/process/' + item.id }">
@@ -29,8 +29,7 @@ export default {
 
   created: function () {
     console.log('List created')
-    this.processList = Storage.list()
-    console.log('processList', this.processList)
+    this.refreshProcessList()
   },
 
   destroyed: function () {
@@ -46,11 +45,18 @@ export default {
   },
 
   methods: {
-
+    refreshProcessList () {
+      this.processList = Storage.list()
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-
+    span.header {
+      display: block;
+      font-size: 1.4em;
+      padding-left: 20px;
+      margin-bottom: 20px;
+    }
 </style>

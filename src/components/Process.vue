@@ -355,7 +355,7 @@ export default {
 
     downloadModel () {
       console.warn('download')
-      Exchange.downloadProcess(this.model)
+      Exchange.downloadProcess(this.model, Metadata.getData())
     },
 
     removeModel () {

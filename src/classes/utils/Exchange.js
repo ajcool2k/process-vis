@@ -7,12 +7,12 @@ export class Exchange {
     return Helper.removeAttributes(process, privates)
   }
 
-  static storeProcess (processWrapper) {
+  static storeProcess (processWrapper, modifiedDate) {
     console.warn('storeProcess')
     process.modified = new Date()
     let fixedModel = Exchange.cleanProcess(processWrapper.model)
     processWrapper.model = fixedModel
-    Storage.save(processWrapper)
+    Storage.save(processWrapper, modifiedDate)
   }
 
   static removeProcess (id) {
@@ -25,12 +25,15 @@ export class Exchange {
     return Storage.open(id)
   }
 
-  static downloadProcess (process) {
+  static downloadProcess (process, metadata) {
     console.warn('downloadProcess')
+
     let fixedModel = Exchange.cleanProcess(process)
+    let processWrapper = Exchange.wrapProcess(fixedModel, metadata)
+
     const FileSaver = require('file-saver')
-    const blob = new global.Blob([JSON.stringify(fixedModel, null, 2)], {type: 'text/plain;charset=utf-8'})
-    let filename = 'datamodel_' + fixedModel.id + '.json'
+    const blob = new global.Blob([JSON.stringify(processWrapper, null, 2)], {type: 'application/json; charset=utf-8'})
+    let filename = 'datamodel_' + processWrapper.id + '.json'
     FileSaver.saveAs(blob, filename)
   }
 
