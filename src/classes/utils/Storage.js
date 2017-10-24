@@ -1,7 +1,7 @@
 import dateFormat from 'dateformat'
 
 export class Storage {
-  static save (processWrapper) {
+  static save (processWrapper, modifiedDate) {
     console.log('Storage.save()')
     let store = global.localStorage
 
@@ -11,7 +11,8 @@ export class Storage {
 
     store.setItem(indexId, JSON.stringify(processWrapper)) // save json
     index = index.filter(elem => elem.id !== indexId)
-    index.push({ id: indexId, name: indexName, updated: new Date() }) // add to index
+    let date = modifiedDate instanceof Date ? modifiedDate : new Date()
+    index.push({ id: indexId, name: indexName, updated: date }) // add to index
     index.sort((a, b) => { return new Date(b.updated) - new Date(a.updated) }) // sort index
 
     Storage.setIndex(index) // save index
