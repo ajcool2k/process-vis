@@ -73,6 +73,7 @@
         "end (optional)": "",
         "participation": "",
         "participants": [],
+        "stakeholder": [],
         "transformation": {
           "type": "",
           "info": "",
@@ -100,6 +101,7 @@
       }
     ],
     "dependencies": [],
+    "stakeholder": [],
     "created": "",
     "modified": ""
   },
