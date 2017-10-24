@@ -1,5 +1,6 @@
 import { Stakeholder } from '@/classes/model/Stakeholder'
 import { Location } from '@/classes/model/Location'
+import { Process } from '@/classes/model/Process'
 
 export class Metadata {
   static getLocations () { return Metadata.locations }
@@ -75,7 +76,7 @@ export class Metadata {
 
   static addStakeholder (stakeholder) {
     if (stakeholder instanceof Stakeholder === false) {
-      console.warn('Metadata.addStakeholder() - expected string')
+      console.warn('Metadata.addStakeholder() - expected Stakeholder')
       return
     }
 
@@ -104,14 +105,100 @@ export class Metadata {
     Metadata.stakeholder.splice(index, 1)
   }
 
+  static getDependencies () { return Metadata.dependencies }
+  static setDependencies (dependencies) {
+    if (dependencies instanceof Array !== true) {
+      console.warn('Metadata.setDependencies() - expects an Array')
+      return
+    }
+
+    Metadata.dependencies = []
+    dependencies.forEach(elem => { Metadata.addDependency(elem) })
+  }
+
+  static findDependency (id) {
+    if (typeof id !== 'string') {
+      console.warn('Metadata.findDependency() - expected a string')
+      return
+    }
+
+    return Metadata.dependencies.find(elem => elem.id === id)
+  }
+
+  static addDependency (dependency) {
+    if (dependency instanceof Process === false) {
+      console.warn('Metadata.addDependency() - expected a Process')
+      return
+    }
+
+    let found = Metadata.dependencies.find(elem => elem.id === dependency.id)
+    if (typeof found !== 'undefined') {
+      console.log('Metadata.addDependency() - id is already set')
+      return
+    }
+
+    Metadata.dependencies.push(dependency)
+  }
+
+  static removeDependency (id) {
+    if (typeof id !== 'string') {
+      console.warn('Metadata.removeDependency() - expected string')
+      return
+    }
+
+    let index = Metadata.dependencies.findIndex(elem => elem.id === id)
+
+    if (index === -1) {
+      console.warn('Metadata.removeDependency() - could not find dependency')
+      return
+    }
+
+    Metadata.dependencies.splice(index, 1)
+  }
+
+  static parse (serializedMetadata) {
+    if (typeof serializedMetadata !== 'object' || !serializedMetadata) {
+      console.warn('Metadata.parse() - serializedMetadata expects an object')
+      return
+    }
+
+    Metadata.clear()
+
+    if (serializedMetadata.hasOwnProperty('locations')) {
+      serializedMetadata.locations.forEach(loc => {
+        let location = new Location()
+        location.props = loc
+        Metadata.addLocation(location)
+      })
+    }
+
+    if (serializedMetadata.hasOwnProperty('stakeholder')) {
+      serializedMetadata.stakeholder.forEach(st => {
+        let stakeholder = new Stakeholder()
+        stakeholder.props = st
+        Metadata.addStakeholder(stakeholder)
+      })
+    }
+
+    if (serializedMetadata.hasOwnProperty('dependencies')) {
+      serializedMetadata.dependencies.forEach(dep => {
+        let dependency = new Process()
+        dependency.props = dep
+        Metadata.addDependency(dependency)
+      })
+    }
+  }
+
   static getData () {
     return {
+      dependencies: Metadata.dependencies,
       locations: Metadata.locations,
       stakeholder: Metadata.stakeholder
     }
   }
 
   static clear () {
+    Metadata.dependencies = []
     Metadata.locations = []
     Metadata.stakeholder = []
   }
@@ -124,17 +211,29 @@ export class Metadata {
 
     Metadata.clear()
 
-    serializedMetadata.locations.forEach(serializedLocation => {
-      let location = new Location()
-      location.props = serializedLocation
-      Metadata.addLocation(location)
-    })
+    if (serializedMetadata.hasOwnProperty('locations')) {
+      serializedMetadata.locations.forEach(serializedLocation => {
+        let location = new Location()
+        location.props = serializedLocation
+        Metadata.addLocation(location)
+      })
+    }
 
-    serializedMetadata.stakeholder.forEach(serializedStakeholder => {
-      let stakeholder = new Stakeholder()
-      stakeholder.props = serializedStakeholder
-      Metadata.addStakeholder(stakeholder)
-    })
+    if (serializedMetadata.hasOwnProperty('stakeholder')) {
+      serializedMetadata.stakeholder.forEach(serializedStakeholder => {
+        let stakeholder = new Stakeholder()
+        stakeholder.props = serializedStakeholder
+        Metadata.addStakeholder(stakeholder)
+      })
+    }
+
+    if (serializedMetadata.hasOwnProperty('dependencies')) {
+      serializedMetadata.dependencies.forEach(serializedDependencies => {
+        let dependencies = new Stakeholder()
+        dependencies.props = serializedDependencies
+        Metadata.addDependency(dependencies)
+      })
+    }
 
     return Metadata.getData()
   }
