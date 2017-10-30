@@ -219,6 +219,10 @@ export default {
 
     window.addEventListener('scroll', this.onScroll, true)
     window.addEventListener('resize', this.onResize, true)
+
+    // detect resolution
+    Calc.minContainerHeight = window.innerHeight - 200
+    Calc.minContainerWidth = window.innerWidth - 400
   },
 
   destroyed: function () {
