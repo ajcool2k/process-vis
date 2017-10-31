@@ -53,7 +53,11 @@ export class StateMachine {
   }
 
   hasEvent (eventName) {
-    let stateEvent = this.actualState.events.find(e => e.name === eventName)
+    let stateEvent = this.actualState.events.find(e => {
+      if (typeof e.name === 'string') return e.name === eventName
+      if (e.name instanceof Array) return e.name.indexOf(eventName) > -1
+      return false
+    })
     console.log('FSM hasEvent: ' + eventName + ', actualState: ' + this.actualState.name)
     return typeof stateEvent === 'object'
   }
@@ -69,7 +73,12 @@ export class StateMachine {
     }
 
     // find event
-    let stateEvent = state.events.find(e => e.name === eventName)
+    let stateEvent = state.events.find(e => {
+      if (typeof e.name === 'string') return e.name === eventName
+      if (e.name instanceof Array) return e.name.indexOf(eventName) > -1
+      return false
+    })
+
     if (!stateEvent) {
       console.log('FSM: unknown event ' + eventName + ' called for state ' + this.actualState)
       return
