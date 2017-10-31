@@ -65,6 +65,23 @@ export class Events {
       Events.FIRE_RATE_START = Events.FIRE_RATE_COUNTER = 0
     }
   }
+
+  /**
+   * Diese Methode ergänzt eine Überprüfung, ob Escape ausgelöst wurde und führt ggf. den callback aus
+   * @param {Function} callback
+   */
+  static escapeDetection (callback) {
+    document.onkeydown = (evt) => {
+      evt = evt || window.event
+      let isEscape = false
+      if ('key' in evt) {
+        isEscape = (evt.key === 'Escape' || evt.key === 'Esc')
+      } else {
+        isEscape = (evt.keyCode === 27)
+      }
+      if (isEscape) callback()
+    }
+  }
 }
 
 // Settings
