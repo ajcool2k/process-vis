@@ -16,19 +16,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-
-import VueMaterial from 'vue-material'
-Vue.use(VueMaterial)
-
-/*
-import { MdCore, MdButton, MdIcon } from 'vue-material'
-Vue.use(MdCore);
-Vue.use(MdButton);
-Vue.use(MdIcon);
-*/
-
 export default {
   name: 'TimeChooser',
   props: ['timeFormat'],

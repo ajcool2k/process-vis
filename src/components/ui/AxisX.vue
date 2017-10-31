@@ -1,6 +1,5 @@
 <template>
   <div class="axis-x">
-
     <dialog-stakeholder ref="dialog-stakeholder" v-on:updateStakeholder="updateStakeholder"></dialog-stakeholder>
       <md-layout v-if="(process.mDelegates.length > 0)" :md-gutter="process.mDelegates.length">
         <template v-for="(item, index) in process.mDelegates">
@@ -13,17 +12,12 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-import VueMaterial from 'vue-material'
 import { Dialog } from '@/classes/ui/Dialog'
 import { Helper } from '@/classes/utils/Helper'
 import DialogStakeholder from './dialog/DialogStakeholder.vue'
 
 import { Stakeholder } from '@/classes/model/Stakeholder'
 import { Metadata } from '@/classes/model/Metadata'
-
-Vue.use(VueMaterial)
 
 export default {
   name: 'AxisX',

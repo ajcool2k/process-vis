@@ -102,19 +102,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-
-import VueMaterial from 'vue-material'
-import VueSlider from 'vue-slider-component'
-
-/*
-import { MdCore, MdDialog, MdBackdrop } from 'vue-material'
-Vue.use(MdCore);
-Vue.use(MdDialog);
-Vue.use(MdBackdrop);
-*/
-
 // Child components
 import ToolBar from './ToolBar.vue'
 import ItemChooser from './ItemChooser.vue'
@@ -137,7 +124,7 @@ import { Helper } from '@/classes/utils/Helper'
 
 import { Process } from '@/classes/model/Process'
 
-Vue.use(VueMaterial)
+import VueSlider from 'vue-slider-component'
 
 export default {
   name: 'Workspace',

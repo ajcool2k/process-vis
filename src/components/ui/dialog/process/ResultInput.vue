@@ -34,11 +34,6 @@
 <script>
 import { Result } from '@/classes/model/Result'
 
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-import VueMaterial from 'vue-material'
-Vue.use(VueMaterial)
-
 export default {
   name: 'ResultInput',
   props: [],

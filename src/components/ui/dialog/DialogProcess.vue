@@ -96,10 +96,6 @@ import Transformation from './process/Transformation.vue'
 import { Process } from '@/classes/model/Process'
 
 import dateFormat from 'dateformat'
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-import VueMaterial from 'vue-material'
-Vue.use(VueMaterial)
 
 export default {
   name: 'DialogProcess',

@@ -45,11 +45,6 @@ import { Stakeholder } from '@/classes/model/Stakeholder'
 
 import StakeholderInput from './StakeholderInput.vue'
 
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-import VueMaterial from 'vue-material'
-Vue.use(VueMaterial)
-
 export default {
   name: 'Stakeholder',
   components: {

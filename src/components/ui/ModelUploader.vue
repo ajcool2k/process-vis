@@ -20,11 +20,6 @@ import { Metadata } from '@/classes/model/Metadata'
 import { Exchange } from '@/classes/utils/Exchange'
 import { Validator } from '@/classes/utils/Validator'
 
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-import VueMaterial from 'vue-material'
-Vue.use(VueMaterial)
-
 export default {
   name: 'ModelUploader',
   components: {},

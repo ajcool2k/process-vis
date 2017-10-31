@@ -64,11 +64,6 @@
 <script>
 import { Stakeholder } from '@/classes/model/Stakeholder'
 
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-import VueMaterial from 'vue-material'
-Vue.use(VueMaterial)
-
 export default {
   name: 'StakeholderInput',
   props: [ 'action' ],

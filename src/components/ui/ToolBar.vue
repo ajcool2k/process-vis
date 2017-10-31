@@ -35,11 +35,6 @@
 <script>
 import Breadcrumbs from './Breadcrumbs.vue'
 
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-import VueMaterial from 'vue-material'
-Vue.use(VueMaterial)
-
 export default {
   name: 'ToolBar',
   components: {

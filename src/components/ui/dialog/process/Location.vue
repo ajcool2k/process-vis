@@ -25,11 +25,6 @@ import { Metadata } from '@/classes/model/Metadata'
 import { Location } from '@/classes/model/Location'
 import LocationInput from './LocationInput.vue'
 
-import Vue from 'vue'
-import 'vue-material/dist/vue-material.css'
-import VueMaterial from 'vue-material'
-Vue.use(VueMaterial)
-
 export default {
   name: 'Location',
   components: {
