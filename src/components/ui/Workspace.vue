@@ -112,7 +112,7 @@ import AxisY from './AxisY.vue'
 import DialogProcess from './dialog/DialogProcess.vue'
 import DialogTransformation from './dialog/DialogTransformation.vue'
 
-import { interact } from 'interactjs'
+import interact from 'interactjs'
 
 import { Dialog } from '@/classes/ui/Dialog'
 import { StateMachine } from '@/classes/utils/StateMachine'
@@ -207,6 +207,9 @@ export default {
     window.addEventListener('scroll', this.onScroll, true)
     window.addEventListener('resize', this.onResize, true)
 
+    // detect escape
+    Events.escapeDetection(this.onEscape)
+
     // detect resolution
     Calc.minContainerHeight = window.innerHeight - 200
     Calc.minContainerWidth = window.innerWidth - 400
@@ -222,6 +225,7 @@ export default {
     console.log('Workspace mounted', document.querySelectorAll('.process').length)
 
     // cache DOM
+    this.htmlNode = document.querySelector('html')
     this.workspaceNode = document.querySelector('.workspace')
     this.containerNode = this.workspaceNode.querySelector('.processContainer')
     this.svgNode = this.containerNode.querySelector('svg.svgNode')
@@ -418,7 +422,7 @@ export default {
       })
 
       this.fsm.addEvent(drawConnection, idle, {
-        name: 'onContainerClick',
+        name: ['onContainerClick', 'onEscape'],
         action: (event) => {
           this.actions.drawingMode = false
           this.tmpLine.removeAttribute('points')
@@ -489,13 +493,7 @@ export default {
       })
 
       this.fsm.addEvent(resizeProcessFinished, idle, {
-        name: 'onProcessClick',
-        action: (event) => {
-        }
-      })
-
-      this.fsm.addEvent(resizeProcessFinished, idle, {
-        name: 'onContainerClick',
+        name: ['onProcessClick', 'onContainerClick'],
         action: (event) => {
         }
       })
@@ -1031,8 +1029,22 @@ export default {
       this.$emit('addProcess', process)
     },
 
+    resetCuror () {
+      this.htmlNode.style.cursor = null
+    },
+
+    onEscape () {
+      console.log('onEscape')
+
+      if (!this.fsm.hasEvent('onEscape')) return
+      this.fsm.run('onEscape')
+    },
+
     onContainerClick () {
       console.log('onContainerClick')
+
+      this.resetCuror()
+
       if (!this.fsm.hasEvent('onContainerClick')) return
       this.fsm.run('onContainerClick')
     },
@@ -1181,6 +1193,8 @@ export default {
 
     onProcessClick (event) {
       console.warn('onProcessClick')
+      this.resetCuror()
+
       this.clickCounts.process++
       // wait for second click
 
