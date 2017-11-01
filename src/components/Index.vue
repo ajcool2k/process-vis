@@ -19,6 +19,11 @@
         <process-list ref="process-list"></process-list>
       </md-whiteframe>
 
+      <md-layout class="footer">
+        <router-link to="/process/demo"><md-button class="md-dense md-primary">Demo</md-button></router-link>
+      </md-layout>
+
+
           <!--
           <p>Demos:
             <router-link to="/draw">
@@ -107,6 +112,10 @@ export default {
 
     .md-layout {
       align-items: center
+    }
+
+    .footer {
+      justify-content: flex-end
     }
   }
 </style>

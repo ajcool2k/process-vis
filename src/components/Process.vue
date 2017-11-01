@@ -34,7 +34,7 @@ import { Exchange } from '@/classes/utils/Exchange'
 import { Helper } from '@/classes/utils/Helper'
 import { Calc } from '@/classes/utils/Calc'
 
-import { Data2 } from '@/classes/utils/Data2'
+import { Data } from '@/classes/utils/Data'
 
 import { Metadata } from '@/classes/model/Metadata'
 import { Process } from '@/classes/model/Process'
@@ -71,6 +71,11 @@ export default {
     let routeInfo = this.$route.params
     if (routeInfo.hasOwnProperty('id')) {
       console.log('existing model requested')
+
+      if (routeInfo.id === 'demo') {
+        this.addData()
+        return
+      }
 
       let processWrapper = Exchange.openProcess(routeInfo.id)
 
@@ -128,7 +133,7 @@ export default {
       console.log('App addData')
 
       // add column
-      let generatedData = Data2.generateData()
+      let generatedData = Data.generateRandomData()
       this.model = generatedData.datamodel
       this.datamodel = this.model
       console.log(generatedData)
