@@ -758,21 +758,21 @@ export default {
 
       let sourceAnchor = {
         x: sourcePoint.x,
-        y: sourcePoint.y + Math.max(Math.round((targetPoint.y - sourcePoint.y) / 2), anchorOffset)
+        y: sourcePoint.y + Math.max(Math.floor((targetPoint.y - sourcePoint.y) / 2), anchorOffset)
       }
 
       let targetAnchor = {
         x: targetPoint.x,
-        y: targetPoint.y - Math.max(Math.round((targetPoint.y - sourcePoint.y) / 2), anchorOffset) + Offset
+        y: targetPoint.y - Math.max(Math.ceil((targetPoint.y - sourcePoint.y) / 2), anchorOffset) + Offset
       }
 
       let middlePoint1 = {
-        x: sourcePoint.x + (Math.round((targetPoint.x - sourcePoint.x) / 2) + Offset),
+        x: sourcePoint.x + (Math.floor((targetPoint.x - sourcePoint.x) / 2) + Offset),
         y: sourceAnchor.y
       }
 
       let middlePoint2 = {
-        x: targetPoint.x - (Math.round((targetPoint.x - sourcePoint.x) / 2) - Offset),
+        x: targetPoint.x - (Math.ceil((targetPoint.x - sourcePoint.x) / 2) - Offset),
         y: targetAnchor.y
       }
       const attributes = sourcePoint.x + ',' + sourcePoint.y + ' ' +
