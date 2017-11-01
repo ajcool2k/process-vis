@@ -67,8 +67,8 @@
           <template v-for="(item, index) in processModel.childs">
             <template v-for="(con, index) in item._connections">
               <g :key="con.id + '-connection'" class="connection" :data-id="con.id">
-                <polyline class="connection-outline" :data-id="con.id" points="" @click.stop="openRemoveConnectionDialog" />
-                <polyline class="connection-line" :data-id="con.id" points="" />
+                <path class="connection-outline" :data-id="con.id" d="" @click.stop="openRemoveConnectionDialog" />
+                <path class="connection-line" :data-id="con.id" d="" />
               </g>
              </template>
           </template>
@@ -87,7 +87,7 @@
           -->
 
           <g class="connection tmp">
-            <polyline class="tmpConnection" points="" />
+            <path class="tmpConnection" d="" />
           </g>
 
           <line class="timeRuler" />
@@ -115,6 +115,7 @@ import DialogTransformation from './dialog/DialogTransformation.vue'
 import interact from 'interactjs'
 
 import { Dialog } from '@/classes/ui/Dialog'
+import { Path } from '@/classes/ui/Path'
 import { StateMachine } from '@/classes/utils/StateMachine'
 import { Animate } from '@/classes/utils/Animate'
 import { TouchSupport } from '@/classes/utils/TouchSupport'
@@ -425,7 +426,7 @@ export default {
         name: ['onContainerClick', 'onEscape'],
         action: (event) => {
           this.actions.drawingMode = false
-          this.tmpLine.removeAttribute('points')
+          this.tmpLine.removeAttribute('d')
           this.svgNode.classList.remove('tmpConnection-active')
 
           // reset anchor
@@ -445,7 +446,7 @@ export default {
           // add to model
           this.addConnection(sourceId, targetId)
           this.actions.drawingMode = false
-          this.tmpLine.removeAttribute('points')
+          this.tmpLine.removeAttribute('d')
           this.svgNode.classList.remove('tmpConnection-active')
 
           // reset anchor
@@ -775,15 +776,12 @@ export default {
         x: targetPoint.x - (Math.ceil((targetPoint.x - sourcePoint.x) / 2) - Offset),
         y: targetAnchor.y
       }
-      const attributes = sourcePoint.x + ',' + sourcePoint.y + ' ' +
-        sourceAnchor.x + ',' + sourceAnchor.y + ' ' +
-        middlePoint1.x + ',' + middlePoint1.y + ' ' +
-        middlePoint2.x + ',' + middlePoint2.y + ' ' +
-        targetAnchor.x + ',' + targetAnchor.y + ' ' +
-         targetPoint.x + ',' + targetPoint.y
 
-      line.setAttribute('points', attributes)
-      outline.setAttribute('points', attributes)
+      let svgPath = Path.createPolyline([sourcePoint, sourceAnchor, middlePoint1, middlePoint2, targetAnchor, targetPoint])
+      // let svgPath = Path.createQuadratics([sourcePoint, sourceAnchor, middlePoint1, targetPoint])
+
+      line.setAttribute('d', svgPath)
+      outline.setAttribute('d', svgPath)
       // transition.setAttribute('transform', 'translate(' + middlePoint1.x + ',' + middlePoint1.y + ')')
     },
 
@@ -845,16 +843,7 @@ export default {
     drawLine () {
       if (this.actions.drawingMode === false) return // escape if mode got disabled meanwhile
 
-      /*
-      console.log('connecto from: x=' + this.actionPosition.x + ', y=' + this.actionPosition.y)
-      console.log('connecto from: x=' + this.mousePosition.x + ', y=' + this.mousePosition.y)
-      console.log(this.tmpLine)
-      */
-      this.tmpLine.setAttribute('points',
-        this.actionPosition.x + ',' + this.actionPosition.y + ' ' +
-        this.mousePosition.x + ',' + this.mousePosition.y
-      )
-      // console.log('works!!')
+      this.tmpLine.setAttribute('d', Path.createPolyline([this.actionPosition, this.mousePosition]))
       Events.scheduledAnimationFrame['drawLine'] = false
     },
 
@@ -1493,6 +1482,13 @@ svg {
       stroke-dasharray: 4,4;
       marker-end: url(#marker-triangle);
       pointer-events: none;
+    }
+
+    .connection-path {
+      fill: none;
+      stroke: red;
+      stroke-width: 3;
+      stroke-dasharray: 4,4;
     }
 
     .connection-outline {
