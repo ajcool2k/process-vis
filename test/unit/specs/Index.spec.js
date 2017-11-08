@@ -6,7 +6,7 @@ describe('Index.vue', () => {
     const Constructor = Vue.extend(Index)
     const vm = new Constructor().$mount()
     expect(vm.$el.querySelector('h1').textContent)
-      .to.equal('Übersicht Module')
+      .to.equal('Übersicht Datenmodelle')
   })
 
   it('should calculate contents', () => {
