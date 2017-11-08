@@ -472,34 +472,34 @@ export class Calc {
 
   /**
    * Methode zum Finden des obersten Prozesses
-   * @param {Array} childs Kindprozesse des aktuellen Prozesses
+   * @param {Array} children Kindprozesse des aktuellen Prozesses
    */
-  static getStartProcess (childs) {
-    if (childs instanceof Array !== true) {
+  static getStartProcess (children) {
+    if (children instanceof Array !== true) {
       console.warn('Could not parse startProcess: Processes not available')
       return undefined
     }
 
-    if (childs.length === 0) return undefined
+    if (children.length === 0) return undefined
 
-    let startProcess = _.minBy(childs, elem => elem.start)
+    let startProcess = _.minBy(children, elem => elem.start)
 
     return startProcess
   }
 
   /**
    * Methode zum Finden des letzten Prozesses
-   * @param {Array} childs Kindprozesse des aktuellen Prozesses
+   * @param {Array} children Kindprozesse des aktuellen Prozesses
    */
-  static getEndProcess (childs) {
-    if (childs instanceof Array !== true) {
+  static getEndProcess (children) {
+    if (children instanceof Array !== true) {
       console.warn('Could not parse endProcess: Processes not available')
       return undefined
     }
 
-    if (childs.length === 0) return undefined
+    if (children.length === 0) return undefined
 
-    let endProcess = _.maxBy(childs, elem => elem.mEnd)
+    let endProcess = _.maxBy(children, elem => elem.mEnd)
     return endProcess
   }
 

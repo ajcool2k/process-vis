@@ -54,10 +54,10 @@
         "modified": ""
       }
     ],
-    "childs": [
+    "children": [
       {
         "id": "https://process.stadt.de/process/11",
-        "dmv": "",
+        "dmv": "1.0.1",
         "reference (optional)": "",
         "initiator": "",
         "connection": {
@@ -65,7 +65,7 @@
           "to": []
         },
         "parent": "",
-        "childs": [],
+        "children": [],
         "name": "",
         "description": "",
         "location": [],

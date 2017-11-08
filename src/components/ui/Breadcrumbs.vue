@@ -5,7 +5,7 @@
       <md-icon>keyboard_arrow_right</md-icon>
       <md-button class="md-raised md-accent" @click="onShowProcess">{{ process.id }}</md-button>
       <md-icon>keyboard_arrow_right</md-icon>
-      <md-button class="md-dense" @click="onShowChilds">Teilaufgaben: {{ process.childs.length }}</md-button>
+      <md-button class="md-dense" @click="onShowChildren">Teilaufgaben: {{ process.children.length }}</md-button>
 
   </div>
 </template>
@@ -47,7 +47,7 @@ export default {
       return !this.process || this.process.parent === '' ? 'ANLEGEN' : this.process.parent
     },
 
-    onShowChilds () {
+    onShowChildren () {
       let nodes = document.querySelectorAll('.process')
       nodes.forEach((elem) => {
         elem.classList.remove('animation-highlight')

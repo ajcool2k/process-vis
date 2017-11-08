@@ -32,43 +32,43 @@ describe('Calc.js (getDefaultEndDate)', () => {
 
 describe('Calc.js (containerSize)', () => {
   it('should calc correctly (non fit)', () => {
-    let childs = [
+    let children = [
       { _position: { x: 0, y: 0 }, _height: 100 },
       { _position: { x: 0, y: 500 }, _height: 100 },
       { _position: { x: 0, y: 600 }, _height: 100 },
       { _position: { x: 0, y: 300 }, _height: 100 }
     ]
     let delegates = [1, 2, 3, 4]
-    let ret = Calc.containerSize(childs, delegates)
+    let ret = Calc.containerSize(children, delegates)
 
-    let maxElem = _.maxBy(childs, elem => elem._height)
+    let maxElem = _.maxBy(children, elem => elem._height)
     expect(ret).to.be.an('object')
     expect(ret.x).to.equal(Calc.colWidth * delegates.length)
     expect(ret.y).to.equal(600 + Calc.containerPaddingBottom + maxElem._height)
   })
 
   it('should calc correctly (x axis fit)', () => {
-    let childs = [
+    let children = [
       { _position: { x: 0, y: 0 }, _height: 100 },
       { _position: { x: 0, y: 500 }, _height: 100 },
       { _position: { x: 0, y: 600 }, _height: 100 },
       { _position: { x: 0, y: 300 }, _height: 100 }
     ]
     let delegates = [1, 2, 3, 4]
-    let ret = Calc.containerSize(childs, delegates, true)
+    let ret = Calc.containerSize(children, delegates, true)
 
-    let maxElem = _.maxBy(childs, elem => elem._height)
+    let maxElem = _.maxBy(children, elem => elem._height)
     expect(ret).to.be.an('object')
     expect(ret.x).to.equal(Calc.minContainerWidth)
     expect(ret.y).to.equal(600 + Calc.containerPaddingBottom + maxElem._height)
   })
 
   it('should calc respect minHeight and maxHeight', () => {
-    let childs = [
+    let children = [
       { _position: { x: 0, y: 0 }, _height: 100 }
     ]
     let delegates = [1]
-    let ret = Calc.containerSize(childs, delegates)
+    let ret = Calc.containerSize(children, delegates)
     expect(ret).to.be.an('object')
     expect(ret.x).to.equal(Calc.minContainerWidth)
     expect(ret.y).to.equal(Calc.minContainerHeight)
@@ -107,28 +107,28 @@ describe('Calc.js (columnSize)', () => {
 
 describe('Calc.js (getStartProcess)', () => {
   it('should return process with oldest startDate', () => {
-    const childs = [
+    const children = [
       new Process('1', '1', new Date(2017, 2, 11)),
       new Process('1', '1', new Date(2017, 2, 13)),
       new Process('1', '1', new Date(2017, 2, 7)),
       new Process('1', '1', new Date(2017, 3, 4))
     ]
 
-    let ret = Calc.getStartProcess(childs)
+    let ret = Calc.getStartProcess(children)
     expect(ret).to.be.an('object')
-    expect(ret).to.equal(childs[2])
+    expect(ret).to.equal(children[2])
   })
 
   it('should return the first date if both start at the same time', () => {
-    const childs = [
+    const children = [
       new Process('1', '1', new Date(2017, 2, 12)),
       new Process('1', '1', new Date(2017, 2, 11)),
       new Process('1', '1', new Date(2017, 2, 11)),
       new Process('1', '1', new Date(2017, 3, 11))
     ]
-    let ret = Calc.getStartProcess(childs)
+    let ret = Calc.getStartProcess(children)
     expect(ret).to.be.an('object')
-    expect(ret).to.equal(childs[1])
+    expect(ret).to.equal(children[1])
   })
 
   it('should return no process', () => {
@@ -139,28 +139,28 @@ describe('Calc.js (getStartProcess)', () => {
 
 describe('Calc.js (getEndProcess)', () => {
   it('should return process with latest endDate', () => {
-    const childs = [
+    const children = [
       new Process('1', '1', new Date(2017, 0, 1), new Date(2017, 0, 1)),
       new Process('1', '1', new Date(2017, 0, 1), new Date(2017, 0, 2)),
       new Process('1', '1', new Date(2017, 0, 1))
     ]
 
-    let ret = Calc.getEndProcess(childs)
+    let ret = Calc.getEndProcess(children)
     expect(ret).to.be.an('object')
-    expect(ret).to.equal(childs[1])
+    expect(ret).to.equal(children[1])
   })
 
   it('should return the first date if both end at the same time', () => {
-    const childs = [
+    const children = [
       new Process('1', '1', new Date(2017, 0, 1), new Date(2017, 0, 1)),
       new Process('2', '1', new Date(2017, 0, 1), new Date(2017, 0, 2)),
       new Process('3', '1', new Date(2017, 0, 1), new Date(2017, 0, 2)),
       new Process('4', '1', new Date(2017, 0, 1))
     ]
 
-    let ret = Calc.getEndProcess(childs)
+    let ret = Calc.getEndProcess(children)
     expect(ret).to.be.an('object')
-    expect(ret).to.equal(childs[1])
+    expect(ret).to.equal(children[1])
   })
 
   it('should return no process', () => {
@@ -255,26 +255,26 @@ describe('Calc.js (addSpace)', () => {
   it('should not add space', () => {
     const delegates = ['1', '2', '3', '4']
 
-    const childs = [
+    const children = [
       new Process('1', delegates[0], new Date(2017, 0, 1)),
       new Process('1', delegates[1], new Date(2017, 0, 2)),
       new Process('1', delegates[2], new Date(2017, 0, 2))
     ]
 
-    childs[0]._height = 100
-    childs[0]._position = { x: 0, y: 0 }
+    children[0]._height = 100
+    children[0]._position = { x: 0, y: 0 }
 
-    childs[1]._height = 100
-    childs[1]._position = { x: 0, y: 200 }
+    children[1]._height = 100
+    children[1]._position = { x: 0, y: 200 }
 
-    childs[2]._height = 100
-    childs[2]._position = { x: 0, y: 200 }
+    children[2]._height = 100
+    children[2]._position = { x: 0, y: 200 }
 
     const clone = require('clone')
-    const childsCopy = clone(childs)
+    const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(childs, Calc.timeSlice)
-    let isEqual = _.isEqual(childs, childsCopy)
+    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
     expect(isEqual).to.equal(true)
@@ -283,129 +283,129 @@ describe('Calc.js (addSpace)', () => {
   it('should add space to one', () => {
     const delegates = ['1', '2']
 
-    const childs = [
+    const children = [
       new Process('1', delegates[0], new Date(2017, 0, 1)),
       new Process('1', delegates[1], new Date(2017, 0, 1))
     ]
 
-    childs[0]._height = 100
-    childs[0]._position = { x: 0, y: 0 }
+    children[0]._height = 100
+    children[0]._position = { x: 0, y: 0 }
 
-    childs[1]._height = 100
-    childs[1]._position = { x: 0, y: 100 }
+    children[1]._height = 100
+    children[1]._position = { x: 0, y: 100 }
 
     const clone = require('clone')
-    const childsCopy = clone(childs)
+    const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(childs, Calc.timeSlice)
-    let isEqual = _.isEqual(childs, childsCopy)
+    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
     expect(isEqual).to.equal(false)
 
-    expect(childs[0]._position.y).to.equal(childsCopy[0]._position.y)
-    expect(childs[1]._position.y).to.equal(childsCopy[1]._position.y + Calc.timeSlice)
+    expect(children[0]._position.y).to.equal(childrenCopy[0]._position.y)
+    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.timeSlice)
   })
 
   it('should add space to the first and second', () => {
     const delegates = ['1', '2', '3']
 
-    const childs = [
+    const children = [
       new Process('1', delegates[0], new Date(2017, 0, 1)),
       new Process('1', delegates[1], new Date(2017, 0, 1)),
       new Process('1', delegates[2], new Date(2017, 0, 1))
     ]
 
-    childs[0]._height = 100
-    childs[0]._position = { x: 0, y: 0 }
+    children[0]._height = 100
+    children[0]._position = { x: 0, y: 0 }
 
-    childs[1]._height = 100
-    childs[1]._position = { x: 0, y: 100 }
+    children[1]._height = 100
+    children[1]._position = { x: 0, y: 100 }
 
-    childs[2]._height = 100
-    childs[2]._position = { x: 0, y: 100 }
+    children[2]._height = 100
+    children[2]._position = { x: 0, y: 100 }
 
     const clone = require('clone')
-    const childsCopy = clone(childs)
+    const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(childs, Calc.timeSlice)
-    let isEqual = _.isEqual(childs, childsCopy)
+    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
     expect(isEqual).to.equal(false)
 
-    expect(childs[0]._position.y).to.equal(childsCopy[0]._position.y)
-    expect(childs[1]._position.y).to.equal(childsCopy[1]._position.y + Calc.timeSlice)
-    expect(childs[2]._position.y).to.equal(childsCopy[2]._position.y + Calc.timeSlice)
+    expect(children[0]._position.y).to.equal(childrenCopy[0]._position.y)
+    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.timeSlice)
+    expect(children[2]._position.y).to.equal(childrenCopy[2]._position.y + Calc.timeSlice)
   })
 
   it('should add space to the first and twice to the second', () => {
     const delegates = ['1', '2', '3']
 
-    const childs = [
+    const children = [
       new Process('1', delegates[0], new Date(2017, 0, 1)),
       new Process('1', delegates[1], new Date(2017, 0, 1)),
       new Process('1', delegates[2], new Date(2017, 0, 1))
     ]
 
-    childs[0]._height = 100
-    childs[0]._position = { x: 0, y: 0 }
+    children[0]._height = 100
+    children[0]._position = { x: 0, y: 0 }
 
-    childs[1]._height = 100
-    childs[1]._position = { x: 0, y: 100 }
+    children[1]._height = 100
+    children[1]._position = { x: 0, y: 100 }
 
-    childs[2]._height = 100
-    childs[2]._position = { x: 0, y: 200 }
+    children[2]._height = 100
+    children[2]._position = { x: 0, y: 200 }
 
     const clone = require('clone')
-    const childsCopy = clone(childs)
+    const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(childs, Calc.timeSlice)
-    let isEqual = _.isEqual(childs, childsCopy)
+    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
     expect(isEqual).to.equal(false)
 
-    expect(childs[0]._position.y).to.equal(childsCopy[0]._position.y)
-    expect(childs[1]._position.y).to.equal(childsCopy[1]._position.y + Calc.timeSlice)
-    expect(childs[2]._position.y).to.equal(childsCopy[2]._position.y + Calc.timeSlice * 2)
+    expect(children[0]._position.y).to.equal(childrenCopy[0]._position.y)
+    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.timeSlice)
+    expect(children[2]._position.y).to.equal(childrenCopy[2]._position.y + Calc.timeSlice * 2)
   })
 
   it('should add space to the first and twice to the second and third', () => {
     const delegates = ['1', '2', '3']
 
-    const childs = [
+    const children = [
       new Process('1', delegates[0], new Date(2017, 0, 1)),
       new Process('1', delegates[1], new Date(2017, 0, 2)),
       new Process('1', delegates[2], new Date(2017, 0, 3)),
       new Process('1', delegates[3], new Date(2017, 0, 3))
     ]
 
-    childs[0]._height = 100
-    childs[0]._position = { x: 0, y: 0 }
+    children[0]._height = 100
+    children[0]._position = { x: 0, y: 0 }
 
-    childs[1]._height = 100
-    childs[1]._position = { x: 0, y: 100 }
+    children[1]._height = 100
+    children[1]._position = { x: 0, y: 100 }
 
-    childs[2]._height = 100
-    childs[2]._position = { x: 0, y: 200 }
+    children[2]._height = 100
+    children[2]._position = { x: 0, y: 200 }
 
-    childs[3]._height = 100
-    childs[3]._position = { x: 0, y: 200 }
+    children[3]._height = 100
+    children[3]._position = { x: 0, y: 200 }
 
     const clone = require('clone')
-    const childsCopy = clone(childs)
+    const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(childs, Calc.timeSlice)
-    let isEqual = _.isEqual(childs, childsCopy)
+    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
     expect(isEqual).to.equal(false)
 
-    expect(childs[0]._position.y).to.equal(childsCopy[0]._position.y)
-    expect(childs[1]._position.y).to.equal(childsCopy[1]._position.y + Calc.timeSlice)
-    expect(childs[2]._position.y).to.equal(childsCopy[2]._position.y + Calc.timeSlice * 2)
-    expect(childs[3]._position.y).to.equal(childsCopy[3]._position.y + Calc.timeSlice * 2)
+    expect(children[0]._position.y).to.equal(childrenCopy[0]._position.y)
+    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.timeSlice)
+    expect(children[2]._position.y).to.equal(childrenCopy[2]._position.y + Calc.timeSlice * 2)
+    expect(children[3]._position.y).to.equal(childrenCopy[3]._position.y + Calc.timeSlice * 2)
   })
 })
 
@@ -413,7 +413,7 @@ describe('Calc.js (processPosition)', () => {
   const clone = require('clone')
 
   const delegates = ['1', '2', '3', '4']
-  const childsUntouched = [
+  const childrenUntouched = [
     new Process('1', delegates[0], new Date(2017, 0, 1)),
     new Process('1', delegates[1], new Date(2017, 0, 4)),
     new Process('1', delegates[2], new Date(2017, 0, 7)),
@@ -424,25 +424,25 @@ describe('Calc.js (processPosition)', () => {
   const timeFormat = 'days'
 
   it('should not add private properties', () => {
-    const childs = clone(childsUntouched)
-    Calc.processPosition(undefined, childsUntouched, containerSize, timeFormat)
-    expect(_.isEqual(childs, childsUntouched)).to.equal(true)
-    Calc.processPosition(childs, undefined, containerSize, timeFormat)
-    expect(_.isEqual(childs, childsUntouched)).to.equal(true)
-    Calc.processPosition(childs, delegates, undefined, timeFormat)
-    expect(_.isEqual(childs, childsUntouched)).to.equal(true)
-    Calc.processPosition(childs, delegates, containerSize, undefined)
-    expect(_.isEqual(childs, childsUntouched)).to.equal(true)
+    const children = clone(childrenUntouched)
+    Calc.processPosition(undefined, childrenUntouched, containerSize, timeFormat)
+    expect(_.isEqual(children, childrenUntouched)).to.equal(true)
+    Calc.processPosition(children, undefined, containerSize, timeFormat)
+    expect(_.isEqual(children, childrenUntouched)).to.equal(true)
+    Calc.processPosition(children, delegates, undefined, timeFormat)
+    expect(_.isEqual(children, childrenUntouched)).to.equal(true)
+    Calc.processPosition(children, delegates, containerSize, undefined)
+    expect(_.isEqual(children, childrenUntouched)).to.equal(true)
   })
 
   it('should add private properties', () => {
-    const childs = clone(childsUntouched)
-    Calc.processPosition(childs, delegates, containerSize, timeFormat)
-    expect(childs).to.be.an('array')
-    expect(childs.length).to.equal(4)
-    expect(_.isEqual(childs, childsUntouched)).to.equal(false)
+    const children = clone(childrenUntouched)
+    Calc.processPosition(children, delegates, containerSize, timeFormat)
+    expect(children).to.be.an('array')
+    expect(children.length).to.equal(4)
+    expect(_.isEqual(children, childrenUntouched)).to.equal(false)
 
-    childs.forEach(elem => {
+    children.forEach(elem => {
       expect(elem).to.have.property('_defaultEndDate')
       expect(elem._defaultEndDate).to.be.an('date')
 
@@ -466,11 +466,11 @@ describe('Calc.js (processPosition)', () => {
   })
 
   it('should calculate position x', () => {
-    const childs = clone(childsUntouched)
-    Calc.processPosition(childs, delegates, containerSize, timeFormat)
+    const children = clone(childrenUntouched)
+    Calc.processPosition(children, delegates, containerSize, timeFormat)
     const colWidth = Calc.columnSize(containerSize, delegates)
 
-    childs.forEach(elem => {
+    children.forEach(elem => {
       expect(elem).to.have.property('_position')
       expect(elem._position).to.have.property('x')
       expect(elem._position.x).to.be.a('number')
@@ -482,11 +482,11 @@ describe('Calc.js (processPosition)', () => {
   })
 
   it('should calculate position y', () => {
-    const childs = clone(childsUntouched)
-    Calc.processPosition(childs, delegates, containerSize, timeFormat)
-    let startProcess = Calc.getStartProcess(childs)
+    const children = clone(childrenUntouched)
+    Calc.processPosition(children, delegates, containerSize, timeFormat)
+    let startProcess = Calc.getStartProcess(children)
 
-    childs.forEach(elem => {
+    children.forEach(elem => {
       expect(elem.start).to.be.an('date')
       expect(startProcess.start).to.be.an('date')
 
@@ -507,38 +507,38 @@ describe('Calc.js (processPosition)', () => {
 
   it('should calculate height without endDate', () => {
     const delegates = ['1', '2', '3']
-    const childs = [
+    const children = [
       new Process('1', delegates[0], new Date(2017, 0, 1))
     ]
 
-    Calc.processPosition(childs, delegates, containerSize, timeFormat)
+    Calc.processPosition(children, delegates, containerSize, timeFormat)
 
-    let elem = childs[0]
+    let elem = children[0]
     expect(elem._height).to.equal(Calc.timeSlice)
   })
 
   it('should calculate height with endDate', () => {
     const delegates = ['1', '2', '3']
-    const childs = [
+    const children = [
       new Process('1', delegates[1], new Date(2017, 0, 4), new Date(2017, 0, 5)),
       new Process('1', delegates[2], new Date(2017, 1, 4), new Date(2017, 1, 6))
     ]
 
-    Calc.processPosition(childs, delegates, containerSize, timeFormat)
+    Calc.processPosition(children, delegates, containerSize, timeFormat)
 
     let elem
 
-    elem = childs[0]
+    elem = children[0]
     expect(elem._height).to.equal(Calc.timeSlice)
 
-    elem = childs[1]
+    elem = children[1]
     expect(elem._height).to.equal(Calc.timeSlice * 2)
   })
 })
 
 describe('Calc.js (Intersections)', () => {
   const delegates = ['1', '2']
-  const childs = [
+  const children = [
     new Process('1', delegates[0], new Date(2017, 0, 1), new Date(2017, 0, 8)), // this
     new Process('1', delegates[0], new Date(2017, 0, 4), new Date(2017, 0, 5)), // and this
     new Process('1', delegates[0], new Date(2017, 0, 9), new Date(2017, 0, 10)),
@@ -547,18 +547,18 @@ describe('Calc.js (Intersections)', () => {
   ]
 
   it('should find intersetionList', () => {
-    let intersectedMap = Calc.findIntersected(childs, delegates)
+    let intersectedMap = Calc.findIntersected(children, delegates)
     expect(intersectedMap.length).to.equal(1)
 
-    let entry = [ childs[0].id, childs[1].id ].sort().join()
+    let entry = [ children[0].id, children[1].id ].sort().join()
     expect(intersectedMap[0].join()).to.equal(entry)
 
     // reverse
-    let reverseChilds = childs.reverse()
-    let intersectedMap2 = Calc.findIntersected(reverseChilds, delegates)
+    let reverseChildren = children.reverse()
+    let intersectedMap2 = Calc.findIntersected(reverseChildren, delegates)
     expect(intersectedMap2.length).to.equal(1)
 
-    let reverseEntry = [ reverseChilds[2].id, reverseChilds[3].id ].sort().join()
+    let reverseEntry = [ reverseChildren[2].id, reverseChildren[3].id ].sort().join()
     expect(intersectedMap2[0].join()).to.equal(reverseEntry)
   })
 })

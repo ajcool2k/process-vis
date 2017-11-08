@@ -1,3 +1,5 @@
+import { Version } from '@/classes/model/Version'
+import { Patch } from '@/classes/utils/Patch'
 import { Metadata } from '@/classes/model/Metadata'
 import { Stakeholder } from '@/classes/model/Stakeholder'
 import { Result } from '@/classes/model/Result'
@@ -6,13 +8,13 @@ import { Transformation } from '@/classes/model/Transformation'
 
 export class Process {
   constructor (name, initiator, start, end) {
-    this.dmv = '1.0' // based on datamodel version
+    this.dmv = Version.actualVersion // based on datamodel version
 
     // Privates (not in the datamodel included)
     this._comment = 'Process'
     this._position = { x: 0, y: 0 }
     this._connections = [] // wrapper for connection
-    this._delegates = [] // initators for childs
+    this._delegates = [] // initators of children
     this._width = 0
     this._height = 0
     this._defaultEndDate = null
@@ -45,7 +47,7 @@ export class Process {
     this.participants = []
     this.transformation = new Transformation()
     this.results = []
-    this.childs = []
+    this.children = []
     this.stakeholder = []
     this.dependencies = []
 
@@ -61,6 +63,9 @@ export class Process {
       console.warn('Process.props() - serializedProcess expects an object')
       return
     }
+
+    // Patch for old model
+    Patch.updateModel(serializedProcess)
 
     this.id = serializedProcess.id
     this.name = serializedProcess.name
@@ -81,13 +86,15 @@ export class Process {
     this.stakeholder = serializedProcess.stakeholder
     this.location = serializedProcess.location
 
-    serializedProcess.childs.forEach(child => {
-      let childProcess = new Process()
-      childProcess.props = child
-      this.addChild(childProcess)
-    })
+    if (serializedProcess.hasOwnProperty('children')) {
+      serializedProcess.children.forEach(child => {
+        let childProcess = new Process()
+        childProcess.props = child
+        this.addChild(childProcess)
+      })
+    }
 
-    this.mDelegates = this.childs.map(elem => elem.initiator).filter(elem => elem !== '')
+    this.mDelegates = this.children.map(elem => elem.initiator).filter(elem => elem !== '')
 
     if (serializedProcess.hasOwnProperty('results')) {
       serializedProcess.results.forEach(res => {
@@ -108,7 +115,7 @@ export class Process {
     // timestamps
     this.created = serializedProcess.created ? new Date(serializedProcess.created) : null
     this.modified = serializedProcess.modified ? new Date(serializedProcess.modified) : null
-    this.dmv = typeof serializedProcess.dmv === 'string' ? serializedProcess.dmv  : 'unknown'
+    this.dmv = typeof serializedProcess.dmv === 'string' ? serializedProcess.dmv : 'unknown'
   }
 
   get mInitiator () { return this.initiator }
@@ -192,18 +199,18 @@ export class Process {
   }
 
   removeObsoleteDelegates () {
-    const initiatorMap = this.childs.map(elem => elem.initiator)
+    const initiatorMap = this.children.map(elem => elem.initiator)
     this.mDelegates = this.mDelegates.filter(delegateId => initiatorMap.indexOf(delegateId) > -1)
   }
 
-  setChilds (childs) {
-    if (childs instanceof Array === false) {
-      console.warn('Process.setChilds - expected childs as type Array')
+  setChildren (children) {
+    if (children instanceof Array === false) {
+      console.warn('Process.setChildren - expected children as type Array')
       return
     }
 
-    this.childs = []
-    childs.forEach(elem => { this.addChild(elem) })
+    this.children = []
+    children.forEach(elem => { this.addChild(elem) })
   }
 
   addChild (child) {
@@ -213,7 +220,7 @@ export class Process {
     }
 
     child.parent = this.id
-    this.childs.push(child)
+    this.children.push(child)
     this.addDelegate(child.initiator)
   }
 
@@ -348,22 +355,22 @@ export class Process {
       return false
     }
 
-    let index = this.childs.findIndex(elem => elem.id === id)
+    let index = this.children.findIndex(elem => elem.id === id)
 
     if (index === -1) {
       console.warn('Process.removeChild - id not found')
       return false
     }
 
-    let child = this.childs[index]
+    let child = this.children[index]
 
     // remove Connection
-    this.childs.forEach(elem => {
+    this.children.forEach(elem => {
       if (elem.connection.from.indexOf(id) > -1) child.removeConnectionTo(elem)
       if (elem.connection.to.indexOf(id) > -1) elem.removeConnectionTo(child)
     })
 
-    this.childs.splice(index, 1)
+    this.children.splice(index, 1)
   }
 
   addConnectionTo (target) {

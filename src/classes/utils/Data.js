@@ -41,7 +41,7 @@ export class Data {
     let child11 = new Process('child 11', anotherStakeholder.id, new Date(2017, 0, 1))
     child1.addStakeholder(anotherStakeholder)
 
-    child1.setChilds([child11])
+    child1.setChildren([child11])
 
     let child2 = new Process('child 2', s2.id, new Date(2017, 0, 6), new Date(2017, 0, 11))
     child2.transformation.type = '+'
@@ -49,11 +49,11 @@ export class Data {
     let child3 = new Process('child 3', s3.id, new Date(2017, 0, 6), new Date(2017, 0, 11))
     child3.transformation.type = '+'
 
-    // setup connection between childs
+    // setup connection between children
     child1.addConnectionTo(child2)
     child1.addConnectionTo(child3)
 
-    datamodel.setChilds([child1, child2, child3])
+    datamodel.setChildren([child1, child2, child3])
 
     return {
       datamodel: datamodel
@@ -80,8 +80,8 @@ export class Data {
     }
 
     // generate child processes
-    let countChilds = Mathematic.getRandomInt(1, 20)
-    for (let i = 0; i < countChilds; i++) {
+    let countChildren = Mathematic.getRandomInt(1, 20)
+    for (let i = 0; i < countChildren; i++) {
       let randomStakeholder = stakeholder[Mathematic.getRandomInt(0, stakeholder.length - 1)]
       let randomStartDate = new Date(2017, 0, Mathematic.getRandomInt(1, 28))
       let randomEndDay = null
@@ -93,29 +93,29 @@ export class Data {
       let child = new Process('child ' + i, randomStakeholder.id, randomStartDate, randomEndDay)
       child.transformation.type = '='
 
-      // generate childs for the child
+      // generate children for this sub procress
       let x = Mathematic.getRandomInt(0, 100)
       if (x < 30) {
         let childStakeholder = new Stakeholder('Jupiter Inc.')
         let deepChild = new Process('child 11', childStakeholder.id, new Date(2017, 0, 1))
         child.addStakeholder(childStakeholder)
-        child.setChilds([deepChild])
+        child.setChildren([deepChild])
       }
 
       datamodel.addChild(child)
     }
 
-    // setup connection between childs
-    let childs = datamodel.childs
+    // setup connection between children
+    let children = datamodel.children
 
-    childs.sort((a, b) => {
+    children.sort((a, b) => {
       return a.mEnd.valueOf() - b.mEnd.valueOf()
     })
 
-    childs.forEach((child, index) => {
+    children.forEach((child, index) => {
       let x = Mathematic.getRandomInt(0, 100)
       if (x < 100) {
-        let otherChild = childs[Mathematic.getRandomInt(index, childs.length - 1)]
+        let otherChild = children[Mathematic.getRandomInt(index, children.length - 1)]
         if (otherChild !== child) child.addConnectionTo(otherChild)
       }
     })

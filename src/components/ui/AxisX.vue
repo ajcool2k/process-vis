@@ -69,11 +69,11 @@ export default {
       }
 
       // update model
-      this.process.childs.forEach(elem => {
+      this.process.children.forEach(elem => {
         if (elem.initiator === data.previousId) elem.initiator = data.id
       })
 
-      let childInitators = this.process.childs.map(elem => elem.initiator).filter(delegateId => delegateId !== '')
+      let childInitators = this.process.children.map(elem => elem.initiator).filter(delegateId => delegateId !== '')
       this.process.mDelegates = childInitators.filter((elem, index, self) => index === self.indexOf(elem)) // remove duplicates
       // update view
       let initiator = Metadata.findStakeholder(Helper.parse(data.id))

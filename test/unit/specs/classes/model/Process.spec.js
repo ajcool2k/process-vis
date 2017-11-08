@@ -40,7 +40,7 @@ describe('Process.js', () => {
     expect(process.transformation).to.be.a('object')
 
     expect(process.results).to.be.an('array')
-    expect(process.childs).to.be.an('array')
+    expect(process.children).to.be.an('array')
     expect(process.stakeholder).to.be.an('array')
     expect(process.location).to.be.an('array')
     expect(process.participants).to.be.an('array')
@@ -80,7 +80,7 @@ describe('Process.js', () => {
     let child2 = new Process('child 2', stakeholder2.id)
     let child3 = new Process('child 3', stakeholder3.id)
 
-    processBefore.setChilds([child1, child2, child3])
+    processBefore.setChildren([child1, child2, child3])
 
     child1.addConnectionTo(child2)
     child2.addConnectionTo(child3)

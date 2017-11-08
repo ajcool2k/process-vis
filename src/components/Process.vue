@@ -113,9 +113,9 @@ export default {
   },
 
   watch: {
-    // whenever childs changes, this function will run
-    'datamodel.childs': function (updatedChilds) {
-      let startProcess = Calc.getStartProcess(this.datamodel.childs)
+    // whenever children changes, this function will run
+    'datamodel.children': function (updatedChildren) {
+      let startProcess = Calc.getStartProcess(this.datamodel.children)
       console.log('new startingProcess: ', startProcess)
     }
   },
@@ -152,7 +152,7 @@ export default {
 
     moveProcess (processData) {
       console.log('moveProcess', processData)
-      let process = this.datamodel.childs.find(elem => elem.id === processData.processId)
+      let process = this.datamodel.children.find(elem => elem.id === processData.processId)
       process.initiator = processData.delegateId
       this.forceRedraw()
     },
@@ -160,7 +160,7 @@ export default {
     removeProcess (processId) {
       console.log('Process (removeProcess): ' + processId)
 
-      let process = Helper.getElement(processId, this.model, 'childs')
+      let process = Helper.getElement(processId, this.model, 'children')
 
       if (typeof process === 'undefined') {
         console.warn('Could not find process')
@@ -171,20 +171,20 @@ export default {
 
       // Fall 1 (Head mit einem Kind, Kind soll neuer Head werden)
       if (head.id === process.id) {
-        if (process.childs.length !== 1) {
+        if (process.children.length !== 1) {
           console.log('Process.removeProcess() - head can only get removed when it has 1 child')
           return
         }
 
-        this.model = process.childs[0]
+        this.model = process.children[0]
         this.model.parent = ''
         this.datamodel = this.model
         return
       }
 
       // Fall 2 (Prozess ohne Kinder, aber nicht Head)
-      if (process.childs.length === 0) {
-        let parentProcess = Helper.getElement(process.parent, this.model, 'childs')
+      if (process.children.length === 0) {
+        let parentProcess = Helper.getElement(process.parent, this.model, 'children')
         parentProcess.removeChild(processId)
         return
       }
@@ -193,14 +193,14 @@ export default {
     },
 
     updateProcess (processId) {
-      this.datamodel.childs = this.datamodel.childs.map(elem => elem)
+      this.datamodel.children = this.datamodel.children.map(elem => elem)
     },
 
     addConnection (connectionData) {
       console.log('addConnection', connectionData)
 
-      let processSource = this.datamodel.childs.find(elem => elem.id === connectionData.source)
-      let processTarget = this.datamodel.childs.find(elem => elem.id === connectionData.target)
+      let processSource = this.datamodel.children.find(elem => elem.id === connectionData.source)
+      let processTarget = this.datamodel.children.find(elem => elem.id === connectionData.target)
 
       console.log('processSource', processSource)
       console.log('processTarget', processTarget)
@@ -222,8 +222,8 @@ export default {
       }
 
       let con = Helper.connectionParse(connectionId)
-      let processFrom = this.datamodel.childs.find(elem => elem.id === con.source)
-      let processTo = this.datamodel.childs.find(elem => elem.id === con.target)
+      let processFrom = this.datamodel.children.find(elem => elem.id === con.source)
+      let processTo = this.datamodel.children.find(elem => elem.id === con.target)
 
       processFrom.removeConnectionTo(processTo)
     },
@@ -253,7 +253,7 @@ export default {
           head.addDelegate(stakeholder.id)
 
           // set startTime
-          let startProcess = Calc.getStartProcess(this.model.childs)
+          let startProcess = Calc.getStartProcess(this.model.children)
           head.mStart = typeof startProcess === 'undefined' ? new Date() : startProcess.start
 
           // append last model as a child
@@ -268,7 +268,7 @@ export default {
         let processId = this.datamodel.parent
 
         // find process
-        let process = Helper.getElement(processId, this.model, 'childs')
+        let process = Helper.getElement(processId, this.model, 'children')
 
         if (typeof process === 'undefined') {
           console.warn('Could not find parentProcess')
@@ -280,7 +280,7 @@ export default {
       }
 
       // lower level requested
-      let process = this.datamodel.childs.find(elem => elem.id === event)
+      let process = this.datamodel.children.find(elem => elem.id === event)
 
       if (typeof process === 'undefined') {
         console.log('Could not find childProcess')
@@ -313,7 +313,7 @@ export default {
       }
 
       // avoid if child processes are on this Delegate to keep them in container
-      let used = this.datamodel.childs.filter(elem => elem.initiator === delegateId)
+      let used = this.datamodel.children.filter(elem => elem.initiator === delegateId)
 
       if (used.length > 0) {
         console.warn('Could not remove Delegate, there are still processes applied')

@@ -117,7 +117,7 @@ export class Helper {
       return
     }
 
-    // console.log('addScopeProp - childs: ' + childList.length)
+    // console.log('addScopeProp - children: ' + childList.length)
 
     childList.forEach(function (child) {
       Helper.addScopeProp(child, scopedProp)

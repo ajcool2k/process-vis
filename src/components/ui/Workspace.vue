@@ -21,7 +21,7 @@
       <!-- child components -->
         <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
         <vue-slider class="range-timeSlice ignore-container-events" :value="timeSlice" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
-        <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.childs" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
+        <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
 
         <template v-for="(item, index) in processModel.mDelegates">
@@ -45,9 +45,9 @@
           </defs>
 
           <!-- draw Processes -->
-          <template v-if="item._width" v-for="(item, index) in processModel.childs">
+          <template v-if="item._width" v-for="(item, index) in processModel.children">
             <g :key="item.id + '-process'" class="process draggable drag-drop" :data-id="item.id" @click.stop="onProcessClick">
-              <rect :class="'process-content has-child-' + (item.childs.length > 0)" :data-id="item.id" :height="item._height" :width="item._width">
+              <rect :class="'process-content has-child-' + (item.children.length > 0)" :data-id="item.id" :height="item._height" :width="item._width">
                 <title>Name: {{ item.name }} ({{ item.id }})</title>
               </rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :cy="(item._height - 15)" :cx="(item._width / 2 )"></circle>
@@ -64,7 +64,7 @@
           </template>
 
           <!-- draw Connections -->
-          <template v-for="(item, index) in processModel.childs">
+          <template v-for="(item, index) in processModel.children">
             <template v-for="(con, index) in item._connections">
               <g :key="con.id + '-connection'" class="connection" :data-id="con.id">
                 <path class="connection-outline" :data-id="con.id" d="" @click.stop="openRemoveConnectionDialog" />
@@ -75,7 +75,7 @@
 
           <!-- draw Transition-Info -->
           <!--
-          <template v-for="(item, index) in processModel.childs">
+          <template v-for="(item, index) in processModel.children">
             <template v-for="(con, index) in item._connections">
               <g :key="con.id + '-connection-transition'" class="connection-transition" :data-id="con.id" :data-process="item.id" @click.stop="onOpenTransformationDialog">
                 <circle class="connection-transition-circle" r="20" />
@@ -240,8 +240,8 @@ export default {
     this.scopeProp = Helper.getScopeProp(this.svgNode)
 
     // prepare Container and Workspace
-    Calc.processPosition(this.processModel.childs, this.processModel.mDelegates, this.containerSize, this.timeFormat) // set position on the model
-    this.containerSize = Calc.containerSize(this.processModel.childs, this.processModel.mDelegates) // calc layout based on model
+    Calc.processPosition(this.processModel.children, this.processModel.mDelegates, this.containerSize, this.timeFormat) // set position on the model
+    this.containerSize = Calc.containerSize(this.processModel.children, this.processModel.mDelegates) // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
     this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
     this.updateWorkspaceSize() // forces reflow
@@ -371,8 +371,8 @@ export default {
 
   beforeUpdate: function () {
     console.warn('Workspace updating ...', this.svgNode.querySelectorAll('.process').length)
-    Calc.processPosition(this.processModel.childs, this.processModel.mDelegates, this.containerSize, this.timeFormat)
-    let size = Calc.containerSize(this.processModel.childs, this.processModel.mDelegates, true) // calc layout based on model
+    Calc.processPosition(this.processModel.children, this.processModel.mDelegates, this.containerSize, this.timeFormat)
+    let size = Calc.containerSize(this.processModel.children, this.processModel.mDelegates, true) // calc layout based on model
 
     // diff between actual containerSize and Calculation
     let delta = { x: size.x - this.containerSize.x, y: size.y - this.containerSize.y }
@@ -483,7 +483,7 @@ export default {
         action: (event) => {
           this.timeRuler.style.display = 'none'
           let processId = event.target.getAttribute('data-id')
-          let process = this.processModel.childs.find(elem => elem.id === Helper.parse(processId))
+          let process = this.processModel.children.find(elem => elem.id === Helper.parse(processId))
           console.log('process', process)
           let resizeDelta = { x: Math.floor(event.dx / this.containerScale.x), y: Math.floor(event.dy / this.containerScale.y) }
           let factor = (process._height + resizeDelta.y) / process._height
@@ -525,7 +525,7 @@ export default {
           let diffTimeSlice = Math.round(dy / this.timeSlice)
 
           if (Math.abs(diffTimeSlice) > 0) {
-            let process = this.processModel.childs.find(elem => elem.id === data.processId)
+            let process = this.processModel.children.find(elem => elem.id === data.processId)
 
             switch (this.timeFormat) {
               case 'days':
@@ -588,7 +588,7 @@ export default {
           } else {
             // open child
             this.actionId = event.target.getAttribute('data-id')
-            let child = this.processModel.childs.find(elem => elem.id === Helper.parse(this.actionId))
+            let child = this.processModel.children.find(elem => elem.id === Helper.parse(this.actionId))
             this.$refs['dialog-process'].open(child, 'update', true)
           }
         }
@@ -645,7 +645,7 @@ export default {
       targetId = Helper.parse(targetId)
 
       // avoid duplicate connections
-      let process = this.processModel.childs.find(elem => elem.id === sourceId)
+      let process = this.processModel.children.find(elem => elem.id === sourceId)
       if (process && process.connection.to.indexOf(targetId) !== -1) {
         console.warn('skipped new connection, it is already present')
         return
@@ -668,7 +668,7 @@ export default {
     redraw () {
       console.warn('redraw')
 
-      this.processModel.childs.forEach(process => {
+      this.processModel.children.forEach(process => {
         // draw process at correct position
         let domNode = this.redrawProcessPosition(process)
         domNode.querySelector('.process-content').classList.add('animation-morph')
@@ -707,7 +707,7 @@ export default {
     },
 
     redrawConnection (process) {
-      if (typeof process === 'string') process = this.processModel.childs.find(elem => elem.id === Helper.parse(process))
+      if (typeof process === 'string') process = this.processModel.children.find(elem => elem.id === Helper.parse(process))
 
       let conSources = process.connection.from
       let conTargets = process.connection.to
@@ -998,7 +998,7 @@ export default {
 
     processCreate () {
       console.log('processCreate')
-      let isSingleChild = this.processModel.childs.length === 0 // true if no childs are around
+      let isSingleChild = this.processModel.children.length === 0 // true if no children are around
       let start
       let initiator
 
@@ -1007,7 +1007,7 @@ export default {
         start = Calc.incrementDate(start, this.timeFormat)
         initiator = this.processModel.mDelegates[0] // use first delegate
       } else {
-        let lastProcess = Calc.getEndProcess(this.processModel.childs) // process at the bottom
+        let lastProcess = Calc.getEndProcess(this.processModel.children) // process at the bottom
         console.log('lastProcess', lastProcess)
         start = Calc.roundDate(lastProcess.mEnd, this.timeFormat)
         start = Calc.incrementDate(start, this.timeFormat)
@@ -1062,7 +1062,7 @@ export default {
       this.fsm.run('onOpenTransformationDialog', event)
 
       let processId = event.target.parentNode.getAttribute('data-process')
-      let process = this.processModel.childs.find(elem => elem.id === processId)
+      let process = this.processModel.children.find(elem => elem.id === processId)
 
       if (typeof process === 'undefined') {
         console.warn('Could not find process for id ' + processId)
