@@ -252,6 +252,14 @@ export default {
     // top: 20%;
     width: 90%;
     max-height: 90%;
+
+    .md-tab-indicator {
+      height: 0
+    }
+
+    button.md-active {
+      background: #e91e63
+    }
   }
 
   .fullscreen-dialog .md-tabs-content {
