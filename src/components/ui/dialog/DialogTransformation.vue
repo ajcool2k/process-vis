@@ -9,8 +9,8 @@
         <form novalidate @submit.stop.prevent="submit">
 
           <md-input-container>
-            <label>Prozess-ID</label>
-            <md-input type="text" readonly v-model="process.id"></md-input>
+            <label>Prozess</label>
+            <md-input type="text" readonly v-model="process.name"></md-input>
           </md-input-container>
 
           <transformation-content :process="process"></transformation-content>

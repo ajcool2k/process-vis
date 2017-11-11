@@ -16,6 +16,7 @@
 
       <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
       <dialog-transformation ref="dialog-transformation" v-on:closeDialog="onCloseTransformationDialog"></dialog-transformation>
+      <dialog-participation ref="dialog-participation" v-on:closeDialog="onCloseParticipationDialog"></dialog-participation>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
@@ -42,6 +43,8 @@
               <circle cx="5" cy="5" r="2" fill="dodgerblue"/>
             </marker>
 
+            <image id="icon-people" width="18" height="18" xlink:href="../../assets/people.svg" />
+
           </defs>
 
           <!-- draw Processes -->
@@ -58,6 +61,13 @@
                   <title>Prozess-Transformation: {{item.transformation.mName}}</title>
                 </rect>
                 <text class="process-transform-text" :x="(item._width - 11)" y="20">{{item.transformation.mType}}</text>
+              </g>
+
+              <g :data-process="item.id" v-if="item.participation !== 'closed'">
+                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" y="31"  height="25" width="20" @click.stop="onOpenParticipationDialog">
+                  <title>Beteiligungsmöglichkeit: {{item.participation}}</title>
+                </rect>
+                <use class="process-participation-icon" :x="(item._width - 20)" y="32" xlink:href="#icon-people" />
               </g>
 
             </g>
@@ -111,6 +121,7 @@ import AxisY from './AxisY.vue'
 
 import DialogProcess from './dialog/DialogProcess.vue'
 import DialogTransformation from './dialog/DialogTransformation.vue'
+import DialogParticipation from './dialog/DialogParticipation.vue'
 
 import interact from 'interactjs'
 
@@ -137,7 +148,8 @@ export default {
     'axis-x': AxisX,
     'axis-y': AxisY,
     'dialog-process': DialogProcess,
-    'dialog-transformation': DialogTransformation
+    'dialog-transformation': DialogTransformation,
+    'dialog-participation': DialogParticipation
   },
   props: [ 'processModel', 'isSaved', 'changes' ],
 
@@ -416,6 +428,7 @@ export default {
       let showProcess = this.fsm.addState('showProcess')
       let showRemoveConnection = this.fsm.addState('showRemoveConnection')
       let showTransformation = this.fsm.addState('showTransformation')
+      let showParticipation = this.fsm.addState('showParticipation')
 
       this.fsm.addEvent(idle, drawConnection, {
         name: 'activateConnectionConnect',
@@ -631,6 +644,17 @@ export default {
 
       this.fsm.addEvent(showTransformation, idle, {
         name: 'onCloseTransformationDialog',
+        action: (event) => {}
+      })
+
+      this.fsm.addEvent(idle, showParticipation, {
+        name: 'onOpenParticipationDialog',
+        action: (event) => {
+        }
+      })
+
+      this.fsm.addEvent(showParticipation, idle, {
+        name: 'onCloseParticipationDialog',
         action: (event) => {}
       })
 
@@ -1072,6 +1096,22 @@ export default {
       this.$refs['dialog-transformation'].open(process)
     },
 
+    onOpenParticipationDialog (event) {
+      console.warn('onOpenParticipationDialog')
+      if (!this.fsm.hasEvent('onOpenParticipationDialog')) return
+      this.fsm.run('onOpenParticipationDialog', event)
+
+      let processId = event.target.parentNode.getAttribute('data-process')
+      let process = this.processModel.children.find(elem => elem.id === processId)
+
+      if (typeof process === 'undefined') {
+        console.warn('Could not find process for id ' + processId)
+        return
+      }
+
+      this.$refs['dialog-participation'].open(process)
+    },
+
     onChangeProcess () {
       console.log('onChangeProcess called')
       this.$emit('changeProcess', 'parent')
@@ -1089,6 +1129,13 @@ export default {
       if (!this.fsm.hasEvent('onCloseTransformationDialog')) return
       this.fsm.run('onCloseTransformationDialog', data)
       console.log('onCloseTransformationDialog run!')
+    },
+
+    onCloseParticipationDialog (data) {
+      console.log('onCloseParticipationDialog called')
+      if (!this.fsm.hasEvent('onCloseParticipationDialog')) return
+      this.fsm.run('onCloseParticipationDialog', data)
+      console.log('onCloseParticipationDialog run!')
     },
 
     onCloseDelegateDialog (data) {
@@ -1405,7 +1452,7 @@ svg {
       animation-duration: 600ms;
     }
 
-    rect.proces-transform {
+    rect.proces-transform, rect.process-participation {
       fill: white;
       cursor: pointer;
     }
@@ -1417,6 +1464,11 @@ svg {
       font-style: normal;
       font-weight: bold;
       font-size: 20px;
+    }
+
+    .process-participation-icon {
+      text-anchor: middle;
+      pointer-events: none;
     }
 
     rect.process-content {

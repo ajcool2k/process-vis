@@ -6,8 +6,8 @@
       ref="dialog">
       <md-dialog-content>
         <form novalidate @submit.stop.prevent="submit">
-          <md-tabs v-on:change="activeTab" :md-fixed="true" :md-dynamic-height="true">
-            <md-tab id="general" md-label="General">
+          <md-tabs v-on:change="activeTab" :md-fixed="true" :md-dynamic-height="true" :data-tab="tab">
+            <md-tab id="general" md-label="General" :md-active="tab === 0">
               <!--
 
               <md-input-container>
@@ -46,7 +46,7 @@
 
             </md-tab>
 
-            <md-tab id="info" md-label="Info">
+            <md-tab id="info" md-label="Info" :md-active="tab === 1">
 
                 <md-input-container>
                   <label>Aktenzeichen</label>
@@ -59,19 +59,19 @@
                 </md-input-container>
             </md-tab>
 
-            <md-tab id="locations" md-label="Orte">
+            <md-tab id="locations" md-label="Orte" :md-active="tab === 2">
               <location-tab :process="process"></location-tab>
             </md-tab>
 
-            <md-tab id="stakeholder" md-label="Beteiligte">
+            <md-tab id="stakeholder" md-label="Beteiligte" :md-active="tab === 3">
               <stakeholder-tab :process="process" ref="stakeholder-tab"></stakeholder-tab>
             </md-tab>
 
-            <md-tab id="transformation" md-label="Transformation">
+            <md-tab id="transformation" md-label="Transformation" :md-active="tab === 4">
               <transformation-tab :process="process"></transformation-tab>
             </md-tab>
 
-            <md-tab id="results" md-label="Ergebnisse">
+            <md-tab id="results" md-label="Ergebnisse" :md-active="tab === 5">
               <result-tab :process="process"></result-tab>
             </md-tab>
           </md-tabs>
@@ -114,6 +114,7 @@ export default {
     return {
       dom: {},
       process: new Process(),
+      tab: 0,
       showProcessButton: false,
       info: {
         name: '',
@@ -144,12 +145,13 @@ export default {
   },
 
   methods: {
-    open (child, a, showProcessButton) {
+    open (child, a, showProcessButton, tab) {
       console.log('DialogProcess open()')
       console.log(child)
       this.process = child
       this.setAction(a)
       this.showProcessButton = showProcessButton === true
+      this.tab = typeof tab === 'number' ? tab : 0
 
       this.info.name = typeof this.process.mName === 'string' ? this.process.mName : ''
       this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd') : ''
@@ -162,7 +164,7 @@ export default {
       this.$refs['dialog'].open()
 
       // Fix initial scrollbar
-      this.resetScrollbar()
+      // this.resetScrollbar()
     },
 
     setAction (a) {
@@ -218,11 +220,15 @@ export default {
     },
 
     resetScrollbar () {
-      this.dom.tabContainer.style.overflowY = 'hidden'
-      setTimeout(() => { this.dom.tabContainer.style.overflowY = 'auto' }, 1000)
+      setTimeout(() => {
+        this.dom.tabContainer.style.overflowY = 'hidden'
+        this.dom.tabContainer.style.overflowY = 'auto'
+      }, 1000)
     },
 
     activeTab (index) {
+      this.tab = index
+
       if (this.dom.hasOwnProperty('tabContainer') === false) {
         this.dom.navButtonList = document.querySelectorAll('button.md-tab-header')
         this.dom.tabContainer = document.querySelector('.md-tabs-content')
