@@ -1,10 +1,5 @@
 <template>
   <div class="transformation">
-		<md-layout md-gutter>
-			<md-layout md-flex="70" md-vertical-align="center" class="md-subheading">Entscheidung</md-layout>
-			<md-layout md-align="end" ><md-switch v-model="process.transformation.mDecision" id="decision" name="decision" class="md-primary"></md-switch></md-layout>
-		</md-layout>
-
 		<md-input-container>
 			<label for="transformation-type">Art</label>
 			<md-select name="transformation-type" id="transformation-type" v-model="process.transformation.type">
