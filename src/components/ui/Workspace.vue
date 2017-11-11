@@ -15,8 +15,6 @@
       </md-dialog-confirm>
 
       <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
-      <dialog-transformation ref="dialog-transformation" v-on:closeDialog="onCloseTransformationDialog"></dialog-transformation>
-      <dialog-participation ref="dialog-participation" v-on:closeDialog="onCloseParticipationDialog"></dialog-participation>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
@@ -120,8 +118,6 @@ import AxisX from './AxisX.vue'
 import AxisY from './AxisY.vue'
 
 import DialogProcess from './dialog/DialogProcess.vue'
-import DialogTransformation from './dialog/DialogTransformation.vue'
-import DialogParticipation from './dialog/DialogParticipation.vue'
 
 import interact from 'interactjs'
 
@@ -147,9 +143,7 @@ export default {
     'time-chooser': TimeChooser,
     'axis-x': AxisX,
     'axis-y': AxisY,
-    'dialog-process': DialogProcess,
-    'dialog-transformation': DialogTransformation,
-    'dialog-participation': DialogParticipation
+    'dialog-process': DialogProcess
   },
   props: [ 'processModel', 'isSaved', 'changes' ],
 
@@ -643,7 +637,7 @@ export default {
       })
 
       this.fsm.addEvent(showTransformation, idle, {
-        name: 'onCloseTransformationDialog',
+        name: 'onCloseProcessDialog',
         action: (event) => {}
       })
 
@@ -654,7 +648,7 @@ export default {
       })
 
       this.fsm.addEvent(showParticipation, idle, {
-        name: 'onCloseParticipationDialog',
+        name: 'onCloseProcessDialog',
         action: (event) => {}
       })
 
@@ -1093,7 +1087,7 @@ export default {
         return
       }
 
-      this.$refs['dialog-transformation'].open(process)
+      this.$refs['dialog-process'].open(process, 'update', true, 4)
     },
 
     onOpenParticipationDialog (event) {
@@ -1109,7 +1103,7 @@ export default {
         return
       }
 
-      this.$refs['dialog-participation'].open(process)
+      this.$refs['dialog-process'].open(process, 'update', true, 0)
     },
 
     onChangeProcess () {
