@@ -1,7 +1,7 @@
 <template>
   <div class="process-breadcrumbs">
 
-      <md-button class="md-dense" @click="onChangeProcess('parent')">{{ getPrev() }}</md-button>
+      <md-button class="md-dense" :title="getPrevId()" @click="onChangeProcess('parent')">{{ getPrev() }}</md-button>
       <md-icon>keyboard_arrow_right</md-icon>
       <md-button class="md-raised md-accent" :title="process.id" @click="onShowProcess">{{ getName() }}</md-button>
       <md-icon>keyboard_arrow_right</md-icon>
@@ -44,11 +44,18 @@ export default {
     },
 
     getPrev () {
-      return !this.process || this.process.parent === '' ? 'ANLEGEN' : this.process.parent
+      return !this.process || this.process.parent === '' ? 'ANLEGEN' : 'Übergeordneter Prozess'
+    },
+
+    getPrevId () {
+      return !this.process || this.process.parent === '' ? '' : this.process.parent
     },
 
     getName () {
-      return typeof this.process.mName !== 'undefined' && this.process.mName !== '' ? this.process.mName : '[keine Bezeichnung]'
+      let maxLen = 20
+      let strLen = typeof this.process.mName === 'string' ? this.process.mName.length : 0
+      let len = strLen > maxLen ? maxLen : strLen
+      return typeof this.process.mName !== 'undefined' && this.process.mName !== '' ? this.process.mName.substring(0, len) : '[keine Bezeichnung]'
     },
 
     onShowChildren () {
