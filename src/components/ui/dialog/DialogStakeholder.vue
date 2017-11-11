@@ -16,11 +16,12 @@
             <md-option v-for="(item, index) in stakeholder" :data-name="item.name"  :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
           </md-select>
         </md-input-container>
-
+        <!--
         <md-input-container>
           <label>Akteur-ID</label>
           <md-input type="text" readonly v-model="initiator.id"></md-input>
         </md-input-container>
+        -->
 
         <md-input-container>
           <label>Akteur-Name</label>
