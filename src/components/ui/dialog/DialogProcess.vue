@@ -8,6 +8,8 @@
         <form novalidate @submit.stop.prevent="submit">
           <md-tabs v-on:change="activeTab" :md-fixed="true" :md-dynamic-height="true">
             <md-tab id="general" md-label="General">
+              <!--
+
               <md-input-container>
                 <label>Prozess-ID</label>
                 <md-input type="text" readonly v-model="process.id"></md-input>
@@ -16,6 +18,12 @@
               <md-input-container>
                 <label>Eltern-ID</label>
                 <md-input type="text" readonly v-model="process.parent"></md-input>
+              </md-input-container>
+
+              -->
+              <md-input-container>
+                <label>Bezeichnung</label>
+                <md-input type="text" v-model="info.name" @change="onChangeName"></md-input>
               </md-input-container>
 
               <md-input-container>
@@ -30,7 +38,7 @@
 
               <md-input-container>
                 <label for="participation">Partizipation</label>
-                <md-select name="participation" id="participation" v-model="process.mParticipation">
+                <md-select name="participation" id="participation" v-model="info.participation" @change="onChangeParticipation">
                   <md-option value="closed">nicht möglich</md-option>
                   <md-option value="open">möglich</md-option>
                 </md-select>
@@ -39,19 +47,15 @@
             </md-tab>
 
             <md-tab id="info" md-label="Info">
-                <md-input-container>
-                  <label>Bezeichnung</label>
-                  <md-input type="text" v-model="process.mName"></md-input>
-                </md-input-container>
 
                 <md-input-container>
                   <label>Aktenzeichen</label>
-                  <md-input type="text" v-model="process.mReference"></md-input>
+                  <md-input type="text" v-model="info.reference" @change="onChangeReference"></md-input>
                 </md-input-container>
 
                 <md-input-container>
                   <label>Beschreibung</label>
-                  <md-textarea v-model="process.mDescription"></md-textarea>
+                  <md-textarea v-model="info.description" @change="onChangeDescription"></md-textarea>
                 </md-input-container>
             </md-tab>
 
@@ -112,8 +116,12 @@ export default {
       process: new Process(),
       showProcessButton: false,
       info: {
+        name: '',
         start: '',
-        end: ''
+        end: '',
+        participation: '',
+        reference: '',
+        description: ''
       },
       action: 'create',
       response: 'update'
@@ -143,8 +151,12 @@ export default {
       this.setAction(a)
       this.showProcessButton = showProcessButton === true
 
-      this.info.start = typeof child.start !== 'undefined' && child.start !== null ? dateFormat(child.start, 'yyyy-mm-dd') : ''
-      this.info.end = typeof child.end !== 'undefined' && child.end !== null ? dateFormat(child.end, 'yyyy-mm-dd') : ''
+      this.info.name = typeof this.process.mName === 'string' ? this.process.mName : ''
+      this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd') : ''
+      this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd') : ''
+      this.info.participation = typeof this.process.mParticipation !== 'undefined' ? this.process.mParticipation : ''
+      this.info.reference = typeof this.process.mReference !== 'undefined' ? this.process.mReference : ''
+      this.info.description = typeof this.process.mDescription !== 'undefined' ? this.process.mDescription : ''
 
       this.$refs['stakeholder-tab'].refresh(this.process)
       this.$refs['dialog'].open()
@@ -181,12 +193,28 @@ export default {
       this.$emit('closeDialog', { id: this.process.id, response: this.response })
     },
 
+    onChangeName (name) {
+      this.process.mName = name
+    },
+
     onChangeStart (dateString) {
       this.process.mStart = new Date(dateString)
     },
 
     onChangeEnd (dateString) {
       this.process.mEnd = new Date(dateString)
+    },
+
+    onChangeParticipation (string) {
+      this.process.mParticipation = string
+    },
+
+    onChangeReference (string) {
+      this.process.mReference = string
+    },
+
+    onChangeDescription (string) {
+      this.process.mDescription = string
     },
 
     resetScrollbar () {
