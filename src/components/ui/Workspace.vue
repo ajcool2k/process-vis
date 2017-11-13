@@ -62,7 +62,7 @@
               </g>
 
               <g :data-process="item.id" v-if="item.participation !== 'closed'">
-                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" y="31"  height="25" width="20" @click.stop="onOpenParticipationDialog">
+                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" y="31"  height="28" width="20" @click.stop="onOpenParticipationDialog">
                   <title>Beteiligungsmöglichkeit: {{item.participation}}</title>
                 </rect>
                 <use class="process-participation-icon" :x="(item._width - 20)" y="32" xlink:href="#icon-people" />
@@ -1447,12 +1447,12 @@ svg {
     }
 
     rect.proces-transform, rect.process-participation {
-      fill: white;
+      fill: $primaryColor;
       cursor: pointer;
     }
 
     .process-transform-text {
-      fill: #8e8e8e;
+      fill: white;
       text-anchor: middle;
       pointer-events: none;
       font-style: normal;
