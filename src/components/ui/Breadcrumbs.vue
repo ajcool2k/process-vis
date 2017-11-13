@@ -55,7 +55,7 @@ export default {
       let maxLen = 20
       let strLen = typeof this.process.mName === 'string' ? this.process.mName.length : 0
       let len = strLen > maxLen ? maxLen : strLen
-      return typeof this.process.mName !== 'undefined' && this.process.mName !== '' ? this.process.mName.substring(0, len) : '[keine Bezeichnung]'
+      return typeof this.process.mName !== 'undefined' && this.process.mName !== '' && this.process.mName !== '[untitled]' ? this.process.mName.substring(0, len) : '[keine Bezeichnung]'
     },
 
     onShowChildren () {
