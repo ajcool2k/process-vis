@@ -2,7 +2,7 @@ import { Version } from '@/classes/model/Version'
 
 export class Patch {
   static updateModel (model) {
-    if (typeof model !== 'object') {
+    if (!model || typeof model !== 'object') {
       console.warn('Patch.updateModel() - expected Process')
       return
     }

@@ -1,7 +1,7 @@
 export class Validator {
   static isValid (obj) {
     // check type
-    if (typeof obj !== 'object') {
+    if (!obj || typeof obj !== 'object') {
       Validator.lastError = 'Validator - Object expected'
       return false
     }
