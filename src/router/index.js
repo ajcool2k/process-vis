@@ -10,6 +10,7 @@ import Index from '@/components/Index'
 // import Flexbox from '@/components/demos/Flexbox'
 // import StateMachine from '@/components/demos/StateMachine'
 import Process from '@/components/Process'
+import RenderTest from '@/components/demos/RenderTest'
 
 Vue.use(Router)
 
@@ -24,6 +25,7 @@ export default new Router({
     // { name: 'D3demo', path: '/draw3', component: D3demo },
     // { name: 'StateMachine', path: '/state-machine', component: StateMachine },
     { name: 'Process (new)', path: '/process', component: Process },
-    { name: 'Process (existing)', path: '/process/:id', component: Process }
+    { name: 'Process (existing)', path: '/process/:id', component: Process },
+    { name: 'RenderTest', path: '/RenderTest', component: RenderTest }
   ]
 })
