@@ -155,6 +155,10 @@ export class Helper {
 
     maxLength = typeof maxLength === 'number' ? maxLength : text.length
 
+    if (text.length <= maxLength) {
+      return text.toUpperCase() // set uppercase
+    }
+
     let length = text.length > maxLength ? maxLength : text.length
     let tmp = text.match(/\b\w/g) || [] // get initials
     tmp = tmp.slice(0, length) // cap to maxLength
