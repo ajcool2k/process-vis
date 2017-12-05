@@ -11,6 +11,7 @@ import Index from '@/components/Index'
 // import StateMachine from '@/components/demos/StateMachine'
 import Process from '@/components/Process'
 import RenderTest from '@/components/demos/RenderTest'
+import VectorTest from '@/components/demos/VectorTest'
 
 Vue.use(Router)
 
@@ -26,6 +27,7 @@ export default new Router({
     // { name: 'StateMachine', path: '/state-machine', component: StateMachine },
     { name: 'Process (new)', path: '/process', component: Process },
     { name: 'Process (existing)', path: '/process/:id', component: Process },
-    { name: 'RenderTest', path: '/RenderTest', component: RenderTest }
+    { name: 'RenderTest', path: '/RenderTest', component: RenderTest },
+    { name: 'VectorTest', path: '/VectorTest', component: VectorTest }
   ]
 })
