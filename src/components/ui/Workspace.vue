@@ -626,7 +626,7 @@ export default {
       })
 
       this.fsm.addEvent(showRemoveConnection, idle, {
-        name: 'onCloseRemoveConnectionDialog',
+        name: ['onCloseRemoveConnectionDialog', 'onEscape'],
         action: (event) => {}
       })
 
@@ -637,7 +637,7 @@ export default {
       })
 
       this.fsm.addEvent(showTransformation, idle, {
-        name: 'onCloseProcessDialog',
+        name: ['onCloseProcessDialog', 'onEscape'],
         action: (event) => {}
       })
 
@@ -648,7 +648,7 @@ export default {
       })
 
       this.fsm.addEvent(showParticipation, idle, {
-        name: 'onCloseProcessDialog',
+        name: ['onCloseProcessDialog', 'onEscape'],
         action: (event) => {}
       })
 
