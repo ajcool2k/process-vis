@@ -51,18 +51,18 @@
               <rect :class="'process-content has-child-' + (item.children.length > 0)" :data-id="item.id" :height="item._height" :width="item._width">
                 <title>Name: {{ item.name }} ({{ item.id }})</title>
               </rect>
-              <circle class="process-anchor" :data-id="item.id" @click.stop="activateConnectionConnect" r="10" :cy="(item._height - 15)" :cx="(item._width / 2 )"></circle>
+              <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" r="10" :cy="(item._height - 15)" :cx="(item._width / 2 )"></circle>
               <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="(item._height / 2)">{{ shortName(item.name) }}</text>
 
               <g :data-process="item.id">
-                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 21)" y="1"  height="30" width="20" @click.stop="onOpenTransformationDialog">
+                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 21)" y="1"  height="30" width="20" @click.stop="onTransformationClick">
                   <title>Prozess-Transformation: {{item.transformation.mName}}</title>
                 </rect>
                 <text class="process-transform-text" :x="(item._width - 11)" y="20">{{item.transformation.mType}}</text>
               </g>
 
               <g :data-process="item.id" v-if="item.participation !== 'closed'">
-                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" y="31"  height="28" width="20" @click.stop="onOpenParticipationDialog">
+                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" y="31"  height="28" width="20" @click.stop="onParticipationClick">
                   <title>Beteiligungsmöglichkeit: {{item.participation}}</title>
                 </rect>
                 <use class="process-participation-icon" :x="(item._width - 20)" y="32" xlink:href="#icon-people" />
@@ -75,7 +75,7 @@
           <template v-for="(item, index) in processModel.children">
             <template v-for="(con, index) in item._connections">
               <g :key="con.id + '-connection'" class="connection" :data-id="con.id">
-                <path class="connection-outline" :data-id="con.id" d="" @click.stop="openRemoveConnectionDialog" />
+                <path class="connection-outline" :data-id="con.id" d="" @click.stop="onConnectionClick" />
                 <path class="connection-line" :data-id="con.id" d="" />
               </g>
              </template>
@@ -85,7 +85,7 @@
           <!--
           <template v-for="(item, index) in processModel.children">
             <template v-for="(con, index) in item._connections">
-              <g :key="con.id + '-connection-transition'" class="connection-transition" :data-id="con.id" :data-process="item.id" @click.stop="onOpenTransformationDialog">
+              <g :key="con.id + '-connection-transition'" class="connection-transition" :data-id="con.id" :data-process="item.id" @click.stop="onTransformationClick">
                 <circle class="connection-transition-circle" r="20" />
                 <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
                 <text class="connection-transition-text" dy="10" text-anchor="middle">E</text>
@@ -261,11 +261,23 @@ export default {
       .draggable({})
       .ignoreFrom('.ignore-container-events')
       .on('dragstart', event => {
+        if (!this.fsm.hasEvent('onContainerDragstart')) return
+        this.fsm.run('onContainerDragstart')
+
         console.warn('dragstart container')
         this.actionPosition = { x: event.pageX, y: event.pageY }
       })
-      .on('dragmove', this.onContainerDrag)
+      .on('dragmove', event => {
+        if (!this.fsm.hasEvent('onContainerDragmove')) return
+        this.fsm.run('onContainerDragmove')
+
+        console.log('dragmove')
+        this.onContainerDrag(event)
+      })
       .on('dragend', event => {
+        if (!this.fsm.hasEvent('onContainerDragend')) return
+        this.fsm.run('onContainerDragend')
+
         console.warn('dragend container')
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         this.updateWorkspaceSize(dragDelta) // forces reflow
@@ -277,11 +289,23 @@ export default {
       })
       .ignoreFrom('.ignore-container-events')
       .on('resizestart', event => {
+        if (!this.fsm.hasEvent('onContainerResizestart')) return
+        this.fsm.run('onContainerResizestart')
+
         console.log('resizestart')
         this.actionPosition = { x: event.pageX, y: event.pageY }
       })
-      .on('resizemove', this.onContainerResize)
+      .on('resizemove', event => {
+        if (!this.fsm.hasEvent('onContainerResizemove')) return
+        this.fsm.run('onContainerResizemove')
+
+        console.log('resizemove')
+        this.onContainerResize(event)
+      })
       .on('resizeend', event => {
+        if (!this.fsm.hasEvent('onContainerResizeend')) return
+        this.fsm.run('onContainerResizeend')
+
         console.log('resizeend')
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         let scaledDragDelta = { x: Math.floor(dragDelta.x / this.containerScale.x), y: Math.floor(dragDelta.y / this.containerScale.y) }
@@ -307,10 +331,14 @@ export default {
       })
       .on('dragstart', event => {
         console.warn('dragstart process')
-        if (!this.fsm.hasEvent('dragstart')) return
-        this.fsm.run('dragstart', event)
+        if (!this.fsm.hasEvent('onProcessDragstart')) return
+        this.fsm.run('onProcessDragstart', event)
       })
-      .on('dragmove', this.onProcessDrag)
+      .on('dragmove', event => {
+        if (!this.fsm.hasEvent('onProcessDragmove')) return
+        this.fsm.run('onProcessDragmove', event)
+        console.log('dragmove')
+      })
       .on('dragend', event => {
         console.warn('dragend process')
         this.timeRuler.style.display = 'none'
@@ -322,16 +350,16 @@ export default {
       })
       .on('resizestart', event => {
         console.log('resizestart event', event)
-        if (!this.fsm.hasEvent('resizeProcessStart')) return
-        this.fsm.run('resizeProcessStart', event)
+        if (!this.fsm.hasEvent('onProcessResizestart')) return
+        this.fsm.run('onProcessResizestart', event)
       })
       .on('resizemove', event => {
-        if (!this.fsm.hasEvent('resizeProcessMove')) return
-        this.fsm.run('resizeProcessMove', event)
+        if (!this.fsm.hasEvent('onProcessResizemove')) return
+        this.fsm.run('onProcessResizemove', event)
       })
       .on('resizeend', event => {
-        if (!this.fsm.hasEvent('resizeProcessFinished')) return
-        this.fsm.run('resizeProcessFinished', event)
+        if (!this.fsm.hasEvent('onProcessResizeend')) return
+        this.fsm.run('onProcessResizeend', event)
       })
 
     interact('.delegate')
@@ -363,8 +391,8 @@ export default {
           // event.relatedTarget.textContent = 'Dragged out';
         },
         ondrop: event => {
-          if (!this.fsm.hasEvent('onProcessDrop')) return
-          this.fsm.run('onProcessDrop', event)
+          if (!this.fsm.hasEvent('onProcessDragend')) return
+          this.fsm.run('onProcessDragend', event)
           event.relatedTarget.classList.remove('process-drop')
         },
         ondropdeactivate: function (event) {
@@ -406,30 +434,25 @@ export default {
 
       let idle = this.fsm.addState('idle')
 
-      // Connections
-      let drawConnection = this.fsm.addState('drawConnection')
+      // Workspace
+      let resizeWorkspace = this.fsm.addState('resizeWorkspace')
+      let dragWorkspace = this.fsm.addState('dragWorkspace')
 
       // Processs
       let dragProcess = this.fsm.addState('dragProcess')
-      let droppedProcess = this.fsm.addState('droppedProcess')
-      let openProcess = this.fsm.addState('openProcess')
-
-      let resizeProcessStart = this.fsm.addState('resizeProcessStart')
-      let resizeProcessMove = this.fsm.addState('resizeProcessMove')
-      let resizeProcessFinished = this.fsm.addState('resizeProcessFinished')
+      let resizeProcess = this.fsm.addState('resizeProcess')
+      let changeProcess = this.fsm.addState('changeProcess')
+      let connectionMode = this.fsm.addState('connectionMode')
 
       // Dialogs
-      let showProcess = this.fsm.addState('showProcess')
-      let showRemoveConnection = this.fsm.addState('showRemoveConnection')
-      let showTransformation = this.fsm.addState('showTransformation')
-      let showParticipation = this.fsm.addState('showParticipation')
+      let showDialog = this.fsm.addState('showDialog')
 
-      this.fsm.addEvent(idle, drawConnection, {
-        name: 'activateConnectionConnect',
+      this.fsm.addEvent(idle, connectionMode, {
+        name: 'onCircleClick',
         action: (event) => {}
       })
 
-      this.fsm.addEvent(drawConnection, idle, {
+      this.fsm.addEvent(connectionMode, idle, {
         name: ['onContainerClick', 'onEscape'],
         action: (event) => {
           this.actions.drawingMode = false
@@ -442,7 +465,7 @@ export default {
         }
       })
 
-      this.fsm.addEvent(drawConnection, idle, {
+      this.fsm.addEvent(connectionMode, idle, {
         name: 'onProcessClick',
         action: (event) => {
           let source = this.tmpLine
@@ -462,17 +485,48 @@ export default {
         }
       })
 
-      this.fsm.addEvent(idle, resizeProcessStart, {
-        name: 'resizeProcessStart',
+      // Workspace
+      this.fsm.addEvent(idle, resizeWorkspace, {
+        name: 'onContainerResizestart',
+        action: (event) => {}
+      })
+
+      this.fsm.addEvent(resizeWorkspace, resizeWorkspace, {
+        name: 'onContainerResizemove',
+        action: (event) => {}
+      })
+
+      this.fsm.addEvent(resizeWorkspace, idle, {
+        name: 'onContainerResizeend',
+        action: (event) => {}
+      })
+
+      this.fsm.addEvent(idle, dragWorkspace, {
+        name: 'onContainerDragstart',
+        action: (event) => {}
+      })
+
+      this.fsm.addEvent(dragWorkspace, dragWorkspace, {
+        name: 'onContainerDragmove',
+        action: (event) => {}
+      })
+
+      this.fsm.addEvent(dragWorkspace, idle, {
+        name: 'onContainerDragend',
+        action: (event) => {}
+      })
+
+      // Process
+      this.fsm.addEvent(idle, resizeProcess, {
+        name: 'onProcessResizestart',
         action: (event) => {
           this.timeRuler.setAttribute('data-y', this.mousePosition.y)
           this.timeRuler.style.display = 'inline'
         }
       })
 
-      this.fsm.addEvent(resizeProcessStart, resizeProcessMove, {
-        name: 'resizeProcessMove',
-        type: 'transition',
+      this.fsm.addEvent(resizeProcess, resizeProcess, {
+        name: 'onProcessResizemove',
         action: (event) => {
           this.resizeProcess(event)
           let processId = event.target.getAttribute('data-id')
@@ -485,9 +539,11 @@ export default {
         }
       })
 
-      this.fsm.addEvent(resizeProcessMove, resizeProcessFinished, {
-        name: 'resizeProcessFinished',
+      this.fsm.addEvent(resizeProcess, idle, {
+        name: 'onProcessResizeend',
         action: (event) => {
+          Events.disableClicks(300)
+
           this.timeRuler.style.display = 'none'
           let processId = event.target.getAttribute('data-id')
           let process = this.processModel.children.find(elem => elem.id === Helper.parse(processId))
@@ -500,14 +556,8 @@ export default {
         }
       })
 
-      this.fsm.addEvent(resizeProcessFinished, idle, {
-        name: ['onProcessClick', 'onContainerClick'],
-        action: (event) => {
-        }
-      })
-
       this.fsm.addEvent(idle, dragProcess, {
-        name: 'dragstart',
+        name: 'onProcessDragstart',
         action: (event) => {
           let parent = event.target.parentNode
           this.timeRuler.setAttribute('data-y', parent.getAttribute('data-y'))
@@ -515,9 +565,21 @@ export default {
         }
       })
 
-      this.fsm.addEvent(dragProcess, droppedProcess, {
-        name: 'onProcessDrop',
+      this.fsm.addEvent(dragProcess, dragProcess, {
+        name: 'onProcessDragmove',
         action: (event) => {
+          let parent = event.target.parentNode
+          this.timeRuler.setAttribute('data-y', parent.getAttribute('data-y'))
+          this.timeRuler.style.display = 'inline'
+          this.onProcessDrag(event)
+        }
+      })
+
+      this.fsm.addEvent(dragProcess, idle, {
+        name: 'onProcessDragend',
+        action: (event) => {
+          Events.disableClicks(300)
+
           let draggableElement = event.relatedTarget
           let dropzoneElement = event.target
           console.log(dropzoneElement)
@@ -561,13 +623,7 @@ export default {
         }
       })
 
-      this.fsm.addEvent(droppedProcess, idle, {
-        name: 'onProcessClick',
-        action: (event) => {
-        }
-      })
-
-      this.fsm.addEvent(idle, openProcess, {
+      this.fsm.addEvent(idle, changeProcess, {
         name: 'onProcessDoubleClick',
         action: (event) => {
           let id = event.target.getAttribute('data-id')
@@ -580,13 +636,13 @@ export default {
         }
       })
 
-      this.fsm.addEvent(openProcess, idle, {
+      this.fsm.addEvent(changeProcess, idle, {
         name: 'timeout',
         action: (event) => {
         }
       })
 
-      this.fsm.addEvent(idle, showProcess, {
+      this.fsm.addEvent(idle, showDialog, {
         name: 'onProcessClick',
         action: (event) => {
           if (!event || typeof event === 'undefined') {
@@ -601,7 +657,13 @@ export default {
         }
       })
 
-      this.fsm.addEvent(showProcess, idle, {
+      this.fsm.addEvent(idle, showDialog, {
+        name: [ 'onTransformationClick', 'onParticipationClick', 'onConnectionClick' ],
+        action: (event) => {
+        }
+      })
+
+      this.fsm.addEvent(showDialog, idle, {
         name: 'onCloseProcessDialog',
         action: (event) => {
           console.log('EVENT', event)
@@ -619,36 +681,8 @@ export default {
         }
       })
 
-      this.fsm.addEvent(idle, showRemoveConnection, {
-        name: 'openRemoveConnectionDialog',
-        action: (event) => {
-        }
-      })
-
-      this.fsm.addEvent(showRemoveConnection, idle, {
-        name: ['onCloseRemoveConnectionDialog', 'onEscape'],
-        action: (event) => {}
-      })
-
-      this.fsm.addEvent(idle, showTransformation, {
-        name: 'onOpenTransformationDialog',
-        action: (event) => {
-        }
-      })
-
-      this.fsm.addEvent(showTransformation, idle, {
-        name: ['onCloseProcessDialog', 'onEscape'],
-        action: (event) => {}
-      })
-
-      this.fsm.addEvent(idle, showParticipation, {
-        name: 'onOpenParticipationDialog',
-        action: (event) => {
-        }
-      })
-
-      this.fsm.addEvent(showParticipation, idle, {
-        name: ['onCloseProcessDialog', 'onEscape'],
+      this.fsm.addEvent(showDialog, idle, {
+        name: 'onEscape',
         action: (event) => {}
       })
 
@@ -803,13 +837,13 @@ export default {
       // transition.setAttribute('transform', 'translate(' + middlePoint1.x + ',' + middlePoint1.y + ')')
     },
 
-    activateConnectionConnect (event) {
-      if (!this.fsm.hasEvent('activateConnectionConnect')) return
-      this.fsm.run('activateConnectionConnect')
+    onCircleClick (event) {
+      if (!this.fsm.hasEvent('onCircleClick')) return
+      this.fsm.run('onCircleClick')
 
       event.preventDefault()
 
-      console.log('activateConnectionConnect:', event.type)
+      console.log('onCircleClick:', event.type)
 
       let source = event.target
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
@@ -1048,7 +1082,8 @@ export default {
     },
 
     onContainerClick () {
-      console.log('onContainerClick')
+      console.log('onContainerClick - disabled', Events.DISABLE_CLICK)
+      if (Events.DISABLE_CLICK) return
 
       this.resetCuror()
 
@@ -1056,9 +1091,9 @@ export default {
       this.fsm.run('onContainerClick')
     },
 
-    openRemoveConnectionDialog (event) {
-      if (!this.fsm.hasEvent('openRemoveConnectionDialog')) return
-      this.fsm.run('openRemoveConnectionDialog', event)
+    onConnectionClick (event) {
+      if (!this.fsm.hasEvent('onConnectionClick')) return
+      this.fsm.run('onConnectionClick', event)
 
       this.actionId = event.target.getAttribute('data-id')
       this.$refs['removeConnectionDialog'].open()
@@ -1074,10 +1109,10 @@ export default {
       this.removeConnection(this.actionId)
     },
 
-    onOpenTransformationDialog (event) {
-      console.warn('onOpenTransformationDialog')
-      if (!this.fsm.hasEvent('onOpenTransformationDialog')) return
-      this.fsm.run('onOpenTransformationDialog', event)
+    onTransformationClick (event) {
+      console.warn('onTransformationClick')
+      if (!this.fsm.hasEvent('onTransformationClick')) return
+      this.fsm.run('onTransformationClick', event)
 
       let processId = event.target.parentNode.getAttribute('data-process')
       let process = this.processModel.children.find(elem => elem.id === processId)
@@ -1090,10 +1125,10 @@ export default {
       this.$refs['dialog-process'].open(process, 'update', true, 4)
     },
 
-    onOpenParticipationDialog (event) {
-      console.warn('onOpenParticipationDialog')
-      if (!this.fsm.hasEvent('onOpenParticipationDialog')) return
-      this.fsm.run('onOpenParticipationDialog', event)
+    onParticipationClick (event) {
+      console.warn('onParticipationClick')
+      if (!this.fsm.hasEvent('onParticipationClick')) return
+      this.fsm.run('onParticipationClick', event)
 
       let processId = event.target.parentNode.getAttribute('data-process')
       let process = this.processModel.children.find(elem => elem.id === processId)
@@ -1222,7 +1257,9 @@ export default {
     },
 
     onProcessClick (event) {
-      console.warn('onProcessClick')
+      console.warn('onProcessClick - disabled', Events.DISABLE_CLICK)
+      if (Events.DISABLE_CLICK) return
+
       this.resetCuror()
 
       this.clickCounts.process++

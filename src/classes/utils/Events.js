@@ -82,6 +82,14 @@ export class Events {
       if (isEscape) callback()
     }
   }
+
+  static disableClicks (ms) {
+    Events.DISABLE_CLICK = true
+
+    setTimeout(() => {
+      Events.DISABLE_CLICK = false
+    }, ms)
+  }
 }
 
 // Settings
@@ -94,3 +102,4 @@ Events.benchmarkFireRateIterations = 100
 Events.scheduledAnimationFrame = {}
 Events.FIRE_RATE_START = 0
 Events.FIRE_RATE_COUNTER = 0
+Events.DISABLE_CLICK = false
