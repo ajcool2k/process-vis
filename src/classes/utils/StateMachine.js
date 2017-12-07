@@ -44,8 +44,20 @@ export class StateMachine {
     }
   }
 
+  isState (obj) {
+    if (typeof obj !== 'object' || !obj) return false
+    if (!obj.hasOwnProperty('name') || typeof obj.name !== 'string') return false
+    if (!obj.hasOwnProperty('events') || obj.events instanceof Array === false) return false
+    return true
+  }
+
   start (initialState) {
     let obj = (typeof initialState === 'string') ? this.states[initialState] : initialState
+
+    if (this.isState(obj) === false) {
+      console.warn('FSM start: object is not a state')
+      return
+    }
 
     this.initialState = obj
     console.log('FSM: starting with initialState = ' + initialState.name)
@@ -53,6 +65,11 @@ export class StateMachine {
   }
 
   hasEvent (eventName) {
+    if (this.actualState === 'none') {
+      console.warn('FSM hasEvent: no actualState is set')
+      return false
+    }
+
     let stateEvent = this.actualState.events.find(e => {
       if (typeof e.name === 'string') return e.name === eventName
       if (e.name instanceof Array) return e.name.indexOf(eventName) > -1
@@ -67,7 +84,7 @@ export class StateMachine {
 
     // find state
     let state = this.actualState
-    if (!state) {
+    if (!state || state === 'none') {
       console.warn('FSM: state ' + this.actualState + ' not found')
       return
     }
