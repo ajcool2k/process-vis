@@ -682,7 +682,7 @@ export default {
       })
 
       this.fsm.addEvent(showDialog, idle, {
-        name: 'onEscape',
+        name: [ 'onEscape', 'onCloseDialog' ],
         action: (event) => {}
       })
 
@@ -1100,8 +1100,8 @@ export default {
     },
 
     onCloseRemoveConnectionDialog (type) {
-      if (!this.fsm.hasEvent('onCloseRemoveConnectionDialog')) return
-      this.fsm.run('onCloseRemoveConnectionDialog')
+      if (!this.fsm.hasEvent('onCloseDialog')) return
+      this.fsm.run('onCloseDialog')
 
       console.log('Closed', type)
 
