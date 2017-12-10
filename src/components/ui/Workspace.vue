@@ -37,6 +37,14 @@
               <path d="M 0 0 L 10 5 L 0 10 z" />
             </marker>
 
+            <pattern id="pattern"
+              width="10" height="10"
+              patternUnits="userSpaceOnUse"
+              patternTransform="rotate(45 50 50)">
+              <rect width="10" height="10" fill="#606dbc" />
+              <line stroke="#3f51b5" stroke-width="8px" y2="10"/>
+            </pattern>
+
             <marker id="marker-circle" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
               <circle cx="5" cy="5" r="2" fill="dodgerblue"/>
             </marker>
@@ -1473,7 +1481,11 @@ svg {
       animation-duration: 600ms;
       animation-fill-mode: forwards;
 
-      rect.process-content {
+      rect.has-child-false {
+        fill: $accepntColor;
+      }
+
+      rect.has-child-true {
         fill: $accepntColor;
       }
     }
@@ -1525,7 +1537,7 @@ svg {
     }
 
     .has-child-true {
-      fill: #3f51b5;
+      fill: url(#pattern);
     }
 
     .has-child-false {
