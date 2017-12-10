@@ -5,11 +5,10 @@
         <md-table-header>
           <md-table-row>
             <md-table-head>Name</md-table-head>
-            <!-- <md-table-head>Typ</md-table-head> -->
-            <md-table-head>Initiator</md-table-head>
-            <md-table-head>Delegierter</md-table-head>
-            <md-table-head>Teilnehmer</md-table-head>
-            <md-table-head>Sonstiger</md-table-head>
+            <md-table-head class="center">Initiator</md-table-head>
+            <md-table-head class="center">Delegierter</md-table-head>
+            <md-table-head class="center">Teilnehmer</md-table-head>
+            <md-table-head class="center">Sonstiger</md-table-head>
             <md-table-head>&nbsp;</md-table-head>
           </md-table-row>
         </md-table-header>
@@ -18,10 +17,10 @@
           <md-table-row v-for="(elem, index) in matrix" :key="index+'--matrix'">
             <md-table-cell class="person"><md-icon>person</md-icon>{{elem.name}}</md-table-cell>
             <!-- <md-table-cell>{{elem.type}}</md-table-cell> -->
-            <md-table-cell>{{elem.initiator}}</md-table-cell>
-            <md-table-cell>{{elem.delegate}}</md-table-cell>
-            <md-table-cell>{{elem.participant}}</md-table-cell>
-            <md-table-cell>{{elem.other}}</md-table-cell>
+            <md-table-cell class="center matrix-cell" v-html="elem.initiator"></md-table-cell>
+            <md-table-cell class="center matrix-cell" v-html="elem.delegate"></md-table-cell>
+            <md-table-cell class="center matrix-cell" v-html="elem.participant"></md-table-cell>
+            <md-table-cell class="center matrix-cell" v-html="elem.other"></md-table-cell>
             <md-table-cell class="action">
               <md-button class="md-icon-button md-raised" @click="onEditInput(elem.id)"><md-icon>edit</md-icon></md-button>
               <md-button :disabled="elem.participant === '' && elem.other === ''" class="md-icon-button md-raised" @click="onRemove(elem.id)"><md-icon>delete</md-icon></md-button>
@@ -88,19 +87,20 @@ export default {
       console.warn('Stakeholder.refresh()')
       this.process = p
       this.initiator = this.getStakeholder(this.process.initiator).name
+      const symbol = '&#x2713;'
 
       let isParticipant = (id) => {
-        return this.process.participants.indexOf(id) > -1 ? 'x' : ''
+        return this.process.participants.indexOf(id) > -1 ? symbol : ''
       }
 
       // add initaitor
-      let mapA = [ { id: this.process.initiator, name: this.getStakeholder(this.process.initiator).name, type: this.getStakeholder(this.process.initiator).type, initiator: 'x', delegate: '', participant: '', other: '' } ]
+      let mapA = [ { id: this.process.initiator, name: this.getStakeholder(this.process.initiator).name, type: this.getStakeholder(this.process.initiator).type, initiator: symbol, delegate: '', participant: '', other: '' } ]
       // add delegates
-      let mapB = this.process.mDelegates.map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: 'x', participant: isParticipant(id), other: '' } })
+      let mapB = this.process.mDelegates.map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: symbol, participant: isParticipant(id), other: '' } })
       // add participants
-      let mapC = this.process.participants.filter(id => this.process.mDelegates.indexOf(id) === -1).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', participant: 'x', other: '' } })
+      let mapC = this.process.participants.filter(id => this.process.mDelegates.indexOf(id) === -1).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', participant: symbol, other: '' } })
       // add others
-      let mapD = this.process.stakeholder.filter(id => this.process.participants.indexOf(id) === -1 && id && this.process.mDelegates.indexOf(id) === -1 && id !== this.process.initiator).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', other: 'x' } })
+      let mapD = this.process.stakeholder.filter(id => this.process.participants.indexOf(id) === -1 && id && this.process.mDelegates.indexOf(id) === -1 && id !== this.process.initiator).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', other: symbol } })
 
       this.matrix = mapA.concat(mapB.concat(mapC.concat(mapD)))
     },
@@ -175,13 +175,31 @@ export default {
 
 <style lang="scss">
 
-#stakeholder td.person > div {
-  display: inline;
+#stakeholder {
 
-  i {
-    padding-right: 30px
+  td.person > div {
+    display: inline;
+
+    i {
+      padding-right: 30px
+    }
+  }
+
+  .center {
+    text-align: center;
+  }
+
+ .matrix-cell {
+    font-size: 12pt;
+    font-weight: bold;
+  }
+
+  .showButton {
+    margin-top: 30px;
   }
 }
+
+
 
 
 </style>
