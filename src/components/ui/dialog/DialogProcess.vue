@@ -7,7 +7,7 @@
       <md-dialog-content>
         <form novalidate @submit.stop.prevent="submit">
           <md-tabs v-on:change="activeTab" :md-fixed="true" :md-dynamic-height="true" :data-tab="tab">
-            <md-tab id="general" md-label="General" :md-active="tab === 0">
+            <md-tab id="general" md-label="Allgemein" :md-active="tab === 0">
               <!--
 
               <md-input-container>
