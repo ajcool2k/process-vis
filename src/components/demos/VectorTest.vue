@@ -88,7 +88,7 @@ export default {
   }
 
   body {
-    background-color: silver !important;
+    // background-color: silver !important;
     @keyframes merge { 100% {
         transform-origin: 50% 50%;
         transform: translate(500px, 500px);

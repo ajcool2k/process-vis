@@ -50,7 +50,7 @@ export default {
 <style lang="scss">
 
   body {
-    background-color: silver !important;
+    // background-color: silver !important;
 
     .box {
       display: block;
