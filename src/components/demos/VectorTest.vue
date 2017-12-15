@@ -85,10 +85,7 @@ export default {
   #VectorTest {
     width: 100vw;
     height: 100vh;
-  }
 
-  body {
-    // background-color: silver !important;
     @keyframes merge { 100% {
         transform-origin: 50% 50%;
         transform: translate(500px, 500px);
@@ -141,5 +138,9 @@ export default {
       }
 
     }
+  }
+
+  body {
+    // background-color: silver !important;
   }
 </style>

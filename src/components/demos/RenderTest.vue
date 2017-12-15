@@ -49,10 +49,8 @@ export default {
 
 <style lang="scss">
 
-  body {
-    // background-color: silver !important;
-
-    .box {
+  #RenderTest {
+   .box {
       display: block;
       position: absolute;
       left: 0px;
@@ -74,5 +72,9 @@ export default {
       @extend .box;
       // will-change: transform;
     }
+  }
+
+  body {
+    // background-color: silver !important;
   }
 </style>
