@@ -1,5 +1,5 @@
 <template>
-  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-timeSlice="this.timeSlice" :data-processes="this.processes" :data-scale="this.scale" :data-containerSize="this.containerSize">
+  <div class="axis-y" :data-timeFormat="this.timeFormat" :data-itemSize="this.itemSize" :data-processes="this.processes" :data-scale="this.scale" :data-containerSize="this.containerSize">
     <svg>
       <g class="svg-axis-y"></g>
     </svg>
@@ -13,7 +13,7 @@ import { Benchmark } from '@/classes/utils/Benchmark'
 
 export default {
   name: 'AxisY',
-  props: ['delegates', 'processes', 'timeFormat', 'timeSlice', 'scale', 'containerSize'],
+  props: ['delegates', 'processes', 'timeFormat', 'itemSize', 'scale', 'containerSize'],
   data: function () {
     return {
       domNode: null,

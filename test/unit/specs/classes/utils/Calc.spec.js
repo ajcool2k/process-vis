@@ -273,7 +273,7 @@ describe('Calc.js (addSpace)', () => {
     const clone = require('clone')
     const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let wasSuccessful = Calc.addSpace(children, Calc.itemSize)
     let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
@@ -297,14 +297,14 @@ describe('Calc.js (addSpace)', () => {
     const clone = require('clone')
     const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let wasSuccessful = Calc.addSpace(children, Calc.itemSize)
     let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
     expect(isEqual).to.equal(false)
 
     expect(children[0]._position.y).to.equal(childrenCopy[0]._position.y)
-    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.timeSlice)
+    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.itemSize)
   })
 
   it('should add space to the first and second', () => {
@@ -328,15 +328,15 @@ describe('Calc.js (addSpace)', () => {
     const clone = require('clone')
     const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let wasSuccessful = Calc.addSpace(children, Calc.itemSize)
     let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
     expect(isEqual).to.equal(false)
 
     expect(children[0]._position.y).to.equal(childrenCopy[0]._position.y)
-    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.timeSlice)
-    expect(children[2]._position.y).to.equal(childrenCopy[2]._position.y + Calc.timeSlice)
+    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.itemSize)
+    expect(children[2]._position.y).to.equal(childrenCopy[2]._position.y + Calc.itemSize)
   })
 
   it('should add space to the first and twice to the second', () => {
@@ -360,15 +360,15 @@ describe('Calc.js (addSpace)', () => {
     const clone = require('clone')
     const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let wasSuccessful = Calc.addSpace(children, Calc.itemSize)
     let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
     expect(isEqual).to.equal(false)
 
     expect(children[0]._position.y).to.equal(childrenCopy[0]._position.y)
-    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.timeSlice)
-    expect(children[2]._position.y).to.equal(childrenCopy[2]._position.y + Calc.timeSlice * 2)
+    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.itemSize)
+    expect(children[2]._position.y).to.equal(childrenCopy[2]._position.y + Calc.itemSize * 2)
   })
 
   it('should add space to the first and twice to the second and third', () => {
@@ -396,16 +396,16 @@ describe('Calc.js (addSpace)', () => {
     const clone = require('clone')
     const childrenCopy = clone(children)
 
-    let wasSuccessful = Calc.addSpace(children, Calc.timeSlice)
+    let wasSuccessful = Calc.addSpace(children, Calc.itemSize)
     let isEqual = _.isEqual(children, childrenCopy)
 
     expect(wasSuccessful).to.equal(true)
     expect(isEqual).to.equal(false)
 
     expect(children[0]._position.y).to.equal(childrenCopy[0]._position.y)
-    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.timeSlice)
-    expect(children[2]._position.y).to.equal(childrenCopy[2]._position.y + Calc.timeSlice * 2)
-    expect(children[3]._position.y).to.equal(childrenCopy[3]._position.y + Calc.timeSlice * 2)
+    expect(children[1]._position.y).to.equal(childrenCopy[1]._position.y + Calc.itemSize)
+    expect(children[2]._position.y).to.equal(childrenCopy[2]._position.y + Calc.itemSize * 2)
+    expect(children[3]._position.y).to.equal(childrenCopy[3]._position.y + Calc.itemSize * 2)
   })
 })
 
@@ -500,7 +500,7 @@ describe('Calc.js (processPosition)', () => {
       let deltaStart = elem.start - startProcess.start
       expect(deltaStart).to.be.a('number')
       let deltaTime = deltaStart / divider
-      let y = Math.ceil(deltaTime * Calc.timeSlice) + Calc.axisOffset
+      let y = Math.ceil(deltaTime * Calc.itemSize) + Calc.axisOffset
       expect(elem._position.y).to.equal(y)
     })
   })
@@ -514,7 +514,7 @@ describe('Calc.js (processPosition)', () => {
     Calc.processPosition(children, delegates, containerSize, timeFormat)
 
     let elem = children[0]
-    expect(elem._height).to.equal(Calc.timeSlice)
+    expect(elem._height).to.equal(Calc.itemSize)
   })
 
   it('should calculate height with endDate', () => {
@@ -529,10 +529,10 @@ describe('Calc.js (processPosition)', () => {
     let elem
 
     elem = children[0]
-    expect(elem._height).to.equal(Calc.timeSlice)
+    expect(elem._height).to.equal(Calc.itemSize)
 
     elem = children[1]
-    expect(elem._height).to.equal(Calc.timeSlice * 2)
+    expect(elem._height).to.equal(Calc.itemSize * 2)
   })
 })
 

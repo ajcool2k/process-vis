@@ -266,17 +266,17 @@ export class Calc {
   }
 
   static processPositionY (elem, startDate, divider) {
-    const timeSlice = Calc.timeSlice
+    const itemSize = Calc.itemSize
     let deltaStart = elem.start - startDate
     let deltaTime = deltaStart / divider
 
-    let y = Math.ceil(deltaTime * timeSlice) + Calc.axisOffset
+    let y = Math.ceil(deltaTime * itemSize) + Calc.axisOffset
     elem._position.y = y
 
     // calc height
     let durationMillis = elem._defaultEndDate - elem.start
     let duration = durationMillis / divider
-    elem._height = Math.max(Math.ceil(timeSlice * duration), timeSlice)
+    elem._height = Math.max(Math.ceil(itemSize * duration), itemSize)
   }
 
   /**
@@ -313,7 +313,7 @@ export class Calc {
 
     // create copy of processes to work with
     let processesCopy = Helper.deepClone(processes)
-    const timeSlice = Calc.timeSlice
+    const itemSize = Calc.itemSize
     let divider = Calc.getDivider(timeFormat)
 
     let colWidth = Calc.columnSize(containerSize, delegates)
@@ -340,7 +340,7 @@ export class Calc {
       Calc.updateIntersected(processesCopy, delegates, intersectedMap, containerSize) // detect overlapping processes and patch width and x position
     }
 
-    // Calc.addSpace(processesCopy, timeSlice)
+    // Calc.addSpace(processesCopy, itemSize)
 
     // copy back values on originals (avoid reactivity if no values changes)
     for (let i = 0; i < processes.length; i++) {
@@ -367,16 +367,16 @@ export class Calc {
    * Methode dient zum Setzen von Abständen zwischen processes
    * Dieses Verhalten kann notwendig werden, wenn Y-Startpunkt einer Node mit einem Y-Endpunkt einer anderen Node kollidieren
    * @param {Array} processes Kindprozesse des aktuellen Prozesses
-   * @param {Number} timeSlice Offset-Wert um den verschoben werden soll
+   * @param {Number} itemSize Offset-Wert um den verschoben werden soll
    */
-  static addSpace (processes, timeSlice) {
+  static addSpace (processes, itemSize) {
     if (typeof processes === 'undefined') {
       console.warn('addSpace: processes missing')
       return false
     }
 
-    if (typeof timeSlice !== 'number') {
-      console.warn('addSpace: timeSlice missing')
+    if (typeof itemSize !== 'number') {
+      console.warn('addSpace: itemSize missing')
       return false
     }
 
@@ -408,7 +408,7 @@ export class Calc {
       processes.forEach((elem, index) => {
         let startPosition = elem._position.y
         let foundProcesses = yEndList.filter(endPos => {
-          return (startPosition >= endPos) && (startPosition < endPos + timeSlice)
+          return (startPosition >= endPos) && (startPosition < endPos + itemSize)
         })
 
         if (foundProcesses.length === 0) return // next iteration
@@ -426,7 +426,7 @@ export class Calc {
         // increment all other processes by 1
         let endPoint = elem._position.y + elem._height
         for (let i = index; i < processes.length; i++) {
-          if (processes[i]._position.y + processes[i]._height >= endPoint) processes[i]._position.y += timeSlice
+          if (processes[i]._position.y + processes[i]._height >= endPoint) processes[i]._position.y += itemSize
         }
 
         const yEndList2 = processes.map(elem => elem._position.y + elem._height)
@@ -533,7 +533,7 @@ export class Calc {
   }
 }
 
-Calc.timeSlice = 60
+Calc.itemSize = 60
 Calc.minContainerHeight = 600
 Calc.minContainerWidth = 800
 Calc.colWidth = 400

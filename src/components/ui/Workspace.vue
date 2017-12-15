@@ -19,8 +19,8 @@
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
         <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
-        <vue-slider class="range-timeSlice ignore-container-events" :value="timeSlice" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
-        <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :timeSlice="timeSlice" :scale="containerScale" :containerSize="containerSize"></axis-y>
+        <vue-slider class="range-itemSize ignore-container-events" :value="itemSize" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
+        <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
 
         <template v-for="(item, index) in processModel.mDelegates">
@@ -173,7 +173,7 @@ export default {
       svgNode: null,
 
       timeFormat: 'days',
-      timeSlice: 60,
+      itemSize: 60,
       timeRuler: null,
       tmpLine: null,
 
@@ -599,23 +599,23 @@ export default {
 
           // change start date on y change
           let dy = event.dragEvent.dy
-          let diffTimeSlice = Math.round(dy / this.timeSlice)
+          let diffItemSize = Math.round(dy / this.itemSize)
 
-          if (Math.abs(diffTimeSlice) > 0) {
+          if (Math.abs(diffItemSize) > 0) {
             let process = this.processModel.children.find(elem => elem.id === data.processId)
 
             switch (this.timeFormat) {
               case 'days':
-                process.mStart.setDate(process.mStart.getDate() + diffTimeSlice)
-                process.mEnd.setDate(process.mEnd.getDate() + diffTimeSlice)
+                process.mStart.setDate(process.mStart.getDate() + diffItemSize)
+                process.mEnd.setDate(process.mEnd.getDate() + diffItemSize)
                 break
               case 'months':
-                process.mStart.setMonth(process.mStart.getMonth() + diffTimeSlice)
-                process.mEnd.setMonth(process.mEnd.getMonth() + diffTimeSlice)
+                process.mStart.setMonth(process.mStart.getMonth() + diffItemSize)
+                process.mEnd.setMonth(process.mEnd.getMonth() + diffItemSize)
                 break
               case 'hours':
-                process.mStart.setHours(process.mStart.getHours() + diffTimeSlice)
-                process.mEnd.setHours(process.mEnd.getHours() + diffTimeSlice)
+                process.mStart.setHours(process.mStart.getHours() + diffItemSize)
+                process.mEnd.setHours(process.mEnd.getHours() + diffItemSize)
                 break
             }
 
@@ -1320,8 +1320,8 @@ export default {
 
     onRangeChange (event) {
       console.log('onRangeChange')
-      this.timeSlice = Helper.parse(event)
-      Calc.timeSlice = this.timeSlice
+      this.itemSize = Helper.parse(event)
+      Calc.itemSize = this.itemSize
     },
 
     onContainerDrag (event) {
@@ -1676,7 +1676,7 @@ svg {
   z-index: 3
 }
 
-.range-timeSlice {
+.range-itemSize {
   position: absolute;
   margin-left: -120px;
   margin-top: -40px;
