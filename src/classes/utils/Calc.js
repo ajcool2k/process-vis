@@ -313,7 +313,6 @@ export class Calc {
 
     // create copy of processes to work with
     let processesCopy = Helper.deepClone(processes)
-    const itemSize = Calc.itemSize
     let divider = Calc.getDivider(timeFormat)
 
     let colWidth = Calc.columnSize(containerSize, delegates)
@@ -339,8 +338,6 @@ export class Calc {
     if (intersectedMap.length > 0) {
       Calc.updateIntersected(processesCopy, delegates, intersectedMap, containerSize) // detect overlapping processes and patch width and x position
     }
-
-    // Calc.addSpace(processesCopy, itemSize)
 
     // copy back values on originals (avoid reactivity if no values changes)
     for (let i = 0; i < processes.length; i++) {

@@ -9,7 +9,6 @@
 <script>
 import { Axis } from '@/classes/ui/Axis'
 import { Helper } from '@/classes/utils/Helper'
-import { Benchmark } from '@/classes/utils/Benchmark'
 
 export default {
   name: 'AxisY',
@@ -64,7 +63,7 @@ export default {
       this.axis.setData('scale', { x: 1.0, y: 1.0 })
       this.axis.applySettings()
       this.axis.draw()
-      Benchmark.messure('addScopeProp', () => { Helper.addScopeProp(this.svgNode, this.scopeProp) })
+      Helper.addScopeProp(this.svgNode, this.scopeProp)
     },
 
     resizeAxis () {

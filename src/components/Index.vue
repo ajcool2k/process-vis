@@ -22,39 +22,6 @@
       <md-layout class="footer">
         <router-link to="/process/demo"><md-button class="md-dense md-primary">Demo</md-button></router-link>
       </md-layout>
-
-
-          <!--
-          <p>Demos:
-            <router-link to="/draw">
-                <button>Route zeichnen</button>
-            </router-link>
-
-            <router-link to="/draw2">
-                <button>CyDemo</button>
-            </router-link>
-
-            <router-link to="/flexbox">
-                <button>Flexbox</button>
-            </router-link>
-
-            <router-link to="/draw3">
-                <button>D3demo</button>
-            </router-link>
-
-            <router-link to="/gantt">
-                <button>D3Gantt</button>
-            </router-link>
-
-            <router-link to="/state-machine">
-                <button>StateMachine</button>
-            </router-link>
-        </p>
-
-        <div class="logo">
-            <img src="../assets/logo.png" draggable="true">
-        </div>
-        -->
     </div>
 </template>
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-    <!--
+    <!-- Externe Referenz auf Bibliotheken zur Reduzierung der Projektgröße
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     -->
@@ -18,14 +18,15 @@
 
     <script>
     // add service worker file
-    /*
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('./static/service-worker.js')
         .then(() => { console.log('Service Worker Registered') })
+        .catch(function errorHandler (e) {
+          console.warn('Could not register Service Worker', e.message)
+          console.warn('Mind service workers cannot run on http:// protocol')
+        })
     }
-    */
     </script>
-
   </body>
 </html>

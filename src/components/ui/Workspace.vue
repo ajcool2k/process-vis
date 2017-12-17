@@ -54,7 +54,7 @@
           </defs>
 
           <!-- draw Processes -->
-          <template v-if="item._width" v-for="(item, index) in processModel.children">
+          <template v-if="item._width" v-for="item in processModel.children">
             <g :key="item.id + '-process'" class="process draggable drag-drop" :data-id="item.id" @click.stop="onProcessClick">
               <rect :class="'process-content has-child-' + (item.children.length > 0)" :data-id="item.id" :height="item._height" :width="item._width">
                 <title>Name: {{ item.name }} ({{ item.id }})</title>
@@ -80,27 +80,14 @@
           </template>
 
           <!-- draw Connections -->
-          <template v-for="(item, index) in processModel.children">
-            <template v-for="(con, index) in item._connections">
+          <template v-for="item in processModel.children">
+            <template v-for="con in item._connections">
               <g :key="con.id + '-connection'" class="connection" :data-id="con.id">
                 <path class="connection-outline" :data-id="con.id" d="" @click.stop="onConnectionClick" />
                 <path class="connection-line" :data-id="con.id" d="" />
               </g>
              </template>
           </template>
-
-          <!-- draw Transition-Info -->
-          <!--
-          <template v-for="(item, index) in processModel.children">
-            <template v-for="(con, index) in item._connections">
-              <g :key="con.id + '-connection-transition'" class="connection-transition" :data-id="con.id" :data-process="item.id" @click.stop="onTransformationClick">
-                <circle class="connection-transition-circle" r="20" />
-                <circle class="connection-transition-circle connection-transition-circle-outline" r="20" />
-                <text class="connection-transition-text" dy="10" text-anchor="middle">E</text>
-              </g>
-             </template>
-          </template>
-          -->
 
           <g class="connection tmp">
             <path class="tmpConnection" d="" />
@@ -133,7 +120,6 @@ import { Dialog } from '@/classes/ui/Dialog'
 import { Path } from '@/classes/ui/Path'
 import { StateMachine } from '@/classes/utils/StateMachine'
 import { Animate } from '@/classes/utils/Animate'
-import { TouchSupport } from '@/classes/utils/TouchSupport'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
@@ -212,12 +198,6 @@ export default {
     console.warn('Workspace created')
 
     this.initStateMachine()
-
-    // check support
-    this.hasTouchSupport = TouchSupport.hasSupport()
-    if (this.hasTouchSupport) TouchSupport.init()
-
-    console.info('touch support: ' + this.hasTouchSupport)
 
     window.addEventListener('scroll', this.onScroll, true)
     window.addEventListener('resize', this.onResize, true)

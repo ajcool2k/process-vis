@@ -1,6 +1,6 @@
 # Process Modeler
 
-Diplomarbeit zum Thema Modellierung von Prozessabläufen.
+Diplomarbeit zum Thema: Technische Konzeption und Implementierung eines webbasierten Werkzeugs zur Modellierung von Stadtplanungs- und Stadtentwicklungsabläufen mit Bürgerbeteiligung im Rahmen des Projekts „Zukunftsstadt Dresden 2030“
 
 ## Technologie
 
