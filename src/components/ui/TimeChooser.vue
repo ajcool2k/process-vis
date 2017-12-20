@@ -51,11 +51,9 @@ export default {
 
 <style lang="scss" scoped>
 
-.timer-chooser {}
-
 .md-speed-dial {
-  position: fixed;
-  margin-top: -100px
+  position: fixed !important;
+  margin-top: -100px !important;
 }
 
 </style>
