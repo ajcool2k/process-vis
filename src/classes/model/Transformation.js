@@ -11,9 +11,9 @@ export class Transformation {
     switch (this.type) {
       case '=':
         return 'Information'
-      case '<':
-        return 'Kreation'
       case '>':
+        return 'Kreation'
+      case '<':
         return 'Reduktion'
       default:
         return ''
