@@ -7,7 +7,6 @@ import {select} from 'd3-selection'
 import {scaleOrdinal} from 'd3-scale'
 import {axisTop, axisLeft} from 'd3-axis'
 import dateFormat from 'dateformat'
-const _ = require('lodash')
 
 export class Axis {
   constructor () {
@@ -86,19 +85,26 @@ export class Axis {
       rangeArray.push(elem.y + elem.height)
     })
 
-    rangeArray = _.uniq(rangeArray, x => x)
     domainArray = rangeArray.map((elem, index) => index)
 
     this.yScale = d3.scaleOrdinal()
       .domain(domainArray) // [0, 1, 2, 3, 4, 5]
       .range(rangeArray) // [0, 200, 300, 500, 600, 800, 900, 1100, 1200, 1400, 1500, 1700]
 
+    let hasDrawn = []
     this.yAxis = d3.axisLeft()
       .scale(this.yScale)
       .ticks(rangeArray.length)
       .tickFormat(function (d, i) {
         let vIndex = Math.floor(i / 2)
         let v = i % 2 === 0 ? data[vIndex].start : data[vIndex].end
+
+        // avoid duplicated textnodes
+        if (hasDrawn.indexOf(v) > -1) {
+          return ''
+        }
+
+        hasDrawn.push(v)
         return '' + v
       })
   }
