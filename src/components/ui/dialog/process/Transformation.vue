@@ -4,8 +4,8 @@
 			<label for="transformation-type">Art</label>
 			<md-select name="transformation-type" id="transformation-type" v-model="process.transformation.type">
 				<md-option value="=">Information</md-option>
-				<md-option value="<">Kreation</md-option>
-				<md-option value=">">Reduktion</md-option>
+				<md-option value=">">Kreation</md-option>
+				<md-option value="<">Reduktion</md-option>
 			</md-select>
 		</md-input-container>
 
