@@ -290,9 +290,8 @@ export default {
       this.datamodel = process
     },
 
-    addDelegate () {
-      let stakeholder = new Stakeholder('[untitled]')
-      console.log('addDelegate', stakeholder)
+    addDelegate (delegate) {
+      let stakeholder = delegate instanceof Stakeholder ? delegate : new Stakeholder('[untitled]')
       this.datamodel.addStakeholder(stakeholder)
       this.datamodel.addDelegate(stakeholder.id)
     },

@@ -5,27 +5,22 @@
       md-ok-text="OK"
       @close="emitEvent(initiator.id)"
       ref="dialog">
-      <md-dialog-title>Neuer Zuständigkeitsbereich</md-dialog-title>
+      <md-dialog-title>Zuständigkeitsbereich</md-dialog-title>
       <md-dialog-content>
 
-      <form novalidate @submit.stop.prevent="submit">
+      <form novalidate @submit.stop.prevent="onCloseButton">
 
         <md-input-container>
           <label for="stakeholder">Auswahl</label>
-          <md-select name="stakeholder" id="stakeholder" :value="initiator.id" @change="onChange">
-            <md-option v-for="(item, index) in stakeholder" :data-name="item.name"  :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
+          <md-select name="stakeholder" id="stakeholder" @change="onChange">
+            <md-option disabled value="">Auswahl Stakeholder</md-option>
+            <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
           </md-select>
         </md-input-container>
-        <!--
-        <md-input-container>
-          <label>Akteur-ID</label>
-          <md-input type="text" readonly v-model="initiator.id"></md-input>
-        </md-input-container>
-        -->
 
         <md-input-container>
           <label>Akteur-Name</label>
-          <md-input type="text" v-model="initiator.name" @change="onChangeName"></md-input>
+          <md-input type="text" v-model="initiator.name"></md-input>
         </md-input-container>
 
         <md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button>
@@ -93,12 +88,6 @@ export default {
       if (typeof this.$refs['dialog'].close !== 'function') return
 
       this.emitEvent(id)
-    },
-
-    onChangeName () {
-      console.log('onChangeName')
-      this.stakeholder = this.stakeholder.map(elem => elem)
-      document.querySelector('.dialog-stakeholder .md-select-value').innerHTML = this.initiator.name
     },
 
     onCloseButton () {

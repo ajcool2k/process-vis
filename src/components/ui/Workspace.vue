@@ -15,6 +15,7 @@
       </md-dialog-confirm>
 
       <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
+      <dialog-delegate-select ref="dialog-delegate-select" v-on:delegateSelect="onDelegateSelect"></dialog-delegate-select>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
@@ -113,6 +114,7 @@ import AxisX from './AxisX.vue'
 import AxisY from './AxisY.vue'
 
 import DialogProcess from './dialog/DialogProcess.vue'
+import DialogSelectDelegate from './dialog/DialogSelectDelegate.vue'
 
 import interact from 'interactjs'
 
@@ -137,7 +139,8 @@ export default {
     'time-chooser': TimeChooser,
     'axis-x': AxisX,
     'axis-y': AxisY,
-    'dialog-process': DialogProcess
+    'dialog-process': DialogProcess,
+    'dialog-delegate-select': DialogSelectDelegate
   },
   props: [ 'processModel', 'isSaved', 'changes' ],
 
@@ -990,11 +993,24 @@ export default {
       this.containerScale = {x: this.containerScale.x * multX, y: this.containerScale.y * multY}
     },
 
+    onDelegateSelect (data) {
+      if (!data.hasOwnProperty('response') || !data.hasOwnProperty('initiator')) {
+        console.warn('onDelegateSelect - expected response and initiator in data object')
+        return
+      }
+
+      if (data.response !== 'add') {
+        return
+      }
+
+      this.$emit('addDelegate', data.initiator)
+    },
+
     // Listener for horizontal-bar emits
     applyDelegateChange (data) {
       switch (data) {
         case 'add':
-          this.$emit('addDelegate')
+          this.$refs['dialog-delegate-select'].open()
           return
         case 'remove':
           this.$emit('removeDelegate')
