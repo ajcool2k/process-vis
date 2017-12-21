@@ -5,22 +5,9 @@
       @close="onCloseDialog"
       ref="dialog">
       <md-dialog-content>
-        <form novalidate @submit.stop.prevent="submit">
+        <form novalidate @submit.stop.prevent="onCloseButton">
           <md-tabs v-on:change="activeTab" :md-fixed="true" :md-dynamic-height="true" :data-tab="tab">
             <md-tab id="general" md-label="Allgemein" :md-active="tab === 0">
-              <!--
-
-              <md-input-container>
-                <label>Prozess-ID</label>
-                <md-input type="text" readonly v-model="process.id"></md-input>
-              </md-input-container>
-
-              <md-input-container>
-                <label>Eltern-ID</label>
-                <md-input type="text" readonly v-model="process.parent"></md-input>
-              </md-input-container>
-
-              -->
               <md-input-container>
                 <label>Bezeichnung</label>
                 <md-input type="text" v-model="info.name" @change="onChangeName"></md-input>
