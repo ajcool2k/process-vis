@@ -69,12 +69,19 @@ export default {
       }
 
       // update model
-      this.process.children.forEach(elem => {
-        if (elem.initiator === data.previousId) elem.initiator = data.id
-      })
 
-      let childInitators = this.process.children.map(elem => elem.initiator).filter(delegateId => delegateId !== '')
-      this.process.mDelegates = childInitators.filter((elem, index, self) => index === self.indexOf(elem)) // remove duplicates
+      // switched stakeholder
+      let updateIndex = this.process.mDelegates.findIndex(elem => elem === data.previousId)
+      if (updateIndex > -1) {
+        // update delegate
+        let updatedDelegates = this.process.mDelegates
+        updatedDelegates[updateIndex] = data.id
+        this.process.mDelegates = updatedDelegates
+
+        // move all applied processes to new delegate
+        this.process.children.filter(elem => elem.initiator === data.previousId).forEach(child => { child.initiator = data.id })
+      }
+
       // update view
       let initiator = Metadata.findStakeholder(Helper.parse(data.id))
       let stakeholder = Metadata.getStakeholder()
