@@ -211,6 +211,9 @@ export default {
     // detect resolution
     Calc.minContainerHeight = window.innerHeight - 200
     Calc.minContainerWidth = window.innerWidth - 400
+
+    // set axis params
+    Calc.itemSize = this.itemSize
   },
 
   destroyed: function () {
