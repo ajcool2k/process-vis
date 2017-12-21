@@ -54,7 +54,6 @@ export default {
     return {
       showInput: false,
       action: 'show',
-      metadata: Metadata.getData(),
       initiator: '',
       matrix: [],
       process: null,
