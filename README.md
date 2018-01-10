@@ -65,3 +65,7 @@ WEB_DIR=/my-app-path/ npm run build
 SET WEB_DIR=/my-app-path/
 npm run build
 ```
+
+## License
+
+[MIT](http://opensource.org/licenses/MIT)
