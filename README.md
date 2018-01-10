@@ -53,6 +53,10 @@ npm install phantomjs-prebuilt@2.1.14 --ignore-scripts
 npm rebuild node-sass
 
 # web-links are broken -> build against a public web dir: server/appRoute/
+## build for Linux systems
 WEB_DIR=/my-app-path/ npm run build
 
+## build for Windows systems
+SET WEB_DIR=/my-app-path/
+npm run build
 ```
