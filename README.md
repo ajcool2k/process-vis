@@ -1,6 +1,11 @@
-# Process Modeler
+# Beteiligungsprozess (Modellierung)
 
 Diplomarbeit zum Thema: Technische Konzeption und Implementierung eines webbasierten Werkzeugs zur Modellierung von Stadtplanungs- und Stadtentwicklungsabläufen mit Bürgerbeteiligung im Rahmen des Projekts „Zukunftsstadt Dresden 2030“
+
+## Branch
+
+- [master] beinhaltet aktuellen Stand
+- [stable] letzter produktiver Stand
 
 ## Technologie
 
