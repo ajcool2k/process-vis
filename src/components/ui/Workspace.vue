@@ -542,7 +542,8 @@ export default {
           let processId = event.target.getAttribute('data-id')
           let process = this.processModel.children.find(elem => elem.id === Helper.parse(processId))
           console.log('process', process)
-          let resizeDelta = { x: Math.floor(event.dx / this.containerScale.x), y: Math.floor(event.dy / this.containerScale.y) }
+          let dy = event.pageY - event.y0
+          let resizeDelta = { y: Math.floor(dy / this.containerScale.y) }
           let factor = (process._height + resizeDelta.y) / process._height
           Calc.updateEndDate(process, factor, this.timeFormat)
           process._height += resizeDelta.y
@@ -584,7 +585,7 @@ export default {
           }
 
           // change start date on y change
-          let dy = event.dragEvent.dy
+          let dy = event.dragEvent.pageY - event.dragEvent.y0
           let diffItemSize = Math.round(dy / this.itemSize)
 
           if (Math.abs(diffItemSize) > 0) {
