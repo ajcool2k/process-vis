@@ -61,20 +61,20 @@
                 <title>Name: {{ item.name }} ({{ item.id }})</title>
               </rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" r="10" :cy="(item._height - 15)" :cx="(item._width / 2 )"></circle>
-              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="(item._height / 2)">{{ shortName(item.name) }}</text>
+              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._height)">{{ shortName(item.name) }}</text>
 
               <g :data-process="item.id">
-                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 21)" y="1"  height="30" width="20" @click.stop="onTransformationClick">
+                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 21)" y="1" :height="getIconPosition(item._height, 30)" width="20" @click.stop="onTransformationClick">
                   <title>Prozess-Transformation: {{item.transformation.mName}}</title>
                 </rect>
                 <text class="process-transform-text" :x="(item._width - 11)" y="20">{{item.transformation.mType}}</text>
               </g>
 
               <g :data-process="item.id" v-if="item.participation !== 'closed'">
-                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" y="31"  height="28" width="20" @click.stop="onParticipationClick">
+                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" :y="getIconPosition(item._height, 30)"  :height="getIconPosition(item._height, 30)" width="20" @click.stop="onParticipationClick">
                   <title>Beteiligungsmöglichkeit: {{item.participation}}</title>
                 </rect>
-                <use class="process-participation-icon" :x="(item._width - 20)" y="32" xlink:href="#icon-people" />
+                <use class="process-participation-icon" :x="(item._width - 20)" :y="getIconPosition(item._height, 30)" xlink:href="#icon-people" />
               </g>
 
             </g>
@@ -857,6 +857,14 @@ export default {
       let anchor = this.svgNode.querySelector('circle[data-id="' + processId + '"]')
       anchor.classList.add('active')
       this.actions.drawingMode = true
+    },
+
+    getIconPosition (processHeight, maxHeight) {
+      let h = processHeight / 2
+
+      if (typeof maxHeight === 'undefined') return h
+
+      return h > maxHeight ? maxHeight : h
     },
 
     trackMousePosition (event) {
