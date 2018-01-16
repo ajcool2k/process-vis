@@ -1407,9 +1407,20 @@ $bgColor: #eee;
   }
 }
 
+@media (max-width: 1000px) {
+  .workspace {
+    top: 96px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .workspace {
+    top: 48px;
+  }
+}
+
 .workspace {
   position: relative;
-  top: 48px;
   height: auto;
   width: auto;
   min-height: 100vh;
