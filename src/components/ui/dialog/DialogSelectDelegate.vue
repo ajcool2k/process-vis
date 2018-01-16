@@ -47,7 +47,7 @@ export default {
       selectedStakeholder: '',
       initiator: null,
       useExisting: false,
-      response: 'add'
+      response: ''
     }
   },
 
@@ -70,6 +70,7 @@ export default {
     open () {
       console.log('DialogSelectDelegate open()')
       this.initiator = new Stakeholder('')
+      this.response = ''
       this.$refs['dialog'].open()
     },
 
@@ -88,6 +89,8 @@ export default {
     },
 
     emitEvent (id) {
+      if (this.response === '') return
+
       let initiator = this.useExisting ? this.selectedStakeholder : this.initiator
       if (initiator.name === '') initiator.name = 'untitled'
       this.$emit('delegateSelect', { initiator: initiator, response: this.response })
