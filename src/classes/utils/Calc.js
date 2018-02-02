@@ -219,14 +219,14 @@ export class Calc {
   }
 
   static updateIntersected (processes, delegates, intersectedMap, containerSize) {
+    // get initial values
     let colWidth = Calc.columnSize(containerSize, delegates)
     let processWidth = Calc.processWidth(colWidth)
 
     // update intersections
     processes.forEach(elem => {
-      // check if process is in intersectedList
+      // check if process is in intersectedList and find maximal intersections of processes
       let list = []
-
       intersectedMap.forEach(tmpList => {
         if (tmpList.indexOf(elem.id) > -1) { list = tmpList.length > list.length ? tmpList : list }
       })
@@ -234,19 +234,23 @@ export class Calc {
       // skip this process
       if (list.length < 2) return
 
-      // patch this process
-      let newWidth = processWidth
+      // define padding
       let paddingLeft = 40
       let paddingSum = paddingLeft * (list.length + 1)
-      while ((newWidth * list.length) > (colWidth - paddingSum)) newWidth = newWidth - 10 // reduce with of all processes until they fit a lane
 
+      // patch this process
+      let newWidth = processWidth // initial width
+
+      // reduce width of all processes until they fit a lane
+      while ((newWidth * list.length) > (colWidth - paddingSum)) newWidth = newWidth - 10
       elem._width = newWidth
 
+      // calculate first position to draw the process
       let laneNumber = delegates.indexOf(elem.initiator) + 1
       let center = Math.floor((colWidth * laneNumber) - (colWidth / 2))
-
       let firstPositionX = center - newWidth * (Math.floor(list.length / 2)) - (list.length - 1) * paddingLeft / 2
 
+      // update position from first position
       let offset = list.length % 2 === 0 ? 0 : Math.floor(newWidth / 2)
       elem._position.x = firstPositionX - offset + newWidth * list.indexOf(elem.id) + list.indexOf(elem.id) * paddingLeft
     })
