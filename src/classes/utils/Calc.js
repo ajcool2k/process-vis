@@ -99,8 +99,8 @@ export class Calc {
         break
 
       case 'months':
-        tmp.setMonth(tmp.getMonth() + Math.round(tmp.getDays() / 30))
-        tmp.setDays(0)
+        tmp.setMonth(tmp.getMonth() + Math.round(tmp.getDay() / 30))
+        tmp.setDate(0)
         tmp.setHours(0)
         tmp.setMinutes(0)
         tmp.setSeconds(0)
