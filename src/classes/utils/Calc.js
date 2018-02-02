@@ -280,7 +280,7 @@ export class Calc {
     // calc height
     let durationMillis = elem._defaultEndDate - elem.start
     let duration = durationMillis / divider
-    elem._height = Math.max(Math.ceil(itemSize * duration), itemSize)
+    elem._height = Math.max(Math.ceil(itemSize * duration), 0)
   }
 
   /**
