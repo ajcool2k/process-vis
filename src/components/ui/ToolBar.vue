@@ -2,7 +2,10 @@
   <div class="tool-bar">
     <md-toolbar class="md-dense">
       <span class="span-home">
-        <md-button @touchstart.native="list" @mousedown.native="list">Prozess-Modellierung</md-button>
+        <md-button @touchstart.native="list" @mousedown.native="list">
+            <span class="button-home-text">Prozess-Modellierung</span>
+            <md-icon class="button-home-icon">home</md-icon>
+        </md-button>
       </span>
 
       <breadcrumbs :process="process" v-on:changeProcess="onChangeProcess" v-on:showProcess="onShowProcess"></breadcrumbs>
@@ -128,6 +131,27 @@ export default {
     .tool-bar .md-toolbar {
         white-space: nowrap;
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
+
+      .button-home-icon {
+        display: none
+      }
     }
+
+  @media (max-width: 1200px) {
+    .tool-bar .md-toolbar {
+      .button-home-text {
+        display: none
+      }
+
+      .button-home-icon {
+        display: inline-block
+      }    
+
+      .md-button {
+        min-width: auto
+      }
+    }
+  }
+
 </style>

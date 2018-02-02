@@ -12,7 +12,7 @@ module.exports = {
       .url(devServer)
       .waitForElementVisible('#app', 5000)
       .assert.elementPresent('h1')
-      .assert.containsText('h1', 'Übersicht Module')
+      .assert.containsText('h1', 'Übersicht Datenmodelle')
       .assert.elementCount('h1', 1)
       .end()
   }

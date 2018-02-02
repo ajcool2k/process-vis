@@ -65,12 +65,14 @@ export class Axis {
 
     this.data.timeline = []
 
+    let format = this.data.timeFormat === 'hours' ? 'dd.mm | HH:MM' : 'dd.mm.yyyy'
+
     this.data.processes.map(elem => {
       this.data.timeline.push(
         {
           y: elem._position.y,
-          start: dateFormat(elem.start, 'dd. mm. yyyy'),
-          end: dateFormat(elem._defaultEndDate, 'dd. mm. yyyy'),
+          start: dateFormat(elem.start, format),
+          end: dateFormat(elem._defaultEndDate, format),
           height: elem._height
         }
       )

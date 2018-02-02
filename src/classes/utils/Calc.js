@@ -99,8 +99,8 @@ export class Calc {
         break
 
       case 'months':
-        tmp.setMonth(tmp.getMonth() + Math.round(tmp.getDays() / 30))
-        tmp.setDays(0)
+        tmp.setMonth(tmp.getMonth() + Math.round(tmp.getDay() / 30))
+        tmp.setDate(0)
         tmp.setHours(0)
         tmp.setMinutes(0)
         tmp.setSeconds(0)
@@ -219,14 +219,14 @@ export class Calc {
   }
 
   static updateIntersected (processes, delegates, intersectedMap, containerSize) {
+    // get initial values
     let colWidth = Calc.columnSize(containerSize, delegates)
     let processWidth = Calc.processWidth(colWidth)
 
     // update intersections
     processes.forEach(elem => {
-      // check if process is in intersectedList
+      // check if process is in intersectedList and find maximal intersections of processes
       let list = []
-
       intersectedMap.forEach(tmpList => {
         if (tmpList.indexOf(elem.id) > -1) { list = tmpList.length > list.length ? tmpList : list }
       })
@@ -234,19 +234,23 @@ export class Calc {
       // skip this process
       if (list.length < 2) return
 
-      // patch this process
-      let newWidth = processWidth
+      // define padding
       let paddingLeft = 40
       let paddingSum = paddingLeft * (list.length + 1)
-      while ((newWidth * list.length) > (colWidth - paddingSum)) newWidth = newWidth - 10 // reduce with of all processes until they fit a lane
 
+      // patch this process
+      let newWidth = processWidth // initial width
+
+      // reduce width of all processes until they fit a lane
+      while ((newWidth * list.length) > (colWidth - paddingSum)) newWidth = newWidth - 10
       elem._width = newWidth
 
+      // calculate first position to draw the process
       let laneNumber = delegates.indexOf(elem.initiator) + 1
       let center = Math.floor((colWidth * laneNumber) - (colWidth / 2))
-
       let firstPositionX = center - newWidth * (Math.floor(list.length / 2)) - (list.length - 1) * paddingLeft / 2
 
+      // update position from first position
       let offset = list.length % 2 === 0 ? 0 : Math.floor(newWidth / 2)
       elem._position.x = firstPositionX - offset + newWidth * list.indexOf(elem.id) + list.indexOf(elem.id) * paddingLeft
     })
@@ -276,7 +280,7 @@ export class Calc {
     // calc height
     let durationMillis = elem._defaultEndDate - elem.start
     let duration = durationMillis / divider
-    elem._height = Math.max(Math.ceil(itemSize * duration), itemSize)
+    elem._height = Math.max(Math.ceil(itemSize * duration), 0)
   }
 
   /**
@@ -358,89 +362,6 @@ export class Calc {
     }
 
     // console.log(processes.map(elem => elem._position.y + elem._height))
-  }
-
-  /**
-   * Methode dient zum Setzen von Abständen zwischen processes
-   * Dieses Verhalten kann notwendig werden, wenn Y-Startpunkt einer Node mit einem Y-Endpunkt einer anderen Node kollidieren
-   * @param {Array} processes Kindprozesse des aktuellen Prozesses
-   * @param {Number} itemSize Offset-Wert um den verschoben werden soll
-   */
-  static addSpace (processes, itemSize) {
-    if (typeof processes === 'undefined') {
-      console.warn('addSpace: processes missing')
-      return false
-    }
-
-    if (typeof itemSize !== 'number') {
-      console.warn('addSpace: itemSize missing')
-      return false
-    }
-
-    if (processes.length === 0) return true
-
-    if (processes.find(elem => typeof elem._position.y !== 'number')) {
-      console.error('addSpace: process needs to have position y value')
-      return false
-    }
-
-    if (processes.find(elem => typeof elem._height !== 'number')) {
-      console.error('addSpace: process needs to have position y value')
-      return false
-    }
-
-    // prüfe ob elem.y + height ein anderes elem.y ergibt
-    // wenn vorhanden dann patche alle elemente >= elem.y (y+height) um einen offset
-    let patched = false
-    let successfulPatch = true
-    let interation = 0
-
-    do {
-      // prepare search
-      patched = false
-      const yEndList = processes.map(elem => elem._position.y + elem._height)
-
-      console.log('addSpace - Interation: ', interation++, yEndList)
-
-      processes.forEach((elem, index) => {
-        let startPosition = elem._position.y
-        let foundProcesses = yEndList.filter(endPos => {
-          return (startPosition >= endPos) && (startPosition < endPos + itemSize)
-        })
-
-        if (foundProcesses.length === 0) return // next iteration
-
-        // return
-
-        // console.log('elem', JSON.stringify(elem))
-        // console.log('foundProcesses', foundProcesses)
-        // console.log('startingPos', elem._position.y)
-        // console.log('endPos', elem._position.y + elem._height)
-        const yEndList1 = processes.map(elem => elem._position.y + elem._height)
-        console.log('beforePatch', yEndList1)
-
-        // actual startPosition found in an endPosition for another elem
-        // increment all other processes by 1
-        let endPoint = elem._position.y + elem._height
-        for (let i = index; i < processes.length; i++) {
-          if (processes[i]._position.y + processes[i]._height >= endPoint) processes[i]._position.y += itemSize
-        }
-
-        const yEndList2 = processes.map(elem => elem._position.y + elem._height)
-        console.log('afterPatch', yEndList2)
-
-        patched = true
-
-        // Should not happen (just in case)
-        if (foundProcesses[0] > 60000) {
-          console.warn('Unexpected Calculation, stopping to avoid inifite loop')
-          patched = false
-          successfulPatch = false
-        }
-      })
-    } while (patched) // run as long as something got patched
-
-    return successfulPatch
   }
 
   static getDefaultEndDate (process, timeFormat) {

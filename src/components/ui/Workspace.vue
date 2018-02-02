@@ -60,21 +60,21 @@
               <rect :class="'process-content has-child-' + (item.children.length > 0)" :data-id="item.id" :height="item._height" :width="item._width">
                 <title>Name: {{ item.name }} ({{ item.id }})</title>
               </rect>
-              <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" r="10" :cy="(item._height - 15)" :cx="(item._width / 2 )"></circle>
-              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="(item._height / 2)">{{ shortName(item.name) }}</text>
+              <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" :r="Math.min(item._height, 10)" :cy="Math.max(item._height - 15, 0)" :cx="(item._width / 2 )"></circle>
+              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._height)">{{ shortName(item.name) }}</text>
 
               <g :data-process="item.id">
-                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 21)" y="1"  height="30" width="20" @click.stop="onTransformationClick">
+                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 21)" y="1" :height="getIconPosition(item._height, 30)" width="20" @click.stop="onTransformationClick">
                   <title>Prozess-Transformation: {{item.transformation.mName}}</title>
                 </rect>
                 <text class="process-transform-text" :x="(item._width - 11)" y="20">{{item.transformation.mType}}</text>
               </g>
 
               <g :data-process="item.id" v-if="item.participation !== 'closed'">
-                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" y="31"  height="28" width="20" @click.stop="onParticipationClick">
+                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" :y="getIconPosition(item._height, 30)"  :height="getIconPosition(item._height, 30)" width="20" @click.stop="onParticipationClick">
                   <title>Beteiligungsmöglichkeit: {{item.participation}}</title>
                 </rect>
-                <use class="process-participation-icon" :x="(item._width - 20)" y="32" xlink:href="#icon-people" />
+                <use class="process-participation-icon" :x="(item._width - 20)" :y="getIconPosition(item._height, 30)" xlink:href="#icon-people" />
               </g>
 
             </g>
@@ -99,7 +99,7 @@
       </div>
     </div>
 
-    <!-- <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser> -->
+    <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
     <item-chooser v-on:onProcessCreate="processCreate" v-on:delegateChange="applyDelegateChange"></item-chooser>
 
   </div>
@@ -542,7 +542,8 @@ export default {
           let processId = event.target.getAttribute('data-id')
           let process = this.processModel.children.find(elem => elem.id === Helper.parse(processId))
           console.log('process', process)
-          let resizeDelta = { x: Math.floor(event.dx / this.containerScale.x), y: Math.floor(event.dy / this.containerScale.y) }
+          let dy = event.pageY - event.y0
+          let resizeDelta = { y: Math.floor(dy / this.containerScale.y) }
           let factor = (process._height + resizeDelta.y) / process._height
           Calc.updateEndDate(process, factor, this.timeFormat)
           process._height += resizeDelta.y
@@ -584,7 +585,7 @@ export default {
           }
 
           // change start date on y change
-          let dy = event.dragEvent.dy
+          let dy = event.dragEvent.pageY - event.dragEvent.y0
           let diffItemSize = Math.round(dy / this.itemSize)
 
           if (Math.abs(diffItemSize) > 0) {
@@ -775,16 +776,24 @@ export default {
       let connectionGroup = this.svgNode.querySelector('.connection[data-id="' + con.id + '"]')
       let line = connectionGroup.querySelector('.connection-line[data-id="' + con.id + '"]')
       let outline = connectionGroup.querySelector('.connection-outline[data-id="' + con.id + '"]')
-      // let transition = this.svgNode.querySelector('.connection-transition[data-id="' + con.id + '"]')
 
       // ----------------------------------------------
       // source könnte ausgelagert werden, aber nicht performance kritisch
-      let source = this.containerNode.querySelector('.process[data-id="' + con.source + '"]')
-      let target = this.containerNode.querySelector('.process[data-id="' + con.target + '"]')
+      let source = this.containerNode.querySelector('.process-content[data-id="' + con.source + '"]')
+      let target = this.containerNode.querySelector('.process-content[data-id="' + con.target + '"]')
 
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
       let targetRect = Calc.absolutePosition(target, this.containerTranslation) // forces reflow
       // ----------------------------------------------
+
+      let space = targetRect.top - sourceRect.top + sourceRect.height // diff between source bottom and target top
+
+      // hide connection when not enough space is available
+      if (space < 20) {
+        line.setAttribute('d', '')
+        outline.setAttribute('d', '')
+        return
+      }
 
       let markerOffset = 2
       let anchorOffset = 20
@@ -799,7 +808,7 @@ export default {
         y: Math.round((-this.containerOffset.top - markerOffset + targetRect.top) / this.containerScale.y)
       }
 
-      let Offset = 0 // (sourcePoint.x < targetPoint.x) ? -20 : 0
+      let offset = 0
 
       if (sourcePoint.x === targetPoint.x) anchorOffset = 0
 
@@ -810,16 +819,16 @@ export default {
 
       let targetAnchor = {
         x: targetPoint.x,
-        y: targetPoint.y - Math.max(Math.ceil((targetPoint.y - sourcePoint.y) / 2), anchorOffset) + Offset
+        y: targetPoint.y - Math.max(Math.ceil((targetPoint.y - sourcePoint.y) / 2), anchorOffset) + offset
       }
 
       let middlePoint1 = {
-        x: sourcePoint.x + (Math.floor((targetPoint.x - sourcePoint.x) / 2) + Offset),
+        x: sourcePoint.x + (Math.floor((targetPoint.x - sourcePoint.x) / 2) + offset),
         y: sourceAnchor.y
       }
 
       let middlePoint2 = {
-        x: targetPoint.x - (Math.ceil((targetPoint.x - sourcePoint.x) / 2) - Offset),
+        x: targetPoint.x - (Math.ceil((targetPoint.x - sourcePoint.x) / 2) - offset),
         y: targetAnchor.y
       }
 
@@ -828,7 +837,6 @@ export default {
 
       line.setAttribute('d', svgPath)
       outline.setAttribute('d', svgPath)
-      // transition.setAttribute('transform', 'translate(' + middlePoint1.x + ',' + middlePoint1.y + ')')
     },
 
     onCircleClick (event) {
@@ -856,6 +864,14 @@ export default {
       let anchor = this.svgNode.querySelector('circle[data-id="' + processId + '"]')
       anchor.classList.add('active')
       this.actions.drawingMode = true
+    },
+
+    getIconPosition (processHeight, maxHeight) {
+      let h = processHeight / 2
+
+      if (typeof maxHeight === 'undefined') return h
+
+      return h > maxHeight ? maxHeight : h
     },
 
     trackMousePosition (event) {
@@ -1398,9 +1414,20 @@ $bgColor: #eee;
   }
 }
 
+@media (max-width: 1000px) {
+  .workspace {
+    top: 96px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .workspace {
+    top: 48px;
+  }
+}
+
 .workspace {
   position: relative;
-  top: 48px;
   height: auto;
   width: auto;
   min-height: 100vh;
