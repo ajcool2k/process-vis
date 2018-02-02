@@ -99,7 +99,7 @@
       </div>
     </div>
 
-    <!-- <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser> -->
+    <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
     <item-chooser v-on:onProcessCreate="processCreate" v-on:delegateChange="applyDelegateChange"></item-chooser>
 
   </div>
