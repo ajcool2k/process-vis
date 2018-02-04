@@ -246,11 +246,12 @@ export class Calc {
       return comparison
     })
 
+    /*
     console.log('processes', processes)
     console.log('uniqueList', uniqueList)
     console.log('mergedList', mergedList)
     console.log('sortedList', sortedList)
-
+    */
     return sortedList
   }
 
