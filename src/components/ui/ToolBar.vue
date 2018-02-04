@@ -131,7 +131,7 @@ export default {
     .tool-bar .md-toolbar {
         white-space: nowrap;
         display: flex;
-        justify-content: space-around;
+        justify-content: space-between;
 
       .button-home-icon {
         display: none
@@ -146,7 +146,7 @@ export default {
 
       .button-home-icon {
         display: inline-block
-      }    
+      }
 
       .md-button {
         min-width: auto
