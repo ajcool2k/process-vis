@@ -92,7 +92,7 @@ export default {
       if (this.response === '') return
 
       let initiator = this.useExisting ? this.selectedStakeholder : this.initiator
-      if (initiator.name === '') initiator.name = 'untitled'
+      if (initiator.name === '') initiator.name = '[untitled]'
       this.$emit('delegateSelect', { initiator: initiator, response: this.response })
     }
   }
