@@ -4,9 +4,10 @@
       <md-button class="md-dense" :title="getPrevId()" @click="onChangeProcess('parent')">{{ getPrev() }}</md-button>
       <md-icon>keyboard_arrow_right</md-icon>
       <md-button class="md-raised md-accent" :title="process.id" @click="onShowProcess">{{ getName() }}</md-button>
+      <!--
       <md-icon>keyboard_arrow_right</md-icon>
       <md-button class="md-dense" @click="onShowChildren">Teilaufgaben: {{ process.children.length }}</md-button>
-
+      -->
   </div>
 </template>
 
