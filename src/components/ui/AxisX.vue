@@ -1,10 +1,10 @@
 <template>
-  <div class="axis-x">
+  <div class="axis-x" @drop="drop" @dragover="allowDrop">
     <dialog-stakeholder ref="dialog-stakeholder" v-on:updateStakeholder="updateStakeholder"></dialog-stakeholder>
       <md-layout v-if="(process.mDelegates.length > 0)" :md-gutter="process.mDelegates.length">
         <template v-for="(item, index) in process.mDelegates">
           <md-layout :key="item" md-align="center">
-            <md-button @click.native="onShowActorDialog" class="md-primary" :data-id="item">{{ getStakeholder(item).name }}</md-button>
+            <md-button @click.native="onShowActorDialog" class="md-primary button-delegate" @dragstart.native="dragstart" @dragend.native="dragend" draggable="true" :data-id="item">{{ getStakeholder(item).name }}</md-button>
           </md-layout>
         </template>
     </md-layout>
@@ -27,6 +27,8 @@ export default {
   props: ['process', 'scale'],
   data: function () {
     return {
+      elemMoved: null,
+      domNode: null,
 
       // Dialogs
       dialog: new Dialog()
@@ -43,6 +45,7 @@ export default {
 
   mounted: function () {
     console.log('AxisX mounted')
+    this.domNode = document.querySelector('.axis-x')
   },
 
   updated: function () {
@@ -97,8 +100,64 @@ export default {
       }
 
       return stakeholder
-    }
+    },
 
+    dragstart (ev) {
+      this.elemMoved = ev.target;
+
+      let nodes = Array.from(this.domNode.querySelectorAll('.button-delegate'))
+      nodes.forEach(elem => {
+        if (elem === this.elemMoved) return
+        elem.classList.add('dropzone')
+      });
+    },
+
+    dragend (ev) {
+      ev.preventDefault();
+
+      let nodes = Array.from(this.domNode.querySelectorAll('.button-delegate'))
+      nodes.forEach(elem => {
+        if (elem === this.elemMoved) return
+        elem.classList.remove('dropzone')
+      });
+    },
+
+    allowDrop (ev) {
+      ev.preventDefault();
+    },
+
+    drop (ev) {
+      ev.preventDefault();
+
+      let targetNode = ev.target
+      let movedNode = this.elemMoved
+      this.elemMoved = null;
+
+      if ((movedNode instanceof HTMLElement && targetNode instanceof HTMLElement) === false) {
+        console.warn('expect two html nodes')
+        return
+      }
+
+      if (targetNode === movedNode) {
+        console.log('ignore same node')
+        return
+      }
+      let movedId = movedNode.getAttribute('data-id')
+      let targetId = targetNode.getAttribute('data-id')
+
+      // move element in delegate array
+      let delegates = this.process.mDelegates // get delegates
+      let movedIndex = delegates.indexOf(movedId) // find index of element that should move
+      delegates.splice(movedIndex, 1) // remove element from old position
+
+      let targetIndex = delegates.indexOf(targetId)
+      if (targetIndex == movedIndex) targetIndex++  // move it to the right
+      delegates.splice(targetIndex, 0, movedId); // place element at new position
+
+      // update model
+      this.process.mDelegates = delegates
+      this.process.sort()
+    }
   }
 }
 </script>
@@ -113,17 +172,32 @@ export default {
   justify-content: right;
   background: rgba(238, 238, 238, 0.7);
   transition: all 0.3s;
-}
 
-.md-layout {
-  flex-wrap: nowrap
-}
+  .md-layout {
+    flex-wrap: nowrap
+  }
 
-.md-button {
-  width: 100%;
-  margin: 0;
-  min-width: 0;
-  align-self: flex-end;
+  .md-button {
+    width: 100%;
+    margin: 0;
+    min-width: 0;
+    align-self: flex-end;
+    border: 2px solid #eee;
+
+    &.dropzone {
+     background-color: rgba(153, 153, 153, 0.2);
+      color: #fff !important;
+    }
+
+    &:hover {
+      font-weight: bold;
+      color: #fff !important;
+    }
+  }
+
+  .md-button /deep/ .md-ink-ripple {
+    display: none;
+  }
 }
 
 </style>
