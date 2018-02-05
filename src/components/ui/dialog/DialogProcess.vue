@@ -1,5 +1,8 @@
 <template>
   <div class="dialog-process">
+    <datetime class="datetime--hidden" v-model="info.start" ref="datetimeStart" type="datetime" input-format="YYYY-MM-DD HH:mm" moment-locale="de" monday-first :i18n="{ok:'OK', cancel:'Abbrechen'}"></datetime>
+    <datetime class="datetime--hidden" v-model="info.end" ref="datetimeEnd" type="datetime" input-format="YYYY-MM-DD HH:mm" moment-locale="de"  monday-first :i18n="{ok:'OK', cancel:'Abbrechen'}"></datetime>
+
     <md-dialog class="fullscreen-dialog"
       md-ok-text="OK"
       @close="onCloseDialog"
@@ -15,12 +18,13 @@
 
               <md-input-container>
                 <label>Start</label>
-                <md-input type="date" v-model="info.start" @change="onChangeStart"></md-input>
+                <md-input type="text" readonly v-model="info.start" @click.native="openDateTimeStart"></md-input>
+
               </md-input-container>
 
               <md-input-container>
                 <label>Ende</label>
-                <md-input type="date" v-model="info.end" @change="onChangeEnd"></md-input>
+                <md-input type="text" readonly v-model="info.end" @click.native="openDateTimeEnd"></md-input>
               </md-input-container>
 
               <md-input-container>
@@ -87,6 +91,7 @@ import Transformation from './process/Transformation.vue'
 import { Process } from '@/classes/model/Process'
 
 import dateFormat from 'dateformat'
+import { Datetime }  from 'vue-datetime-2'
 
 export default {
   name: 'DialogProcess',
@@ -94,7 +99,8 @@ export default {
     'location-tab': Location,
     'stakeholder-tab': Stakeholder,
     'result-tab': Result,
-    'transformation-tab': Transformation
+    'transformation-tab': Transformation,
+    'datetime': Datetime
   },
   props: [],
   data: function () {
@@ -130,7 +136,17 @@ export default {
   updated: function () {
     console.log('DialogProcess updated')
   },
+  watch: {
+    'info.start': function (dateStringStart) {
+      this.process.mStart = new Date(dateStringStart)
+      this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
+    },
+    'info.end': function (dateStringEnd) {
+      this.process.mEnd = new Date(dateStringEnd)
+      this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
+    }
 
+  },
   methods: {
     open (child, a, showProcessButton, tab) {
       console.log('DialogProcess open()')
@@ -141,8 +157,8 @@ export default {
       this.tab = typeof tab === 'number' ? tab : 0
 
       this.info.name = typeof this.process.mName === 'string' ? this.process.mName : ''
-      this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd') : ''
-      this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd') : ''
+      this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
+      this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
       this.info.participation = typeof this.process.mParticipation !== 'undefined' ? this.process.mParticipation : ''
       this.info.reference = typeof this.process.mReference !== 'undefined' ? this.process.mReference : ''
       this.info.description = typeof this.process.mDescription !== 'undefined' ? this.process.mDescription : ''
@@ -186,14 +202,6 @@ export default {
       this.process.mName = name
     },
 
-    onChangeStart (dateString) {
-      this.process.mStart = new Date(dateString)
-    },
-
-    onChangeEnd (dateString) {
-      this.process.mEnd = new Date(dateString)
-    },
-
     onChangeParticipation (string) {
       this.process.mParticipation = string
     },
@@ -204,6 +212,14 @@ export default {
 
     onChangeDescription (string) {
       this.process.mDescription = string
+    },
+
+    openDateTimeStart (ev) {
+      this.$refs['datetimeStart'].open()
+    },
+
+    openDateTimeEnd (ev) {
+      this.$refs['datetimeEnd'].open()
     },
 
     resetScrollbar () {
@@ -234,6 +250,35 @@ export default {
 </script>
 
 <style lang="scss">
+
+$primaryColor: #3f51b5;
+$accepntColor: #e91e63;
+
+  .datetime--hidden {
+    .vdatetime-fade-enter-active,
+    .vdatetime-fade-leave-active {
+        transition: none !important;
+    }
+
+    .vdatetime-slot__available, .vdatetime-slot__not-available {
+      display: none;
+    }
+
+    .vdatetime-popup__month-selector__next, .vdatetime-popup__month-selector__previous {
+      padding: 0;
+    }
+
+    .vdatetime-popup__header,
+    .vdatetime-popup__date-picker__item--selected > span > span,
+    .vdatetime-popup__date-picker__item--selected:hover > span > span {
+        background: $primaryColor;
+    }
+
+    > input[type=text] {
+      display: none
+    }
+  }
+
   .fullscreen-dialog .md-dialog {
     // position: absolute;
     // top: 20%;
@@ -245,7 +290,7 @@ export default {
     }
 
     button.md-active {
-      background: #e91e63
+      background: $accepntColor
     }
   }
 
