@@ -66,18 +66,28 @@ export class Calc {
   static updateEndDate (process, factor, timeFormat) {
     if (typeof process === 'undefined') {
       console.warn('updateEndDate: process expected')
-      return
+      return false
     }
 
     if (typeof factor !== 'number') {
       console.warn('updateEndDate: factor as number expected')
-      return
+      return false
     }
 
     let durationMillis = process.mEnd - process.start
     let durationMillisChanged = Math.floor(durationMillis * factor)
-    process.mEnd = new Date(process.start.valueOf() + durationMillisChanged)
-    process.mEnd = Calc.roundDate(process.mEnd, timeFormat)
+
+    let newEnd = new Date(process.start.valueOf() + durationMillisChanged)
+    newEnd = Calc.roundDate(newEnd, timeFormat)
+
+    if (newEnd <= process.start) {
+      console.log('updateEndDate: date is to small')
+      return
+    }
+
+    process.mEnd = newEnd
+
+    return true
   }
 
   static roundDate (date, timeFormat) {
