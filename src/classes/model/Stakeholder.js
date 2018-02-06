@@ -4,7 +4,7 @@ export class Stakeholder {
     const uniqid = require('uniqid')
     this.id = uniqid()
     this.name = typeof name === 'string' ? name : ''
-    this.type = typeof type === 'string' ? type : 'Person'
+    this.type = typeof type === 'string' ? type : 'person'
     this.contact = {
       contactPerson: '',
       postAddress: '',
@@ -46,7 +46,7 @@ export class Stakeholder {
 
     this.id = serializedStakeholder.id
     this.name = serializedStakeholder.name
-    this.type = serializedStakeholder.type
+    this.type = typeof serializedStakeholder.type
     this.contact = serializedStakeholder.contact
   }
 }
