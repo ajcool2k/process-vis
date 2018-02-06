@@ -66,18 +66,28 @@ export class Calc {
   static updateEndDate (process, factor, timeFormat) {
     if (typeof process === 'undefined') {
       console.warn('updateEndDate: process expected')
-      return
+      return false
     }
 
     if (typeof factor !== 'number') {
       console.warn('updateEndDate: factor as number expected')
-      return
+      return false
     }
 
     let durationMillis = process.mEnd - process.start
     let durationMillisChanged = Math.floor(durationMillis * factor)
-    process.mEnd = new Date(process.start.valueOf() + durationMillisChanged)
-    process.mEnd = Calc.roundDate(process.mEnd, timeFormat)
+
+    let newEnd = new Date(process.start.valueOf() + durationMillisChanged)
+    newEnd = Calc.roundDate(newEnd, timeFormat)
+
+    if (newEnd <= process.start) {
+      console.log('updateEndDate: date is to small')
+      return
+    }
+
+    process.mEnd = newEnd
+
+    return true
   }
 
   static roundDate (date, timeFormat) {
@@ -202,8 +212,39 @@ export class Calc {
       if (uniqueList.some(elem => elem.join() === sortedListJoin) === false) uniqueList.push(sortedList)
     })
 
+    // join entries that intersect each other by a process
+    let mergedList = uniqueList.map(elem => elem)
+
+    let update = false
+    do {
+      update = false
+      mergedList.forEach((entry, index) => {
+        // find processId that is present in multiple entries
+        let duplicatedId = entry.find(id => {
+          let e = mergedList.find(e => e.indexOf(id) > -1)
+          return typeof e !== 'undefined' && e !== entry
+        })
+
+        if (typeof duplicatedId === 'undefined') return
+
+        // merge entries togehter
+        let idxOtherEntry = mergedList.findIndex(entry => entry.indexOf(duplicatedId) > -1)
+        // console.log('A', entry)
+        // console.log('B', mergedList[idxOtherEntry])
+
+        entry = _.uniq(entry.concat(mergedList[idxOtherEntry]))
+        mergedList[index] = entry
+        // console.log('=', entry)
+
+        mergedList.splice(idxOtherEntry, 1)
+        // console.log('entry merged into index', index)
+        // console.log('remove at index ', idxOtherEntry)
+        update = true
+      })
+    } while (update)
+
     // sort by processList
-    let sortedList = uniqueList.sort((a, b) => {
+    let sortedList = mergedList.sort((a, b) => {
       let comparison = 0
 
       if (processes.indexOf(a) > processes.indexOf(b)) {
@@ -215,6 +256,12 @@ export class Calc {
       return comparison
     })
 
+    /*
+    console.log('processes', processes)
+    console.log('uniqueList', uniqueList)
+    console.log('mergedList', mergedList)
+    console.log('sortedList', sortedList)
+    */
     return sortedList
   }
 

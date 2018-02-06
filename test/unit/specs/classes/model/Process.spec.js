@@ -129,4 +129,25 @@ describe('Process.js', () => {
     // clear Storage
     Exchange.removeProcess(processBefore.id)
   })
+
+  it('should sort process by delegates', () => {
+    let process = new Process()
+
+    let child1 = new Process('child 1', 'C')
+    let child2 = new Process('child 2', 'A')
+    let child3 = new Process('child 3', 'E')
+    let child4 = new Process('child 3', 'B')
+
+    process.setChildren([child1, child2, child3, child4])
+
+    // move delegates in array
+    process.mDelegates = ['A', 'B', 'C', 'E']
+    expect(_.isEqual(process.mDelegates, ['A', 'B', 'C', 'E'])).to.equal(true)
+
+    // sort by delegates
+    process.sort()
+
+    let childDelegates = process.children.map(elem => elem.initiator)
+    expect(_.isEqual(process.mDelegates, childDelegates)).to.equal(true)
+  })
 })

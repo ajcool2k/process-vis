@@ -468,6 +468,13 @@ export class Process {
     this.location.splice(index, 1)
   }
 
+  /**
+   * Sort processes by delegates
+   */
+  sort () {
+    this.children.sort((a, b) => this.mDelegates.indexOf(a.initiator) - this.mDelegates.indexOf(b.initiator))
+  }
+
   get mDuration () { return isNaN(this._duration) ? 0 : this._duration }
   set mDuration (duration) {
     if (typeof duration !== 'number' || duration < 1) {

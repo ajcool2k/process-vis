@@ -23,6 +23,7 @@
     "lodash": "^4.17.4",
     "uniqid": "^4.1.1",
     "vue": "^2.5.2",
+    "vue-datetime-2": "^0.6.1",
     "vue-material": "^0.8.1",
     "vue-router": "^3.0.1",
     "vue-slider-component": "^2.4.4"

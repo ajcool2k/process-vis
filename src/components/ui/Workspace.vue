@@ -64,14 +64,14 @@
               <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._height)">{{ shortName(item.name) }}</text>
 
               <g :data-process="item.id">
-                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 21)" y="1" :height="getIconPosition(item._height, 30)" width="20" @click.stop="onTransformationClick">
+                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 20)" y="1" :height="getIconPosition(item._height, 30)" width="20" @click.stop="onTransformationClick">
                   <title>Prozess-Transformation: {{item.transformation.mName}}</title>
                 </rect>
                 <text class="process-transform-text" :x="(item._width - 11)" y="20">{{item.transformation.mType}}</text>
               </g>
 
               <g :data-process="item.id" v-if="item.participation !== 'closed'">
-                <rect class="process-participation" :data-id="item.id" :x="(item._width - 21)" :y="getIconPosition(item._height, 30)"  :height="getIconPosition(item._height, 30)" width="20" @click.stop="onParticipationClick">
+                <rect class="process-participation" :data-id="item.id" :x="(item._width - 20)" :y="getIconPosition(item._height, 30)"  :height="getIconPosition(item._height, 29)" width="20" @click.stop="onParticipationClick">
                   <title>Beteiligungsmöglichkeit: {{item.participation}}</title>
                 </rect>
                 <use class="process-participation-icon" :x="(item._width - 20)" :y="getIconPosition(item._height, 30)" xlink:href="#icon-people" />
@@ -340,7 +340,10 @@ export default {
       .resizable({
         preserveAspectRatio: false,
         restrict: { /* restrict options */ },
-        edges: { left: false, right: false, bottom: true, top: false }
+        edges: { left: false, right: false, bottom: true, top: false },
+        restrictSize: {
+          min: { height: 60 }
+        }
       })
       .on('resizestart', event => {
         console.log('resizestart event', event)
@@ -537,15 +540,21 @@ export default {
         name: 'onProcessResizeend',
         action: (event) => {
           Events.disableClicks(300)
-
           this.timeRuler.style.display = 'none'
+
           let processId = event.target.getAttribute('data-id')
           let process = this.processModel.children.find(elem => elem.id === Helper.parse(processId))
-          console.log('process', process)
+
+          // calculate new endDate
           let dy = event.pageY - event.y0
           let resizeDelta = { y: Math.floor(dy / this.containerScale.y) }
           let factor = (process._height + resizeDelta.y) / process._height
-          Calc.updateEndDate(process, factor, this.timeFormat)
+
+          // update end date
+          let updateEndDate = Calc.updateEndDate(process, factor, this.timeFormat)
+          if (updateEndDate === false) return
+
+          // update height in view
           process._height += resizeDelta.y
           this.$emit('updateProcess', process.id)
         }
@@ -786,10 +795,8 @@ export default {
       let targetRect = Calc.absolutePosition(target, this.containerTranslation) // forces reflow
       // ----------------------------------------------
 
-      let space = targetRect.top - sourceRect.top + sourceRect.height // diff between source bottom and target top
-
-      // hide connection when not enough space is available
-      if (space < 20) {
+      // hide connection when not enough connected elements are getting to small
+      if (sourceRect.height < 10 && targetRect.height < 10) {
         line.setAttribute('d', '')
         outline.setAttribute('d', '')
         return
@@ -1210,7 +1217,6 @@ export default {
     },
 
     resizeProcess (event) {
-      console.log('resizeProcess', event.target)
       // anchor point
       let group = event.target.parentNode
       let rect = event.target
@@ -1616,13 +1622,13 @@ svg {
       fill: none;
       stroke: red;
       stroke-width: 50;
-      stroke-opacity: 0.01;
+      stroke-opacity: 0;
       pointer-events: all;
       cursor: pointer;
     }
 
     .connection-outline:hover {
-      opacity: 0.01;
+      opacity: 0;
     }
 
     .connection-outline:hover + .connection-line {

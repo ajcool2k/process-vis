@@ -25,6 +25,14 @@
           <md-input type="text" v-model="initiator.name" placeholder="Bezeichnung"></md-input>
         </md-input-container>
 
+        <md-input-container v-if="useExisting === false">
+          <label for="stakeholder-type">Typ</label>
+          <md-select name="stakeholder-type" id="stakeholder-type" v-model="initiator.type">
+            <md-option value="person">Person</md-option>
+            <md-option value="group">Gruppe</md-option>
+          </md-select>
+        </md-input-container>
+
         <md-button @click="onCloseButton" class="md-raised md-primary">Abbrechen</md-button>
         <md-button @click="onAcceptButton" class="md-raised md-primary">Auswählen</md-button>
 
@@ -92,7 +100,7 @@ export default {
       if (this.response === '') return
 
       let initiator = this.useExisting ? this.selectedStakeholder : this.initiator
-      if (initiator.name === '') initiator.name = 'untitled'
+      if (initiator.name === '') initiator.name = '[untitled]'
       this.$emit('delegateSelect', { initiator: initiator, response: this.response })
     }
   }
