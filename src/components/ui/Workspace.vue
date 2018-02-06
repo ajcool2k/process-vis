@@ -148,7 +148,6 @@ export default {
     return {
       fsm: null, // finite state machine
       workspaceNode: null,
-      workspaceSize: { x: Calc.minContainerWidth + 200, y: Calc.minContainerWidth + 200 },
       containerNode: null,
       containerSize: { x: Calc.minContainerWidth, y: Calc.minContainerHeight },
       yAxisNode: null,
@@ -243,8 +242,7 @@ export default {
     Calc.processPosition(this.processModel.children, this.processModel.mDelegates, this.containerSize, this.timeFormat) // set position on the model
     this.containerSize = Calc.containerSize(this.processModel.children, this.processModel.mDelegates) // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
-    this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
-    this.updateWorkspaceSize() // forces reflow
+
     // remove existing event handlers
     interact('.processContainer').unset()
     interact('.delegate').unset()
@@ -274,7 +272,6 @@ export default {
 
         console.warn('dragend container')
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
-        this.updateWorkspaceSize(dragDelta) // forces reflow
         this.updateAxisPosition() // forces reflow
       })
       .resizable({
@@ -304,7 +301,6 @@ export default {
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         let scaledDragDelta = { x: Math.floor(dragDelta.x / this.containerScale.x), y: Math.floor(dragDelta.y / this.containerScale.y) }
         this.updateContainerSize(scaledDragDelta) // forces reflow
-        this.updateWorkspaceSize(scaledDragDelta) // forces reflow
       })
 
     interact('.process rect.process-content')
@@ -414,7 +410,6 @@ export default {
 
     if (delta.x !== 0 || delta.y !== 0) {
       this.updateContainerSize(delta)
-      this.updateWorkspaceSize(delta)
     }
   },
 
@@ -976,22 +971,6 @@ export default {
       }
     },
 
-    updateWorkspaceSize (dragDelta) {
-      console.log('updateWorkspaceSize')
-
-      let delta = typeof dragDelta === 'object' ? dragDelta : { x: 0, y: 0 }
-
-      this.workspaceSize = { x: this.workspaceSize.x + delta.x, y: this.workspaceSize.y + delta.y }
-      let width = Math.round(this.containerScale.x * this.workspaceSize.x)
-      let height = Math.round(this.containerScale.x * this.workspaceSize.y)
-
-      let displayValue = this.workspaceNode.style.display
-      this.workspaceNode.style.display = 'none' // avoid reflows by multiple style changes
-      this.workspaceNode.style.width = width + 'px'
-      this.workspaceNode.style.height = height + 'px'
-      this.workspaceNode.style.display = displayValue // set active again
-    },
-
     applyTransform () {
       console.log('applyTransform')
 
@@ -999,7 +978,6 @@ export default {
       let transformScale = 'scale(' + this.containerScale.x + ',' + this.containerScale.y + ')'
       this.containerNode.style.webkitTransform =
       this.containerNode.style.transform = transformTranslate + ' ' + transformScale
-      this.updateWorkspaceSize()
     },
 
     translate (dx, dy) {
@@ -1422,24 +1400,29 @@ $bgColor: #eee;
 
 @media (max-width: 1000px) {
   .workspace {
-    top: 96px;
+    margin-top: 96px;
   }
 }
 
 @media (min-width: 1000px) {
   .workspace {
-    top: 48px;
+    margin-top: 48px;
   }
+}
+
+#vue-workspace {
+  position: absolute;
+  height: auto;
+  width: auto;
+  min-height: 100%;
+  min-width: 100%;
+  overflow: scroll;
+  background: $bgColor;
 }
 
 .workspace {
   position: relative;
-  height: auto;
-  width: auto;
-  min-height: 100vh;
-  min-width: 100vw;
-  overflow: hidden;
-  background: $bgColor;
+
 }
 
 .tool-bar {
@@ -1450,12 +1433,10 @@ $bgColor: #eee;
 }
 
 .processContainer {
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  width: 1000px;
-  height: 600px;
   left: 200px;
   top: 80px;
   border: 1px solid #ccc;
