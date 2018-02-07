@@ -1,7 +1,7 @@
 <template>
   <div class="dialog-process">
     <datetime class="datetime--hidden" v-model="info.start" ref="datetimeStart" type="datetime" input-format="YYYY-MM-DD HH:mm" moment-locale="de" monday-first :i18n="{ok:'OK', cancel:'Abbrechen'}"></datetime>
-    <datetime class="datetime--hidden" v-model="info.end" ref="datetimeEnd" type="datetime" input-format="YYYY-MM-DD HH:mm" moment-locale="de"  monday-first :i18n="{ok:'OK', cancel:'Abbrechen'}"></datetime>
+    <datetime class="datetime--hidden" v-model="info.end" ref="datetimeEnd" type="datetime" input-format="YYYY-MM-DD HH:mm" moment-locale="de" :min-date="info.start" monday-first :i18n="{ok:'OK', cancel:'Abbrechen'}"></datetime>
 
     <md-dialog class="fullscreen-dialog"
       md-ok-text="OK"
@@ -219,7 +219,21 @@ export default {
     },
 
     openDateTimeEnd (ev) {
+
+
       this.$refs['datetimeEnd'].open()
+
+      if (this.info.end instanceof Date) return
+
+      // parse date from process.start
+      let startDate = this.$refs['datetimeStart'].getNewDate()
+      let sdate = new Date(startDate._i)
+
+      this.$refs['datetimeEnd'].selectYear(sdate.getFullYear())
+      this.$refs['datetimeEnd'].selectMonth(sdate.getMonth())
+      this.$refs['datetimeEnd'].selectDay(sdate.getDate())
+      this.$refs['datetimeEnd'].selectHour(sdate.getHours())
+      this.$refs['datetimeEnd'].selectMinute(sdate.getMinutes())
     },
 
     resetScrollbar () {
