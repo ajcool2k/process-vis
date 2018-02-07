@@ -2,9 +2,11 @@
   <div id="vue-workspace" :data-change="changes.time">
 
     <!-- child component -->
+
     <tool-bar :process="processModel" :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange" v-on:process="onToolbarShowProcess" v-on:changeProcess="onChangeProcess"></tool-bar>
 
-    <div class="workspace">
+
+
       <md-dialog-confirm
         :md-title="dialog.removeConnectionDialog.title"
         :md-content-html="dialog.removeConnectionDialog.contentHtml"
@@ -22,7 +24,6 @@
         <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
         <vue-slider class="range-itemSize ignore-container-events" :value="itemSize" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
         <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
-
 
         <template v-for="(item, index) in processModel.mDelegates">
           <div :key="item" :class="'delegate delegate' + index" :data-id="item" :style="'width: ' + ( containerSize.x / processModel.mDelegates.length ) + 'px'"></div>
@@ -97,7 +98,6 @@
           <line class="timeRuler" />
         </svg>
       </div>
-    </div>
 
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
     <item-chooser v-on:onProcessCreate="processCreate" v-on:delegateChange="applyDelegateChange"></item-chooser>
@@ -226,7 +226,7 @@ export default {
 
     // cache DOM
     this.htmlNode = document.querySelector('html')
-    this.workspaceNode = document.querySelector('.workspace')
+    this.workspaceNode = document.querySelector('#vue-workspace')
     this.containerNode = this.workspaceNode.querySelector('.processContainer')
     this.svgNode = this.containerNode.querySelector('svg.svgNode')
     this.tmpLine = this.svgNode.querySelector('.tmpConnection')
@@ -271,7 +271,6 @@ export default {
         this.fsm.run('onContainerDragend')
 
         console.warn('dragend container')
-        let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         this.updateAxisPosition() // forces reflow
       })
       .resizable({
@@ -1399,35 +1398,28 @@ $bgColor: #eee;
 }
 
 @media (max-width: 1000px) {
-  .workspace {
-    margin-top: 96px;
+  .processContainer {
+  margin-top: 200px;
   }
 }
 
 @media (min-width: 1000px) {
-  .workspace {
-    margin-top: 48px;
+  .processContainer {
+    margin-top: 140px;
   }
 }
 
 #vue-workspace {
   position: absolute;
-  height: auto;
-  width: auto;
-  min-height: 100%;
-  min-width: 100%;
-  overflow: scroll;
+  height: 100vh;
+  width: 100vw;
+  overflow: auto;
   background: $bgColor;
-}
-
-.workspace {
-  position: relative;
-
 }
 
 .tool-bar {
   position: fixed;
-  width: 100vw;
+  width: 100%;
   z-index: 9;
   height: 48px;
 }
@@ -1437,8 +1429,8 @@ $bgColor: #eee;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
+  top: 0px;
   left: 200px;
-  top: 80px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
