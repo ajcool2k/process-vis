@@ -61,7 +61,7 @@
                 <title>Name: {{ item.name }} ({{ item.id }})</title>
               </rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" :r="Math.min(item._height, 10)" :cy="Math.max(item._height - 15, 0)" :cx="(item._width / 2 )"></circle>
-              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._height)">{{ shortName(item.name) }}</text>
+              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._height, 60)">{{ shortName(item.name) }}</text>
 
               <g :data-process="item.id">
                 <rect class="proces-transform" :data-id="item.id" :x="(item._width - 20)" y="1" :height="getIconPosition(item._height, 30)" width="20" @click.stop="onTransformationClick">
