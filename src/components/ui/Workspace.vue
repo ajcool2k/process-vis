@@ -956,14 +956,14 @@ export default {
       let containerPos = this.containerNode.getBoundingClientRect()
 
       if (containerPos.top < 80) {
-        let height = 150 - containerPos.top
+        let height = 170 - Math.round(containerPos.top / this.containerScale.y)
         this.xAxisNode.style.height = height + 'px'
       } else {
         this.xAxisNode.style.height = '50px'
       }
 
       if (containerPos.left < 110) {
-        let width = 250 - containerPos.left
+        let width = 250 - Math.round(containerPos.left / this.containerScale.x)
         this.yAxisNode.style.width = width + 'px'
       } else {
         this.yAxisNode.style.width = '100px'
@@ -1028,6 +1028,7 @@ export default {
       this.containerScale.x = scaleData.x
       this.containerScale.y = scaleData.y
       this.applyTransform()
+      this.updateAxisPosition()
     },
 
     exchange (data) {
