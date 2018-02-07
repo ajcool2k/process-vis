@@ -432,6 +432,10 @@ export class Process {
     this.results.splice(index, 1)
   }
 
+  hasEndDate () {
+    return this.end instanceof Date
+  }
+
   setLocations (locations) {
     if (typeof locations === 'undefined' || locations instanceof Array === false) {
       console.warn('Process.setLocations() - expected Array')

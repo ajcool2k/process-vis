@@ -599,24 +599,24 @@ export default {
 
           if (Math.abs(diffItemSize) > 0) {
             let process = this.processModel.children.find(elem => elem.id === data.processId)
-
+            const hasEndDate = process.hasEndDate()
             switch (this.timeFormat) {
               case 'days':
                 process.mStart.setDate(process.mStart.getDate() + diffItemSize)
-                process.mEnd.setDate(process.mEnd.getDate() + diffItemSize)
+                if (hasEndDate) process.mEnd.setDate(process.mEnd.getDate() + diffItemSize)
                 break
               case 'months':
                 process.mStart.setMonth(process.mStart.getMonth() + diffItemSize)
-                process.mEnd.setMonth(process.mEnd.getMonth() + diffItemSize)
+                if (hasEndDate) process.mEnd.setMonth(process.mEnd.getMonth() + diffItemSize)
                 break
               case 'hours':
                 process.mStart.setHours(process.mStart.getHours() + diffItemSize)
-                process.mEnd.setHours(process.mEnd.getHours() + diffItemSize)
+                if (hasEndDate) process.mEnd.setHours(process.mEnd.getHours() + diffItemSize)
                 break
             }
 
             process.mStart = Calc.roundDate(process.mStart, this.timeFormat)
-            process.mEnd = Calc.roundDate(process.mEnd, this.timeFormat)
+            if (hasEndDate) process.mEnd = Calc.roundDate(process.mEnd, this.timeFormat)
 
             this.$emit('updateProcess', process.id)
           }
