@@ -15,128 +15,114 @@
     "list": [
       "https://process.stadt.de/process/1"
     ],
-    "created": "2011-11-11T11:11:00+01:00",
-    "modified": "2012-11-11T11:11:00+01:00"
+    "created": "2012-04-23T18:25:43.511Z",
+    "modified": "2012-04-23T18:25:43.511Z"
   },
 
   "process": {
-    "_comment": "Struktur eines Prozesses",
-    "dmv": "",
     "id": "",
-    "reference (optional)": "",
-    "initiator": "",
+    "_comment_id": "lokale oder entfernte ID des Prozesses",
+    "specification": "[system.type]",
+    "reference": "",
+    "_comment_reference": "eindeutiger Vorgang als Aktenzeichen",
+    "initiator": "[stakeholder.id]",
+    "responsibility": "[stakeholder.id]",
+    "_comment_responsibility": "Verantwortlichkeit des Prozesses, wird anstelle des Initiators verarbeitet",
     "connection": {
-      "from": [],
-      "to": []
+      "from": ["[process.id]"],
+      "to": ["[process.id]"]
     },
-    "parent": "",
+    "parent": "[process.id]",
+    "children": ["[process]"],
     "name": "",
     "description": "",
-    "location": [],
     "start": "",
-    "end (optional)": "",
-    "participation": "",
-    "participants": [],
+    "end": "",
+    "participation": "['open', 'closed', 'partially opened', '']",
     "transformation": {
-      "type": "=",
-      "info": "",
-      "decision": false
+      "type": "['>', '<', '=']",
+      "info": ""
     },
-    "results (optional)": [
+    "results": [
       {
         "id": "",
         "name": "",
         "description": "",
-        "copyright (optional)": "",
-        "text (optional)": "",
-        "files (optional)": [],
-        "created": "",
-        "modified": ""
-      }
-    ],
-    "children": [
-      {
-        "id": "https://process.stadt.de/process/11",
-        "dmv": "1.0.1",
-        "reference (optional)": "",
-        "initiator": "",
-        "connection": {
-          "from": [],
-          "to": []
+        "copyright (optional)": {
+          "name": "",
+          "_comment_name": "copyright benötigt mind. name",
+          "link": ""
         },
-        "parent": "",
-        "children": [],
-        "name": "",
-        "description": "",
-        "location": [],
-        "start": "",
-        "end (optional)": "",
-        "participation": "",
-        "participants": [],
-        "stakeholder": [],
-        "transformation": {
-          "type": "",
-          "info": "",
-          "decision": ""
-        },
-        "results (optional)": [
+        "textResult": "",
+        "_comment_textResult": "Ergebnisse als Freitext z. B. für Stichpunktliste und/oder http Link",
+        "files": [
           {
             "id": "",
             "name": "",
-            "description": "",
-            "copyright (optional)": "",
-            "text (optional)": "",
-            "files (optional)": [
-              {
-                "id": "",
-                "name": "",
-                "size": 0,
-                "mimeType": ""
-              }
-            ],
-            "created": "",
-            "modified": ""
+            "size": "{NUMBER}",
+            "mimeType": "",
+            "created": "{DATESTRING}",
+            "modified": "{DATESTRING}"
           }
         ]
       }
     ],
-    "dependencies": [],
-    "stakeholder": [],
-    "created": "",
-    "modified": ""
+    "locations": ["[locations.id]"],
+    "participants": ["[stakeholder.id]"],
+    "stakeholder": ["[stakeholder.id]"],
+    "dependencies": ["[dependencies.id]"],
+    "_comment_dependencies": "externe Abhänigkeiten zu anderen Prozessen",
+    "created": "{DATESTRING}",
+    "modified": "{DATESTRING}"
   },
 
-  "metadata": {
-    "_comment": "Es handelt sich um Metadaten zum Prozess-Modell",
+  "dataObjects": {
+    "_comment": "Es handelt sich um referenzierbare Objekte im Datenmodell",
     "locations": [
       {
         "id": "",
-        "address": "",
+        "name": "",
+        "streetAddress": "",
         "zip": "",
         "city": "",
-        "room (optional)": "",
-        "geoCoords (optional)": {
-          "lat": "",
-          "lng": ""
-        }
+        "room": "",
+        "auxiliary": "",
+        "_comment_auxiliary": "z. B. Hinterhaus",
+        "geojson (optional)": "{GEOJSON}",
+        "access": "['restricted', 'possible', 'not possible', '']",
+        "accessible (optional)": "{BOOLEAN}",
+        "_comment_accessible": "accessible => barreriefrei"
       }
     ],
     "stakeholder": [
       {
         "id": "",
         "name": "",
-        "type": "",
         "contact (optional)": {
-          "contactPerson  (optional)": "",
-          "postAddress (optional)": "",
-          "phone (optional)": "",
-          "telefax (optional)": "",
-          "email  (optional)": "",
-          "website  (optional)": ""
+          "contactPerson": "",
+          "postAddress": "",
+          "phone": "",
+          "telefax": "",
+          "internet" : [{
+            "website": "",
+            "email": "",
+            "icq": ""
+          }]
         },
-		    "participated": []
+        "group (optional)": {
+          "knownMembers": [
+            {
+              "id": "[stakeholder.id]",
+              "start": "",
+              "end": ""
+            }],
+          "participation": "{BOOLEAN}",
+          "_comment_participation": "Beteiligung an Gruppe möglich?"
+        },
+        "created": "{DATESTRING}",
+        "modified": "{DATESTRING}"
       }
     ],
-    "dependencies": []
+    "dependencies": ["[process]"]
   }
 }
