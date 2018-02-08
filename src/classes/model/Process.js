@@ -436,6 +436,15 @@ export class Process {
     return this.end instanceof Date
   }
 
+  resetEndDate () {
+    this.end = null
+    this._defaultEndDate = null
+  }
+
+  isEvent () {
+    return !isNaN(Date.parse(this.start)) && !isNaN(Date.parse(this.end)) && this.start.valueOf() === this.end.valueOf()
+  }
+
   setLocations (locations) {
     if (typeof locations === 'undefined' || locations instanceof Array === false) {
       console.warn('Process.setLocations() - expected Array')
