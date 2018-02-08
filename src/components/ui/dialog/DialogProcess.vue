@@ -16,16 +16,25 @@
                 <md-input type="text" v-model="info.name" @change="onChangeName"></md-input>
               </md-input-container>
 
-              <md-input-container>
-                <label>Start</label>
-                <md-input type="text" readonly v-model="info.start" @click.native="openDateTimeStart"></md-input>
-
-              </md-input-container>
-
-              <md-input-container>
-                <label>Ende</label>
-                <md-input type="text" readonly v-model="info.end" @click.native="openDateTimeEnd"></md-input>
-              </md-input-container>
+              <md-layout md-gutter>
+                <md-layout md-align="start">
+                  <md-input-container>
+                    <label>{{ info.event === true ? 'Zeitpunkt' : 'Start'}}</label>
+                    <md-input type="text" readonly v-model="info.start" @click.native="openDateTimeStart"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-align="center">
+                  <md-input-container class="input-container-end-date" v-if="info.event === false" md-clearable>
+                    <label>Ende</label>
+                    <md-input type="text" readonly v-model="info.end" @click.native="openDateTimeEnd"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-align="end">
+                    <md-layout md-align="center">
+                      <md-switch v-model="info.event" class="md-primary">Zeitpunkt</md-switch>
+                    </md-layout>
+                </md-layout>
+              </md-layout>
 
               <md-input-container>
                 <label for="participation">Partizipation</label>
@@ -113,6 +122,7 @@ export default {
         name: '',
         start: '',
         end: '',
+        event: false,
         participation: '',
         reference: '',
         description: ''
@@ -140,10 +150,25 @@ export default {
     'info.start': function (dateStringStart) {
       this.process.mStart = new Date(dateStringStart)
       this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
+      this.info.event = this.process.isEvent()
     },
     'info.end': function (dateStringEnd) {
+      if (dateStringEnd === '') {
+        this.process.resetEndDate()
+        return
+      }
+
       this.process.mEnd = new Date(dateStringEnd)
       this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
+      this.info.event = this.process.isEvent()
+    },
+    'info.event': function (eventValue) {
+      if (eventValue === true) {
+        this.process.mEnd = new Date(this.process.mStart)
+      } else {
+        this.process.resetEndDate()
+        this.info.end = ''
+      }
     }
 
   },
@@ -159,6 +184,7 @@ export default {
       this.info.name = typeof this.process.mName === 'string' ? this.process.mName : ''
       this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
       this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
+      this.info.event = this.process.isEvent()
       this.info.participation = typeof this.process.mParticipation !== 'undefined' ? this.process.mParticipation : ''
       this.info.reference = typeof this.process.mReference !== 'undefined' ? this.process.mReference : ''
       this.info.description = typeof this.process.mDescription !== 'undefined' ? this.process.mDescription : ''
@@ -305,6 +331,11 @@ $accepntColor: #e91e63;
 
     button.md-active {
       background: $accepntColor
+    }
+
+    .input-container-end-date {
+      margin-left: 20px;
+      margin-right: 20px;
     }
   }
 
