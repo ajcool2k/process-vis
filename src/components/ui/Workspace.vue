@@ -2,9 +2,11 @@
   <div id="vue-workspace" :data-change="changes.time">
 
     <!-- child component -->
+
     <tool-bar :process="processModel" :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange" v-on:process="onToolbarShowProcess" v-on:changeProcess="onChangeProcess"></tool-bar>
 
-    <div class="workspace">
+
+
       <md-dialog-confirm
         :md-title="dialog.removeConnectionDialog.title"
         :md-content-html="dialog.removeConnectionDialog.contentHtml"
@@ -22,7 +24,6 @@
         <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
         <vue-slider class="range-itemSize ignore-container-events" :value="itemSize" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
         <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
-
 
         <template v-for="(item, index) in processModel.mDelegates">
           <div :key="item" :class="'delegate delegate' + index" :data-id="item" :style="'width: ' + ( containerSize.x / processModel.mDelegates.length ) + 'px'"></div>
@@ -97,7 +98,6 @@
           <line class="timeRuler" />
         </svg>
       </div>
-    </div>
 
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
     <item-chooser v-on:onProcessCreate="processCreate" v-on:delegateChange="applyDelegateChange"></item-chooser>
@@ -148,7 +148,6 @@ export default {
     return {
       fsm: null, // finite state machine
       workspaceNode: null,
-      workspaceSize: { x: Calc.minContainerWidth + 200, y: Calc.minContainerWidth + 200 },
       containerNode: null,
       containerSize: { x: Calc.minContainerWidth, y: Calc.minContainerHeight },
       yAxisNode: null,
@@ -227,7 +226,7 @@ export default {
 
     // cache DOM
     this.htmlNode = document.querySelector('html')
-    this.workspaceNode = document.querySelector('.workspace')
+    this.workspaceNode = document.querySelector('#vue-workspace')
     this.containerNode = this.workspaceNode.querySelector('.processContainer')
     this.svgNode = this.containerNode.querySelector('svg.svgNode')
     this.tmpLine = this.svgNode.querySelector('.tmpConnection')
@@ -243,8 +242,7 @@ export default {
     Calc.processPosition(this.processModel.children, this.processModel.mDelegates, this.containerSize, this.timeFormat) // set position on the model
     this.containerSize = Calc.containerSize(this.processModel.children, this.processModel.mDelegates) // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
-    this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
-    this.updateWorkspaceSize() // forces reflow
+
     // remove existing event handlers
     interact('.processContainer').unset()
     interact('.delegate').unset()
@@ -273,8 +271,6 @@ export default {
         this.fsm.run('onContainerDragend')
 
         console.warn('dragend container')
-        let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
-        this.updateWorkspaceSize(dragDelta) // forces reflow
         this.updateAxisPosition() // forces reflow
       })
       .resizable({
@@ -304,7 +300,6 @@ export default {
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         let scaledDragDelta = { x: Math.floor(dragDelta.x / this.containerScale.x), y: Math.floor(dragDelta.y / this.containerScale.y) }
         this.updateContainerSize(scaledDragDelta) // forces reflow
-        this.updateWorkspaceSize(scaledDragDelta) // forces reflow
       })
 
     interact('.process rect.process-content')
@@ -414,7 +409,6 @@ export default {
 
     if (delta.x !== 0 || delta.y !== 0) {
       this.updateContainerSize(delta)
-      this.updateWorkspaceSize(delta)
     }
   },
 
@@ -962,34 +956,18 @@ export default {
       let containerPos = this.containerNode.getBoundingClientRect()
 
       if (containerPos.top < 80) {
-        let height = 150 - containerPos.top
+        let height = 170 - Math.round(containerPos.top / this.containerScale.y)
         this.xAxisNode.style.height = height + 'px'
       } else {
         this.xAxisNode.style.height = '50px'
       }
 
       if (containerPos.left < 110) {
-        let width = 250 - containerPos.left
+        let width = 250 - Math.round(containerPos.left / this.containerScale.x)
         this.yAxisNode.style.width = width + 'px'
       } else {
         this.yAxisNode.style.width = '100px'
       }
-    },
-
-    updateWorkspaceSize (dragDelta) {
-      console.log('updateWorkspaceSize')
-
-      let delta = typeof dragDelta === 'object' ? dragDelta : { x: 0, y: 0 }
-
-      this.workspaceSize = { x: this.workspaceSize.x + delta.x, y: this.workspaceSize.y + delta.y }
-      let width = Math.round(this.containerScale.x * this.workspaceSize.x)
-      let height = Math.round(this.containerScale.x * this.workspaceSize.y)
-
-      let displayValue = this.workspaceNode.style.display
-      this.workspaceNode.style.display = 'none' // avoid reflows by multiple style changes
-      this.workspaceNode.style.width = width + 'px'
-      this.workspaceNode.style.height = height + 'px'
-      this.workspaceNode.style.display = displayValue // set active again
     },
 
     applyTransform () {
@@ -999,7 +977,6 @@ export default {
       let transformScale = 'scale(' + this.containerScale.x + ',' + this.containerScale.y + ')'
       this.containerNode.style.webkitTransform =
       this.containerNode.style.transform = transformTranslate + ' ' + transformScale
-      this.updateWorkspaceSize()
     },
 
     translate (dx, dy) {
@@ -1051,6 +1028,7 @@ export default {
       this.containerScale.x = scaleData.x
       this.containerScale.y = scaleData.y
       this.applyTransform()
+      this.updateAxisPosition()
     },
 
     exchange (data) {
@@ -1421,43 +1399,39 @@ $bgColor: #eee;
 }
 
 @media (max-width: 1000px) {
-  .workspace {
-    top: 96px;
+  .processContainer {
+  margin-top: 200px;
   }
 }
 
 @media (min-width: 1000px) {
-  .workspace {
-    top: 48px;
+  .processContainer {
+    margin-top: 140px;
   }
 }
 
-.workspace {
-  position: relative;
-  height: auto;
-  width: auto;
-  min-height: 100vh;
-  min-width: 100vw;
-  overflow: hidden;
+#vue-workspace {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  overflow: auto;
   background: $bgColor;
 }
 
 .tool-bar {
   position: fixed;
-  width: 100vw;
+  width: 100%;
   z-index: 9;
   height: 48px;
 }
 
 .processContainer {
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  width: 1000px;
-  height: 600px;
+  top: 0px;
   left: 200px;
-  top: 80px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
