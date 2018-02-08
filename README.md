@@ -5,13 +5,27 @@ Diplomarbeit zum Thema: Technische Konzeption und Implementierung eines webbasie
 ## Branch
 
 - [master] beinhaltet aktuellen Stand
-- [stable] letzter produktiver Stand
+- [stable] letzter Live-Branch für Demo
+- [develop] beinhaltet aktuellen Entwicklungsstand (unstable)
+- [feature-xxx] diverse Feature-Entwicklungen (unstable)
+
+### Workflow
+
+- create branch oder fork branch from [develop]
+- push changes
+- create pull request: branch into [develop]
 
 ## Technologie
 
 - Projekt basierend auf Vue 2.0
 - Entwicklung auf Basis von Webpack 2
 - Einsatz eines [Vue Boilerplates](http://vuejs-templates.github.io/webpack/)
+
+
+## Code style
+- [StandardJS](https://standardjs.com/#standardjs--the-rules)
+- use ESLint to comply the code style
+- check .editorconfig.json and .eslint.json
 
 ## Build Setup
 
