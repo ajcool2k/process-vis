@@ -327,7 +327,6 @@ describe('Metadata.js', () => {
 
     expect(parsedMetadata.stakeholder.length).to.equal(1)
     expect(parsedMetadata.stakeholder[0] instanceof Stakeholder).to.equal(true)
-
     expect(_.isEqual(metadata, parsedMetadata)).to.equal(true)
   })
 })

@@ -46,7 +46,7 @@ export class Stakeholder {
 
     this.id = serializedStakeholder.id
     this.name = serializedStakeholder.name
-    this.type = typeof serializedStakeholder.type
+    this.type = serializedStakeholder.type
     this.contact = serializedStakeholder.contact
   }
 }
