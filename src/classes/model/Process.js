@@ -17,6 +17,8 @@ export class Process {
     this._delegates = [] // initators of children
     this._width = 0
     this._height = 0
+    this._drawHeight = 0
+    this._increased = false
     this._defaultEndDate = null
     this._duration = 0 // will be calculated by start and end
     this._domNode = null

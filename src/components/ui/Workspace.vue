@@ -57,27 +57,27 @@
 
           <!-- draw Processes -->
           <template v-if="item._width" v-for="item in processModel.children">
-            <g :key="item.id + '-process'" class="process draggable drag-drop" :data-id="item.id" @click.stop="onProcessClick">
-              <rect :class="'process-content has-child-' + (item.children.length > 0)" :data-id="item.id" :height="item._height" :width="item._width">
+            <g :key="item.id + '-process'" :class="'process draggable drag-drop event-' + item._increased + ''" :data-id="item.id" @click.stop="onProcessClick">
+              <rect :class="'process-content has-child-' + (item.children.length > 0)" :data-id="item.id" :height="item._drawHeight" :width="item._width">
                 <title>Name: {{ item.name }} ({{ item.id }})</title>
               </rect>
-              <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" :r="Math.min(item._height, 10)" :cy="Math.max(item._height - 15, 0)" :cx="(item._width / 2 )"></circle>
-              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._height, 60)">{{ shortName(item.name) }}</text>
+              <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" :r="Math.min(item._drawHeight, 10)" :cy="Math.max(item._drawHeight - 15, 0)" :cx="(item._width / 2 )"></circle>
+              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._drawHeight, 60)">{{ shortName(item.name) }}</text>
 
               <g :data-process="item.id">
-                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 20)" y="1" :height="getIconPosition(item._height, 30)" width="20" @click.stop="onTransformationClick">
+                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 20)" y="1" :height="getIconPosition(item._drawHeight, 30)" width="20" @click.stop="onTransformationClick">
                   <title>Prozess-Transformation: {{item.transformation.mName}}</title>
                 </rect>
                 <text class="process-transform-text" :x="(item._width - 11)" y="20">{{item.transformation.mType}}</text>
               </g>
-
               <g :data-process="item.id" v-if="item.participation !== 'closed'">
-                <rect class="process-participation" :data-id="item.id" :x="(item._width - 20)" :y="getIconPosition(item._height, 30)"  :height="getIconPosition(item._height, 29)" width="20" @click.stop="onParticipationClick">
+                <rect class="process-participation" :data-id="item.id" :x="(item._width - 20)" :y="getIconPosition(item._drawHeight, 30)"  :height="getIconPosition(item._drawHeight, 29)" width="20" @click.stop="onParticipationClick">
                   <title>Beteiligungsmöglichkeit: {{item.participation}}</title>
                 </rect>
-                <use class="process-participation-icon" :x="(item._width - 20)" :y="getIconPosition(item._height, 30)" xlink:href="#icon-people" />
+                <use class="process-participation-icon" :x="(item._width - 20)" :y="getIconPosition(item._drawHeight, 30)" xlink:href="#icon-people" />
               </g>
 
+              <rect v-if="item._increased" class="event-line" :data-id="item.id" :height="10" y="-5" :width="item._width"></rect>
             </g>
           </template>
 
@@ -1481,6 +1481,16 @@ svg {
 
     z-index: 2;
     opacity: 0.5;
+
+    &.event-true {
+      .process-content {
+        fill-opacity: 0.2
+      }
+
+      .event-line {
+        fill: $accepntColor
+      }
+    }
 
     &:hover {
       animation-name: fadeIn;
