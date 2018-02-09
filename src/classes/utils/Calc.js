@@ -74,6 +74,12 @@ export class Calc {
       return false
     }
 
+    // remove event flag
+    if (process.isEvent()) {
+      process.resetEndDate()
+      process.mEnd = Calc.getDefaultEndDate(process, this.timeFormat)
+    }
+
     let durationMillis = process.mEnd - process.start
     let durationMillisChanged = Math.floor(durationMillis * factor)
 
@@ -382,6 +388,8 @@ export class Calc {
       // calc position
       Calc.processPositionY(elem, startProcess.start, divider) // set y position and height
       Calc.processPositionX(elem, colWidth, laneNumber) // set x and width position
+
+      if (elem.isEvent()) elem._height = this.itemSize
     })
 
     let intersectedMap = Calc.findIntersected(processesCopy, delegates)
@@ -407,6 +415,8 @@ export class Calc {
         processes[i]._defaultEndDate = processesCopy[i]._defaultEndDate
       }
     }
+
+
 
     // console.log(processes.map(elem => elem._position.y + elem._height))
   }
