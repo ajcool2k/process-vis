@@ -75,7 +75,7 @@ export class Calc {
     }
 
     // remove event flag
-    if (process.isEvent()) {
+    if (process._increased) {
       process.resetEndDate()
       process.mEnd = Calc.getDefaultEndDate(process, this.timeFormat)
     }
@@ -199,7 +199,7 @@ export class Calc {
         delegatedProcesses.forEach(dP => {
           if (elem === dP) return
           let otherProcess = processes.find(p => p.id === dP)
-          let ret = Helper.rangeIntersection({ start: process.start, end: process.mEnd }, { start: otherProcess.start, end: otherProcess.mEnd })
+          let ret = Helper.rangeIntersection({ start: process._position.y, end: process._position.y + process._drawHeight }, { start: otherProcess._position.y, end: otherProcess._position.y + otherProcess._drawHeight })
           if (!ret) return // only store intersected processes
 
           if (intersectList.indexOf(process.id) === -1) intersectList.push(process.id)
@@ -324,16 +324,35 @@ export class Calc {
 
   static processPositionY (elem, startDate, divider) {
     const itemSize = Calc.itemSize
+    elem._increased = false
+
     let deltaStart = elem.start - startDate
     let deltaTime = deltaStart / divider
 
     let y = Math.ceil(deltaTime * itemSize) + Calc.axisOffset
     elem._position.y = y
 
-    // calc height
-    let durationMillis = elem._defaultEndDate - elem.start
-    let duration = durationMillis / divider
+    // calc height by end-start diff
+    let duration = 0
+    let durationMillis = 0
+
+    durationMillis = elem._defaultEndDate - elem.start
+    duration = durationMillis / divider
+
+    // fix for 28/29/30/31 days of the month
+    if (Calc.timeFormats.months === divider) {
+      let testDate = new Date(elem.start).setMonth(elem.start.getMonth() + 1)
+      if (testDate.valueOf() === elem._defaultEndDate.valueOf()) duration = 1
+    }
+
     elem._height = Math.max(Math.ceil(itemSize * duration), 0)
+    elem._drawHeight = elem._height
+
+    // increased
+    if (elem._height < itemSize) {
+      elem._drawHeight = itemSize
+      elem._increased = true
+    }
   }
 
   /**
@@ -375,8 +394,7 @@ export class Calc {
     let colWidth = Calc.columnSize(containerSize, delegates)
 
     processesCopy.forEach(elem => {
-      let defaultEndDate = Calc.getDefaultEndDate(elem, timeFormat)
-      elem._defaultEndDate = defaultEndDate
+      elem._defaultEndDate = Calc.getDefaultEndDate(elem, timeFormat)
 
       // find workspace lane
       let laneNumber = delegates.indexOf(elem.initiator) + 1
@@ -388,8 +406,6 @@ export class Calc {
       // calc position
       Calc.processPositionY(elem, startProcess.start, divider) // set y position and height
       Calc.processPositionX(elem, colWidth, laneNumber) // set x and width position
-
-      if (elem.isEvent()) elem._height = this.itemSize
     })
 
     let intersectedMap = Calc.findIntersected(processesCopy, delegates)
@@ -404,7 +420,9 @@ export class Calc {
       processes[i]._position.x = processesCopy[i]._position.x
       processes[i]._position.y = processesCopy[i]._position.y
       processes[i]._height = processesCopy[i]._height
+      processes[i]._drawHeight = processesCopy[i]._drawHeight
       processes[i]._width = processesCopy[i]._width
+      processes[i]._increased = processesCopy[i]._increased
 
       // copy enddate (keep old if it's the same)
       if (processes[i].hasOwnProperty('_defaultEndDate')) {
@@ -415,16 +433,11 @@ export class Calc {
         processes[i]._defaultEndDate = processesCopy[i]._defaultEndDate
       }
     }
-
-
-
-    // console.log(processes.map(elem => elem._position.y + elem._height))
   }
 
   static getDefaultEndDate (process, timeFormat) {
-    if (process.end !== null && typeof process.end === 'object') return process.end
+    if (process.end instanceof Date) return process.end
 
-    // console.log('no enddate found')
     let defaultEndDate = new Date(process.start.getTime()) // if no endtime is set
     switch (timeFormat) {
       case 'hours':
