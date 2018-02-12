@@ -649,12 +649,12 @@ export default {
         action: (event) => {
           if (!event || typeof event === 'undefined') {
             // open parent
-            this.$refs['dialog-process'].open(this.processModel, 'update', false)
+            this.$refs['dialog-process'].open(this.processModel, 'update', false, 0)
           } else {
             // open child
             this.actionId = event.target.getAttribute('data-id')
             let child = this.processModel.children.find(elem => elem.id === Helper.parse(this.actionId))
-            this.$refs['dialog-process'].open(child, 'update', true)
+            this.$refs['dialog-process'].open(child, 'update', true, 0, this.processModel)
           }
         }
       })
@@ -1137,7 +1137,7 @@ export default {
         return
       }
 
-      this.$refs['dialog-process'].open(process, 'update', true, 4)
+      this.$refs['dialog-process'].open(process, 'update', true, 4, this.processModel)
     },
 
     onParticipationClick (event) {
@@ -1153,7 +1153,7 @@ export default {
         return
       }
 
-      this.$refs['dialog-process'].open(process, 'update', true, 0)
+      this.$refs['dialog-process'].open(process, 'update', true, 0, this.processModel)
     },
 
     onChangeProcess () {
