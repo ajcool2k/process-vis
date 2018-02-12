@@ -55,6 +55,20 @@
 
           </defs>
 
+          <!-- draw Connections -->
+          <template v-for="item in processModel.children">
+            <template v-for="con in item._connections">
+              <g :key="con.id + '-connection'" class="connection" :data-id="con.id">
+                <path class="connection-outline" :data-id="con.id" d="" @click.stop="onConnectionClick" />
+                <path class="connection-line" :data-id="con.id" d="" />
+              </g>
+             </template>
+          </template>
+
+          <g class="connection tmp">
+            <path class="tmpConnection" d="" />
+          </g>
+
           <!-- draw Processes -->
           <template v-if="item._width" v-for="item in processModel.children">
             <g :key="item.id + '-process'" :class="'process draggable drag-drop event-' + item._increased + ''" :data-id="item.id" @click.stop="onProcessClick">
@@ -81,19 +95,9 @@
             </g>
           </template>
 
-          <!-- draw Connections -->
           <template v-for="item in processModel.children">
-            <template v-for="con in item._connections">
-              <g :key="con.id + '-connection'" class="connection" :data-id="con.id">
-                <path class="connection-outline" :data-id="con.id" d="" @click.stop="onConnectionClick" />
-                <path class="connection-line" :data-id="con.id" d="" />
-              </g>
-             </template>
+             <path :key="item.id + '-input'" :data-id="item.id" class="input-triangle" d="" />
           </template>
-
-          <g class="connection tmp">
-            <path class="tmpConnection" d="" />
-          </g>
 
           <line class="timeRuler" />
         </svg>
@@ -787,6 +791,8 @@ export default {
 
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
       let targetRect = Calc.absolutePosition(target, this.containerTranslation) // forces reflow
+
+      let processInput = this.containerNode.querySelector('.input-triangle[data-id="' + con.target + '"]')
       // ----------------------------------------------
 
       // hide connection when not enough connected elements are getting to small
@@ -838,6 +844,7 @@ export default {
 
       line.setAttribute('d', svgPath)
       outline.setAttribute('d', svgPath)
+      processInput.setAttribute('d', Path.createPolyline([targetAnchor, targetPoint]))
     },
 
     onCircleClick (event) {
@@ -1480,11 +1487,11 @@ svg {
     justify-content: flex-end;
 
     z-index: 2;
-    opacity: 0.5;
+    opacity: 0.7;
 
     &.event-true {
       .process-content {
-        fill-opacity: 0.2
+        fill-opacity: 0.4
       }
 
       .event-line {
@@ -1579,6 +1586,13 @@ svg {
     }
   }
 
+  .input-triangle, .tmpConnection {
+    fill: none;
+    stroke-width: 3;
+    marker-end: url(#marker-triangle);
+    pointer-events: none;
+  }
+
   marker {
     fill: white;
     stroke-width: 1;
@@ -1591,7 +1605,6 @@ svg {
       stroke: #BBB;
       stroke-width: 3;
       stroke-dasharray: 4,4;
-      marker-end: url(#marker-triangle);
       pointer-events: none;
     }
 
