@@ -59,19 +59,23 @@
                 </md-input-container>
             </md-tab>
 
-            <md-tab id="locations" md-label="Orte" :md-active="tab === 2">
+            <md-tab id="connections" md-label="Verbindungen" :md-active="tab === 2">
+              <connection-tab :process="process" :parent="parent"></connection-tab>
+            </md-tab>
+
+            <md-tab id="locations" md-label="Orte" :md-active="tab === 3">
               <location-tab :process="process"></location-tab>
             </md-tab>
 
-            <md-tab id="stakeholder" md-label="Beteiligte" :md-active="tab === 3">
+            <md-tab id="stakeholder" md-label="Beteiligte" :md-active="tab === 4">
               <stakeholder-tab :process="process" ref="stakeholder-tab"></stakeholder-tab>
             </md-tab>
 
-            <md-tab id="transformation" md-label="Transformation" :md-active="tab === 4">
+            <md-tab id="transformation" md-label="Transformation" :md-active="tab === 5">
               <transformation-tab :process="process"></transformation-tab>
             </md-tab>
 
-            <md-tab id="results" md-label="Ergebnisse" :md-active="tab === 5">
+            <md-tab id="results" md-label="Ergebnisse" :md-active="tab === 6">
               <result-tab :process="process"></result-tab>
             </md-tab>
           </md-tabs>
@@ -81,7 +85,7 @@
 
       <md-layout md-gutter class="bottom-bar">
         <md-layout md-align="start"><md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button></md-layout>
-        <md-layout v-if="showProcessButton" md-align="center" md-flex="60">
+        <md-layout v-if="isChildProcess" md-align="center" md-flex="60">
           <md-button class="md-raised md-accent" @click="onChangeProcess('child')">Öffnen</md-button>
         </md-layout>
         <md-layout md-align="end"><md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button></md-layout>
@@ -92,6 +96,7 @@
 </template>
 
 <script>
+import Connection from './process/Connection.vue'
 import Location from './process/Location.vue'
 import Stakeholder from './process/Stakeholder.vue'
 import Result from './process/Result.vue'
@@ -105,6 +110,7 @@ import { Datetime }  from 'vue-datetime-2'
 export default {
   name: 'DialogProcess',
   components: {
+    'connection-tab': Connection,
     'location-tab': Location,
     'stakeholder-tab': Stakeholder,
     'result-tab': Result,
@@ -116,8 +122,9 @@ export default {
     return {
       dom: {},
       process: new Process(),
+      parent: null,
       tab: 0,
-      showProcessButton: false,
+      isChildProcess: true,
       info: {
         name: '',
         start: '',
@@ -173,12 +180,12 @@ export default {
 
   },
   methods: {
-    open (child, a, showProcessButton, tab) {
+    open (child, a, isChildProcess, tab, parent) {
       console.log('DialogProcess open()')
-      console.log(child)
       this.process = child
+      this.parent = parent
       this.setAction(a)
-      this.showProcessButton = showProcessButton === true
+      this.isChildProcess = isChildProcess === true
       this.tab = typeof tab === 'number' ? tab : 0
 
       this.info.name = typeof this.process.mName === 'string' ? this.process.mName : ''
@@ -331,6 +338,10 @@ $accepntColor: #e91e63;
 
     button.md-active {
       background: $accepntColor
+    }
+
+    .hide--true {
+      display: none
     }
 
     .input-container-end-date {
