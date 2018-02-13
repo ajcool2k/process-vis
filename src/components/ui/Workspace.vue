@@ -96,7 +96,7 @@
           </template>
 
           <template v-for="item in processModel.children">
-             <path :key="item.id + '-input'" :data-id="item.id" class="input-triangle" d="" />
+              <path v-if="item.connection.from.length > 0" :key="item.id + '-input'" :data-id="item.id" class="input-triangle" d="" />
           </template>
 
           <line class="timeRuler" />
