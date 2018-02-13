@@ -5,27 +5,27 @@
 
     <md-input-container>
     <label>Bezeichnung</label>
-    <md-input type="text" v-model="info.name" @change="onChangeName"></md-input>
+    <md-input type="text" v-model="info.name" ref="focusable" @change="onChangeName"></md-input>
     </md-input-container>
 
     <md-layout md-gutter>
-    <md-layout md-align="start">
-        <md-input-container>
-        <label>{{ info.event === true ? 'Zeitpunkt' : 'Start'}}</label>
-        <md-input type="text" readonly v-model="info.start" @click.native="openDateTimeStart"></md-input>
-        </md-input-container>
-    </md-layout>
-    <md-layout md-align="center">
-        <md-input-container class="input-container-end-date" v-if="info.event === false" md-clearable>
-        <label>Ende</label>
-        <md-input type="text" readonly v-model="info.end" @click.native="openDateTimeEnd"></md-input>
-        </md-input-container>
-    </md-layout>
-    <md-layout md-align="end">
-        <md-layout md-align="center">
-            <md-switch v-model="info.event" class="md-primary">Zeitpunkt</md-switch>
-        </md-layout>
-    </md-layout>
+      <md-layout md-align="start">
+          <md-input-container>
+          <label>{{ info.event === true ? 'Zeitpunkt' : 'Start'}}</label>
+          <md-input type="text" readonly v-model="info.start" @click.native="openDateTimeStart"></md-input>
+          </md-input-container>
+      </md-layout>
+      <md-layout md-align="center" md-flex-offset="5">
+          <md-input-container class="input-container-end-date" v-if="info.event === false" md-clearable>
+          <label>Ende</label>
+          <md-input type="text" readonly v-model="info.end" @click.native="openDateTimeEnd"></md-input>
+          </md-input-container>
+      </md-layout>
+      <md-layout md-align="end" md-flex-offset="5">
+          <md-layout md-align="center">
+              <md-switch v-model="info.event" class="md-primary">Zeitpunkt</md-switch>
+          </md-layout>
+      </md-layout>
     </md-layout>
 
     <md-input-container>
@@ -182,10 +182,5 @@ export default {
     > input[type=text] {
       display: none
     }
-  }
-
-  .input-container-end-date {
-      margin-left: 20px;
-      margin-right: 20px;
   }
 </style>

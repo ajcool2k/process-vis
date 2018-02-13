@@ -1,21 +1,18 @@
 <template>
   <div>
     <md-dialog
-      class="dialog-stakeholder-add"
+      class="dialog-process-add"
       md-ok-text="OK"
       @close="emitEvent()"
       ref="dialog">
       <md-dialog-title>Neuer Prozess</md-dialog-title>
       <md-dialog-content>
-
-      <form novalidate @submit.stop.prevent="onAcceptButton" v-if="process">
-
-        <general-tab ref="general-tab"></general-tab>
-        <md-button @click="onCloseButton" class="md-raised md-primary">Abbrechen</md-button>
-        <md-button @click="onAcceptButton" class="md-raised md-primary">Auswählen</md-button>
-
-      </form>
+        <general-tab ref="general-tab" v-if="process"></general-tab>
       </md-dialog-content>
+      <md-dialog-actions>
+        <md-button @click="onCloseButton" class="md-raised">Abbrechen</md-button>
+        <md-button @click="onAcceptButton" class="md-raised md-primary">Auswählen</md-button>
+      </md-dialog-actions>
     </md-dialog>
   </div>
 </template>
@@ -59,6 +56,11 @@ export default {
       this.$refs['dialog'].open()
       this.$nextTick(() => {
         this.$refs['general-tab'].refresh(this.process)
+        let nameField = this.$refs['general-tab'].$refs.focusable.$el
+        console.log(nameField)
+        setTimeout(() => {
+          nameField.focus()
+        })
       })
     },
 
@@ -81,5 +83,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+  .dialog-process-add .md-dialog {
+    width: 600px
+  }
 </style>
