@@ -18,6 +18,7 @@
 
       <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
       <dialog-delegate-select ref="dialog-delegate-select" v-on:delegateSelect="onDelegateSelect"></dialog-delegate-select>
+      <dialog-process-select ref="dialog-process-select" v-on:processSelect="onProcessSelect"></dialog-process-select>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
@@ -119,6 +120,7 @@ import AxisY from './AxisY.vue'
 
 import DialogProcess from './dialog/DialogProcess.vue'
 import DialogSelectDelegate from './dialog/DialogSelectDelegate.vue'
+import DialogSelectProcess from './dialog/DialogSelectProcess.vue'
 
 import interact from 'interactjs'
 
@@ -144,7 +146,8 @@ export default {
     'axis-x': AxisX,
     'axis-y': AxisY,
     'dialog-process': DialogProcess,
-    'dialog-delegate-select': DialogSelectDelegate
+    'dialog-delegate-select': DialogSelectDelegate,
+    'dialog-process-select': DialogSelectProcess
   },
   props: [ 'processModel', 'isSaved', 'changes' ],
 
@@ -1075,14 +1078,23 @@ export default {
         initiator = this.processModel.mDelegates[0] // use first delegate
       } else {
         let lastProcess = Calc.getEndProcess(this.processModel.children) // process at the bottom
-        console.log('lastProcess', lastProcess)
         start = Calc.roundDate(lastProcess.mEnd, this.timeFormat)
         start = Calc.incrementDate(start, this.timeFormat)
         initiator = lastProcess.initiator // use initator of lastProcess
       }
 
       let process = new Process('', initiator, start, null)
-      this.$emit('addProcess', process)
+      this.$refs['dialog-process-select'].open(process)
+    },
+
+    onProcessSelect (data) {
+      if (!data.hasOwnProperty('response') || !data.hasOwnProperty('process')) {
+        console.warn('onProcessSelect - expected response and process in data object')
+        return
+      }
+
+      if (data.response !== 'add') return
+      this.$emit('addProcess', data.process)
     },
 
     resetCuror () {
