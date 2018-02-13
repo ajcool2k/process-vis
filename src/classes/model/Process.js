@@ -389,7 +389,7 @@ export class Process {
 
   removeConnectionTo (target) {
     if (typeof target !== 'object' || !target) {
-      console.warn('Process.addConnectionTo() - expected object')
+      console.warn('Process.removeConnectionTo() - expected object')
       return false
     }
 
