@@ -4,14 +4,14 @@
     <md-card md-with-hover>
       <md-card-content>
 
-        <md-layout>
-          <md-layout>
+        <md-layout md-align="center" md-gutter>
+          <md-layout >
             <md-input-container>
               <label>Dieser Prozess</label>
               <md-input type="text" :value="getProcess(this.id).name" readonly></md-input>
             </md-input-container>
           </md-layout>
-          <md-layout>
+          <md-layout md-flex-offset="5">
             <md-input-container>
               <label>Richtung</label>
               <md-select name="direction" id="direction" v-model="direction">
@@ -20,11 +20,12 @@
               </md-select>
             </md-input-container>
           </md-layout>
-          <md-layout>
+
+          <md-layout md-flex-offset="5">
             <md-input-container>
               <label>Verbindungsprozess</label>
               <md-select name="other" id="other" v-model="other">
-                <md-option v-for="(elem, index) in list" :key="elem.id + '--other'" :value="elem.id">{{elem.name}}</md-option>
+                <md-option v-for="elem in list" :key="elem.id + '--other'" :value="elem.id">{{elem.name}}</md-option>
               </md-select>
             </md-input-container>
           </md-layout>

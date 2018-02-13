@@ -6,6 +6,7 @@
           <md-table-head>Prozess</md-table-head>
           <md-table-head>eingehend</md-table-head>
           <md-table-head>ausgehend</md-table-head>
+          <md-table-head>&nbsp;</md-table-head>
         </md-table-row>
       </md-table-header>
       <md-table-body>
@@ -13,11 +14,21 @@
           <md-table-cell>{{ getProcess(id).name }}</md-table-cell>
           <md-table-cell>&#x2713;</md-table-cell>
           <md-table-cell></md-table-cell>
+          <md-table-cell>
+            <md-button class="md-icon-button md-raised" @click="onRemove(id, '<-')">
+              <md-icon>delete</md-icon>
+            </md-button>
+          </md-table-cell>
         </md-table-row>
         <md-table-row v-for="(id, rowIndex) in process.connection.to" :key="rowIndex + '--to'" :md-item="{ process: id }" md-auto-select md-selection>
           <md-table-cell>{{ getProcess(id).name }}</md-table-cell>
           <md-table-cell></md-table-cell>
           <md-table-cell>&#x2713;</md-table-cell>
+          <md-table-cell>
+            <md-button class="md-icon-button md-raised" @click="onRemove(id, '->')">
+              <md-icon>delete</md-icon>
+            </md-button>
+          </md-table-cell>
         </md-table-row>
       </md-table-body>
     </md-table>
@@ -75,6 +86,13 @@ export default {
         button.innerHTML = 'Ausblenden'
         this.showInput = true
       }
+    },
+
+    onRemove (id, direction) {
+      let from = direction === '->' ? this.process : this.getProcess(id)
+      let to = direction === '->' ? this.getProcess(id) : this.process
+
+      from.removeConnectionTo(to)
     },
 
     onAdd (connection) {
