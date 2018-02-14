@@ -187,6 +187,8 @@ export class Metadata {
         Metadata.addDependency(dependency)
       })
     }
+
+    return Metadata.getData()
   }
 
   static getData () {
@@ -201,41 +203,6 @@ export class Metadata {
     Metadata.dependencies = []
     Metadata.locations = []
     Metadata.stakeholder = []
-  }
-
-  static parse (serializedMetadata) {
-    if (typeof serializedMetadata !== 'object' || !serializedMetadata) {
-      console.warn('Location.props() - serializedMetadata expects and object')
-      return
-    }
-
-    Metadata.clear()
-
-    if (serializedMetadata.hasOwnProperty('locations')) {
-      serializedMetadata.locations.forEach(serializedLocation => {
-        let location = new Location()
-        location.props = serializedLocation
-        Metadata.addLocation(location)
-      })
-    }
-
-    if (serializedMetadata.hasOwnProperty('stakeholder')) {
-      serializedMetadata.stakeholder.forEach(serializedStakeholder => {
-        let stakeholder = new Stakeholder()
-        stakeholder.props = serializedStakeholder
-        Metadata.addStakeholder(stakeholder)
-      })
-    }
-
-    if (serializedMetadata.hasOwnProperty('dependencies')) {
-      serializedMetadata.dependencies.forEach(serializedDependencies => {
-        let dependencies = new Stakeholder()
-        dependencies.props = serializedDependencies
-        Metadata.addDependency(dependencies)
-      })
-    }
-
-    return Metadata.getData()
   }
 }
 

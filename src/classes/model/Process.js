@@ -17,6 +17,8 @@ export class Process {
     this._delegates = [] // initators of children
     this._width = 0
     this._height = 0
+    this._drawHeight = 0
+    this._increased = false
     this._defaultEndDate = null
     this._duration = 0 // will be calculated by start and end
     this._domNode = null
@@ -387,7 +389,7 @@ export class Process {
 
   removeConnectionTo (target) {
     if (typeof target !== 'object' || !target) {
-      console.warn('Process.addConnectionTo() - expected object')
+      console.warn('Process.removeConnectionTo() - expected object')
       return false
     }
 
@@ -434,6 +436,15 @@ export class Process {
 
   hasEndDate () {
     return this.end instanceof Date
+  }
+
+  resetEndDate () {
+    this.end = null
+    this._defaultEndDate = null
+  }
+
+  isEvent () {
+    return !isNaN(Date.parse(this.start)) && !isNaN(Date.parse(this.end)) && this.start.valueOf() === this.end.valueOf()
   }
 
   setLocations (locations) {
