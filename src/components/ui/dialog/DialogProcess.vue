@@ -25,7 +25,12 @@
             </md-tab>
 
             <md-tab id="connections" md-label="Verbindungen" :md-active="tab === 2">
-              <connection-tab :process="process" :parent="parent"></connection-tab>
+              <div v-if="parent">
+                <connection-tab :process="process" :parent="parent"></connection-tab>
+              </div>
+              <div v-else>
+                Die Verbindungsansicht steht nur für Teilschritte zur Verfügung.
+              </div>
             </md-tab>
 
             <md-tab id="locations" md-label="Orte" :md-active="tab === 3">
