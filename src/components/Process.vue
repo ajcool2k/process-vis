@@ -378,8 +378,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-  #Process {
-    background: #eee
-  }
-</style>
+<style lang="scss" scoped></style>

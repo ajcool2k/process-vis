@@ -23,7 +23,7 @@ export default {
 
 <style lang="scss">
 
-  app {
+  body {
     background: #eee !important;
   }
 
