@@ -150,4 +150,27 @@ describe('Process.js', () => {
     let childDelegates = process.children.map(elem => elem.initiator)
     expect(_.isEqual(process.mDelegates, childDelegates)).to.equal(true)
   })
+
+  it('should detect endDate', () => {
+    let process = new Process()
+    expect(process.hasEndDate()).to.equal(false)
+    process.mEnd = new Date()
+    expect(process.hasEndDate()).to.equal(true)
+  })
+
+  it('should detect event', () => {
+    let process = new Process()
+
+    let date = new Date(2010, 11, 5, 2, 1, 0, 55)
+    let dateSame = new Date(2010, 11, 5, 2, 1, 0, 55)
+    process.mStart = date
+    process.mEnd = dateSame
+
+    expect(process.isEvent()).to.equal(true)
+
+    let date2 = new Date(2010, 11, 5, 2, 1, 0, 54)
+    process.mStart = date
+    process.mEnd = date2
+    expect(process.isEvent()).to.equal(false)
+  })
 })

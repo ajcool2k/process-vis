@@ -7,37 +7,35 @@
       ref="dialog">
       <md-dialog-title>Neuer Zuständigkeitsbereich</md-dialog-title>
       <md-dialog-content>
+        <div v-if="initiator">
+          <md-checkbox v-model="useExisting">Bestehenden Stakeholder verwenden</md-checkbox>
 
-      <form novalidate @submit.stop.prevent="onAcceptButton" v-if="initiator">
+          <md-input-container v-if="useExisting === true">
+            <label for="stakeholder">Auswahl</label>
+            <md-select name="stakeholder" id="stakeholder" @change="onChange">
+              <md-option disabled value="">Auswahl Stakeholder</md-option>
+              <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-add-choice'">{{item.name}}</md-option>
+            </md-select>
+          </md-input-container>
 
-        <md-checkbox v-model="useExisting">Bestehenden Stakeholder verwenden</md-checkbox>
+          <md-input-container v-if="useExisting === false">
+            <label>Akteur-Name</label>
+            <md-input type="text" v-model="initiator.name" placeholder="Bezeichnung"></md-input>
+          </md-input-container>
 
-        <md-input-container v-if="useExisting === true">
-          <label for="stakeholder">Auswahl</label>
-          <md-select name="stakeholder" id="stakeholder" @change="onChange">
-            <md-option disabled value="">Auswahl Stakeholder</md-option>
-            <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-add-choice'">{{item.name}}</md-option>
-          </md-select>
-        </md-input-container>
-
-        <md-input-container v-if="useExisting === false">
-          <label>Akteur-Name</label>
-          <md-input type="text" v-model="initiator.name" placeholder="Bezeichnung"></md-input>
-        </md-input-container>
-
-        <md-input-container v-if="useExisting === false">
-          <label for="stakeholder-type">Typ</label>
-          <md-select name="stakeholder-type" id="stakeholder-type" v-model="initiator.type">
-            <md-option value="person">Person</md-option>
-            <md-option value="group">Gruppe</md-option>
-          </md-select>
-        </md-input-container>
-
-        <md-button @click="onCloseButton" class="md-raised md-primary">Abbrechen</md-button>
-        <md-button @click="onAcceptButton" class="md-raised md-primary">Auswählen</md-button>
-
-      </form>
+          <md-input-container v-if="useExisting === false">
+            <label for="stakeholder-type">Typ</label>
+            <md-select name="stakeholder-type" id="stakeholder-type" v-model="initiator.type">
+              <md-option value="person">Person</md-option>
+              <md-option value="group">Gruppe</md-option>
+            </md-select>
+          </md-input-container>
+        </div>
       </md-dialog-content>
+      <md-dialog-actions>
+        <md-button @click="onCloseButton" class="md-raised">Abbrechen</md-button>
+        <md-button @click="onAcceptButton" class="md-raised md-primary">Auswählen</md-button>
+      </md-dialog-actions>
     </md-dialog>
   </div>
 </template>
@@ -52,7 +50,7 @@ export default {
   data: function () {
     return {
       stakeholder: Metadata.getStakeholder(),
-      selectedStakeholder: '',
+      selectedStakeholder: null,
       initiator: null,
       useExisting: false,
       response: ''
@@ -77,7 +75,8 @@ export default {
   methods: {
     open () {
       console.log('DialogSelectDelegate open()')
-      this.initiator = new Stakeholder('')
+      this.initiator = new Stakeholder('', 'person')
+      this.selectedStakeholder = null
       this.response = ''
       this.$refs['dialog'].open()
     },
@@ -99,7 +98,7 @@ export default {
     emitEvent (id) {
       if (this.response === '') return
 
-      let initiator = this.useExisting ? this.selectedStakeholder : this.initiator
+      let initiator = this.useExisting && this.selectedStakeholder ? this.selectedStakeholder : this.initiator
       if (initiator.name === '') initiator.name = '[untitled]'
       this.$emit('delegateSelect', { initiator: initiator, response: this.response })
     }

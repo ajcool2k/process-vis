@@ -1,43 +1,41 @@
 <template>
-  <div>
-    <md-dialog
-      class="dialog-stakeholder"
-      md-ok-text="OK"
-      @close="emitEvent(initiator.id)"
-      ref="dialog">
-      <md-dialog-title>Zuständigkeitsbereich</md-dialog-title>
-      <md-dialog-content>
+  <md-dialog
+    class="dialog-stakeholder"
+    md-ok-text="OK"
+    @close="emitEvent(initiator.id)"
+    ref="dialog">
+    <md-dialog-title>Zuständigkeitsbereich</md-dialog-title>
+    <md-dialog-content>
 
-      <form novalidate @submit.stop.prevent="onCloseButton">
+    <form novalidate @submit.stop.prevent="onCloseButton">
 
-        <md-input-container>
-          <label for="stakeholder">Auswahl</label>
-          <md-select name="stakeholder" id="stakeholder" @change="onChange">
-            <md-option disabled value="">Auswahl Stakeholder</md-option>
-            <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
-          </md-select>
-        </md-input-container>
+      <md-input-container>
+        <label for="stakeholder">Auswahl</label>
+        <md-select name="stakeholder" id="stakeholder" @change="onChange">
+          <md-option disabled value="">Auswahl Stakeholder</md-option>
+          <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
+        </md-select>
+      </md-input-container>
 
-        <md-input-container>
-          <label>Akteur-Name</label>
-          <md-input type="text" v-model="initiator.name"></md-input>
-        </md-input-container>
+      <md-input-container>
+        <label>Akteur-Name</label>
+        <md-input type="text" v-model="initiator.name"></md-input>
+      </md-input-container>
 
-        <md-input-container>
-          <label for="stakeholder-type">Typ</label>
-          <md-select name="stakeholder-type" id="stakeholder-type" v-model="initiator.type">
-            <md-option value="person">Person</md-option>
-            <md-option value="group">Gruppe</md-option>
-          </md-select>
-        </md-input-container>
+      <md-input-container>
+        <label for="stakeholder-type">Typ</label>
+        <md-select name="stakeholder-type" id="stakeholder-type" v-model="initiator.type">
+          <md-option value="person">Person</md-option>
+          <md-option value="group">Gruppe</md-option>
+        </md-select>
+      </md-input-container>
 
-        <md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button>
-        <md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button>
+      <md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button>
+      <md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button>
 
-      </form>
-      </md-dialog-content>
-    </md-dialog>
-  </div>
+    </form>
+    </md-dialog-content>
+  </md-dialog>
 </template>
 
 <script>

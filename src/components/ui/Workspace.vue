@@ -2,9 +2,11 @@
   <div id="vue-workspace" :data-change="changes.time">
 
     <!-- child component -->
+
     <tool-bar :process="processModel" :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange" v-on:process="onToolbarShowProcess" v-on:changeProcess="onChangeProcess"></tool-bar>
 
-    <div class="workspace">
+
+
       <md-dialog-confirm
         :md-title="dialog.removeConnectionDialog.title"
         :md-content-html="dialog.removeConnectionDialog.contentHtml"
@@ -16,13 +18,13 @@
 
       <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
       <dialog-delegate-select ref="dialog-delegate-select" v-on:delegateSelect="onDelegateSelect"></dialog-delegate-select>
+      <dialog-process-select ref="dialog-process-select" v-on:processSelect="onProcessSelect"></dialog-process-select>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
         <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
         <vue-slider class="range-itemSize ignore-container-events" :value="itemSize" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
         <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
-
 
         <template v-for="(item, index) in processModel.mDelegates">
           <div :key="item" :class="'delegate delegate' + index" :data-id="item" :style="'width: ' + ( containerSize.x / processModel.mDelegates.length ) + 'px'"></div>
@@ -54,32 +56,6 @@
 
           </defs>
 
-          <!-- draw Processes -->
-          <template v-if="item._width" v-for="item in processModel.children">
-            <g :key="item.id + '-process'" class="process draggable drag-drop" :data-id="item.id" @click.stop="onProcessClick">
-              <rect :class="'process-content has-child-' + (item.children.length > 0)" :data-id="item.id" :height="item._height" :width="item._width">
-                <title>Name: {{ item.name }} ({{ item.id }})</title>
-              </rect>
-              <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" :r="Math.min(item._height, 10)" :cy="Math.max(item._height - 15, 0)" :cx="(item._width / 2 )"></circle>
-              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._height)">{{ shortName(item.name) }}</text>
-
-              <g :data-process="item.id">
-                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 20)" y="1" :height="getIconPosition(item._height, 30)" width="20" @click.stop="onTransformationClick">
-                  <title>Prozess-Transformation: {{item.transformation.mName}}</title>
-                </rect>
-                <text class="process-transform-text" :x="(item._width - 11)" y="20">{{item.transformation.mType}}</text>
-              </g>
-
-              <g :data-process="item.id" v-if="item.participation !== 'closed'">
-                <rect class="process-participation" :data-id="item.id" :x="(item._width - 20)" :y="getIconPosition(item._height, 30)"  :height="getIconPosition(item._height, 29)" width="20" @click.stop="onParticipationClick">
-                  <title>Beteiligungsmöglichkeit: {{item.participation}}</title>
-                </rect>
-                <use class="process-participation-icon" :x="(item._width - 20)" :y="getIconPosition(item._height, 30)" xlink:href="#icon-people" />
-              </g>
-
-            </g>
-          </template>
-
           <!-- draw Connections -->
           <template v-for="item in processModel.children">
             <template v-for="con in item._connections">
@@ -94,10 +70,39 @@
             <path class="tmpConnection" d="" />
           </g>
 
+          <!-- draw Processes -->
+          <template v-if="item._width" v-for="item in processModel.children">
+            <g :key="item.id + '-process'" :class="'process draggable drag-drop event-' + item._increased + ''" :data-id="item.id" @click.stop="onProcessClick">
+              <rect :class="'process-content has-child-' + (item.children.length > 0)" :data-id="item.id" :height="item._drawHeight" :width="item._width">
+                <title>Name: {{ item.name }} ({{ item.id }})</title>
+              </rect>
+              <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" :r="Math.min(item._drawHeight, 10)" :cy="Math.max(item._drawHeight - 15, 0)" :cx="(item._width / 2 )"></circle>
+              <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._drawHeight, 60)">{{ shortName(item.name) }}</text>
+
+              <g :data-process="item.id">
+                <rect class="proces-transform" :data-id="item.id" :x="(item._width - 20)" y="1" :height="getIconPosition(item._drawHeight, 30)" width="20" @click.stop="onTransformationClick">
+                  <title>Prozess-Transformation: {{item.transformation.mName}}</title>
+                </rect>
+                <text class="process-transform-text" :x="(item._width - 11)" y="20">{{item.transformation.mType}}</text>
+              </g>
+              <g :data-process="item.id" v-if="item.participation !== 'closed'">
+                <rect class="process-participation" :data-id="item.id" :x="(item._width - 20)" :y="getIconPosition(item._drawHeight, 30)"  :height="getIconPosition(item._drawHeight, 29)" width="20" @click.stop="onParticipationClick">
+                  <title>Beteiligungsmöglichkeit: {{item.participation}}</title>
+                </rect>
+                <use class="process-participation-icon" :x="(item._width - 20)" :y="getIconPosition(item._drawHeight, 30)" xlink:href="#icon-people" />
+              </g>
+
+              <rect v-if="item._increased" class="event-line" :data-id="item.id" :height="10" y="-5" :width="item._width"></rect>
+            </g>
+          </template>
+
+          <template v-for="item in processModel.children">
+              <path v-if="item.connection.from.length > 0" :key="item.id + '-input'" :data-id="item.id" class="input-triangle" d="" />
+          </template>
+
           <line class="timeRuler" />
         </svg>
       </div>
-    </div>
 
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
     <item-chooser v-on:onProcessCreate="processCreate" v-on:delegateChange="applyDelegateChange"></item-chooser>
@@ -115,6 +120,7 @@ import AxisY from './AxisY.vue'
 
 import DialogProcess from './dialog/DialogProcess.vue'
 import DialogSelectDelegate from './dialog/DialogSelectDelegate.vue'
+import DialogSelectProcess from './dialog/DialogSelectProcess.vue'
 
 import interact from 'interactjs'
 
@@ -140,7 +146,8 @@ export default {
     'axis-x': AxisX,
     'axis-y': AxisY,
     'dialog-process': DialogProcess,
-    'dialog-delegate-select': DialogSelectDelegate
+    'dialog-delegate-select': DialogSelectDelegate,
+    'dialog-process-select': DialogSelectProcess
   },
   props: [ 'processModel', 'isSaved', 'changes' ],
 
@@ -148,7 +155,6 @@ export default {
     return {
       fsm: null, // finite state machine
       workspaceNode: null,
-      workspaceSize: { x: Calc.minContainerWidth + 200, y: Calc.minContainerWidth + 200 },
       containerNode: null,
       containerSize: { x: Calc.minContainerWidth, y: Calc.minContainerHeight },
       yAxisNode: null,
@@ -227,7 +233,7 @@ export default {
 
     // cache DOM
     this.htmlNode = document.querySelector('html')
-    this.workspaceNode = document.querySelector('.workspace')
+    this.workspaceNode = document.querySelector('#vue-workspace')
     this.containerNode = this.workspaceNode.querySelector('.processContainer')
     this.svgNode = this.containerNode.querySelector('svg.svgNode')
     this.tmpLine = this.svgNode.querySelector('.tmpConnection')
@@ -243,8 +249,7 @@ export default {
     Calc.processPosition(this.processModel.children, this.processModel.mDelegates, this.containerSize, this.timeFormat) // set position on the model
     this.containerSize = Calc.containerSize(this.processModel.children, this.processModel.mDelegates) // calc layout based on model
     this.updateContainerSize() // apply model - forces reflow
-    this.workspaceSize = { x: this.containerOffset.width + 100, y: this.containerOffset.height + 100 }
-    this.updateWorkspaceSize() // forces reflow
+
     // remove existing event handlers
     interact('.processContainer').unset()
     interact('.delegate').unset()
@@ -273,8 +278,6 @@ export default {
         this.fsm.run('onContainerDragend')
 
         console.warn('dragend container')
-        let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
-        this.updateWorkspaceSize(dragDelta) // forces reflow
         this.updateAxisPosition() // forces reflow
       })
       .resizable({
@@ -304,7 +307,6 @@ export default {
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         let scaledDragDelta = { x: Math.floor(dragDelta.x / this.containerScale.x), y: Math.floor(dragDelta.y / this.containerScale.y) }
         this.updateContainerSize(scaledDragDelta) // forces reflow
-        this.updateWorkspaceSize(scaledDragDelta) // forces reflow
       })
 
     interact('.process rect.process-content')
@@ -414,7 +416,6 @@ export default {
 
     if (delta.x !== 0 || delta.y !== 0) {
       this.updateContainerSize(delta)
-      this.updateWorkspaceSize(delta)
     }
   },
 
@@ -599,24 +600,24 @@ export default {
 
           if (Math.abs(diffItemSize) > 0) {
             let process = this.processModel.children.find(elem => elem.id === data.processId)
-
+            const hasEndDate = process.hasEndDate()
             switch (this.timeFormat) {
               case 'days':
                 process.mStart.setDate(process.mStart.getDate() + diffItemSize)
-                process.mEnd.setDate(process.mEnd.getDate() + diffItemSize)
+                if (hasEndDate) process.mEnd.setDate(process.mEnd.getDate() + diffItemSize)
                 break
               case 'months':
                 process.mStart.setMonth(process.mStart.getMonth() + diffItemSize)
-                process.mEnd.setMonth(process.mEnd.getMonth() + diffItemSize)
+                if (hasEndDate) process.mEnd.setMonth(process.mEnd.getMonth() + diffItemSize)
                 break
               case 'hours':
                 process.mStart.setHours(process.mStart.getHours() + diffItemSize)
-                process.mEnd.setHours(process.mEnd.getHours() + diffItemSize)
+                if (hasEndDate) process.mEnd.setHours(process.mEnd.getHours() + diffItemSize)
                 break
             }
 
             process.mStart = Calc.roundDate(process.mStart, this.timeFormat)
-            process.mEnd = Calc.roundDate(process.mEnd, this.timeFormat)
+            if (hasEndDate) process.mEnd = Calc.roundDate(process.mEnd, this.timeFormat)
 
             this.$emit('updateProcess', process.id)
           }
@@ -651,12 +652,12 @@ export default {
         action: (event) => {
           if (!event || typeof event === 'undefined') {
             // open parent
-            this.$refs['dialog-process'].open(this.processModel, 'update', false)
+            this.$refs['dialog-process'].open(this.processModel, 'update', false, 0)
           } else {
             // open child
             this.actionId = event.target.getAttribute('data-id')
             let child = this.processModel.children.find(elem => elem.id === Helper.parse(this.actionId))
-            this.$refs['dialog-process'].open(child, 'update', true)
+            this.$refs['dialog-process'].open(child, 'update', true, 0, this.processModel)
           }
         }
       })
@@ -793,6 +794,8 @@ export default {
 
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
       let targetRect = Calc.absolutePosition(target, this.containerTranslation) // forces reflow
+
+      let processInput = this.containerNode.querySelector('.input-triangle[data-id="' + con.target + '"]')
       // ----------------------------------------------
 
       // hide connection when not enough connected elements are getting to small
@@ -844,6 +847,7 @@ export default {
 
       line.setAttribute('d', svgPath)
       outline.setAttribute('d', svgPath)
+      processInput.setAttribute('d', Path.createPolyline([targetAnchor, targetPoint]))
     },
 
     onCircleClick (event) {
@@ -962,34 +966,18 @@ export default {
       let containerPos = this.containerNode.getBoundingClientRect()
 
       if (containerPos.top < 80) {
-        let height = 150 - containerPos.top
+        let height = 170 - Math.round(containerPos.top / this.containerScale.y)
         this.xAxisNode.style.height = height + 'px'
       } else {
         this.xAxisNode.style.height = '50px'
       }
 
       if (containerPos.left < 110) {
-        let width = 250 - containerPos.left
+        let width = 250 - Math.round(containerPos.left / this.containerScale.x)
         this.yAxisNode.style.width = width + 'px'
       } else {
         this.yAxisNode.style.width = '100px'
       }
-    },
-
-    updateWorkspaceSize (dragDelta) {
-      console.log('updateWorkspaceSize')
-
-      let delta = typeof dragDelta === 'object' ? dragDelta : { x: 0, y: 0 }
-
-      this.workspaceSize = { x: this.workspaceSize.x + delta.x, y: this.workspaceSize.y + delta.y }
-      let width = Math.round(this.containerScale.x * this.workspaceSize.x)
-      let height = Math.round(this.containerScale.x * this.workspaceSize.y)
-
-      let displayValue = this.workspaceNode.style.display
-      this.workspaceNode.style.display = 'none' // avoid reflows by multiple style changes
-      this.workspaceNode.style.width = width + 'px'
-      this.workspaceNode.style.height = height + 'px'
-      this.workspaceNode.style.display = displayValue // set active again
     },
 
     applyTransform () {
@@ -999,7 +987,6 @@ export default {
       let transformScale = 'scale(' + this.containerScale.x + ',' + this.containerScale.y + ')'
       this.containerNode.style.webkitTransform =
       this.containerNode.style.transform = transformTranslate + ' ' + transformScale
-      this.updateWorkspaceSize()
     },
 
     translate (dx, dy) {
@@ -1051,6 +1038,7 @@ export default {
       this.containerScale.x = scaleData.x
       this.containerScale.y = scaleData.y
       this.applyTransform()
+      this.updateAxisPosition()
     },
 
     exchange (data) {
@@ -1090,14 +1078,23 @@ export default {
         initiator = this.processModel.mDelegates[0] // use first delegate
       } else {
         let lastProcess = Calc.getEndProcess(this.processModel.children) // process at the bottom
-        console.log('lastProcess', lastProcess)
         start = Calc.roundDate(lastProcess.mEnd, this.timeFormat)
         start = Calc.incrementDate(start, this.timeFormat)
         initiator = lastProcess.initiator // use initator of lastProcess
       }
 
       let process = new Process('', initiator, start, null)
-      this.$emit('addProcess', process)
+      this.$refs['dialog-process-select'].open(process)
+    },
+
+    onProcessSelect (data) {
+      if (!data.hasOwnProperty('response') || !data.hasOwnProperty('process')) {
+        console.warn('onProcessSelect - expected response and process in data object')
+        return
+      }
+
+      if (data.response !== 'add') return
+      this.$emit('addProcess', data.process)
     },
 
     resetCuror () {
@@ -1152,7 +1149,7 @@ export default {
         return
       }
 
-      this.$refs['dialog-process'].open(process, 'update', true, 4)
+      this.$refs['dialog-process'].open(process, 'update', true, 4, this.processModel)
     },
 
     onParticipationClick (event) {
@@ -1168,7 +1165,7 @@ export default {
         return
       }
 
-      this.$refs['dialog-process'].open(process, 'update', true, 0)
+      this.$refs['dialog-process'].open(process, 'update', true, 0, this.processModel)
     },
 
     onChangeProcess () {
@@ -1421,43 +1418,39 @@ $bgColor: #eee;
 }
 
 @media (max-width: 1000px) {
-  .workspace {
-    top: 96px;
+  .processContainer {
+  margin-top: 200px;
   }
 }
 
 @media (min-width: 1000px) {
-  .workspace {
-    top: 48px;
+  .processContainer {
+    margin-top: 140px;
   }
 }
 
-.workspace {
-  position: relative;
-  height: auto;
-  width: auto;
-  min-height: 100vh;
-  min-width: 100vw;
-  overflow: hidden;
+#vue-workspace {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  overflow: auto;
   background: $bgColor;
 }
 
 .tool-bar {
   position: fixed;
-  width: 100vw;
+  width: 100%;
   z-index: 9;
   height: 48px;
 }
 
 .processContainer {
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  width: 1000px;
-  height: 600px;
+  top: 0px;
   left: 200px;
-  top: 80px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
@@ -1506,7 +1499,17 @@ svg {
     justify-content: flex-end;
 
     z-index: 2;
-    opacity: 0.5;
+    opacity: 0.7;
+
+    &.event-true {
+      .process-content {
+        fill-opacity: 0.4
+      }
+
+      .event-line {
+        fill: $accepntColor
+      }
+    }
 
     &:hover {
       animation-name: fadeIn;
@@ -1595,6 +1598,13 @@ svg {
     }
   }
 
+  .input-triangle, .tmpConnection {
+    fill: none;
+    stroke-width: 3;
+    marker-end: url(#marker-triangle);
+    pointer-events: none;
+  }
+
   marker {
     fill: white;
     stroke-width: 1;
@@ -1607,7 +1617,6 @@ svg {
       stroke: #BBB;
       stroke-width: 3;
       stroke-dasharray: 4,4;
-      marker-end: url(#marker-triangle);
       pointer-events: none;
     }
 

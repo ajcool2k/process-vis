@@ -384,6 +384,7 @@ describe('Calc.js (Intersections)', () => {
     new Process('1', delegates[0], new Date(2017, 0, 1), new Date(2017, 0, 8)), // this
     new Process('1', delegates[0], new Date(2017, 0, 4), new Date(2017, 0, 5)), // and this
     new Process('1', delegates[0], new Date(2017, 0, 9), new Date(2017, 0, 10)),
+    new Process('1', delegates[0], new Date(2017, 0, 4)),
 
     new Process('1', delegates[1], new Date(2017, 0, 4))
   ]
@@ -391,16 +392,14 @@ describe('Calc.js (Intersections)', () => {
   it('should find intersetionList', () => {
     let intersectedMap = Calc.findIntersected(children, delegates)
     expect(intersectedMap.length).to.equal(1)
-
-    let entry = [ children[0].id, children[1].id ].sort().join()
+    let entry = [ children[0].id, children[1].id, children[2].id, children[3].id ].sort().join()
     expect(intersectedMap[0].join()).to.equal(entry)
 
     // reverse
     let reverseChildren = children.reverse()
     let intersectedMap2 = Calc.findIntersected(reverseChildren, delegates)
     expect(intersectedMap2.length).to.equal(1)
-
-    let reverseEntry = [ reverseChildren[2].id, reverseChildren[3].id ].sort().join()
+    let reverseEntry = [ reverseChildren[1].id, reverseChildren[2].id, reverseChildren[3].id, reverseChildren[4].id ].sort().join()
     expect(intersectedMap2[0].join()).to.equal(reverseEntry)
   })
 })
