@@ -1417,24 +1417,10 @@ $bgColor: #eee;
   }
 }
 
-@media (max-width: 1000px) {
-  .processContainer {
-  margin-top: 200px;
-  }
-}
-
-@media (min-width: 1000px) {
-  .processContainer {
-    margin-top: 140px;
-  }
-}
-
 #vue-workspace {
   position: absolute;
   height: 100vh;
   width: 100vw;
-  overflow: auto;
-  background: $bgColor;
 }
 
 .tool-bar {
@@ -1449,7 +1435,7 @@ $bgColor: #eee;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  top: 0px;
+  top: 140px;
   left: 200px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
