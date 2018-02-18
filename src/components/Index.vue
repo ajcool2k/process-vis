@@ -52,6 +52,8 @@ export default {
 
   #index {
     padding: 30px;
+    background: #fff !important;
+    height: 100vh;
 
     h1 {
       padding-bottom: 30px;
