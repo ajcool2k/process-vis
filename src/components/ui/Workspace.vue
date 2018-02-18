@@ -5,8 +5,6 @@
 
     <tool-bar :process="processModel" :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange" v-on:process="onToolbarShowProcess" v-on:changeProcess="onChangeProcess"></tool-bar>
 
-
-
       <md-dialog-confirm
         :md-title="dialog.removeConnectionDialog.title"
         :md-content-html="dialog.removeConnectionDialog.contentHtml"
@@ -23,7 +21,6 @@
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
         <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
-        <vue-slider class="range-itemSize ignore-container-events" :value="itemSize" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
         <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
         <template v-for="(item, index) in processModel.mDelegates">
@@ -104,6 +101,7 @@
         </svg>
       </div>
 
+    <vue-slider class="range-itemSize ignore-container-events" :value="itemSize" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
     <item-chooser v-on:onProcessCreate="processCreate" v-on:delegateChange="applyDelegateChange"></item-chooser>
 
@@ -1441,6 +1439,12 @@ $bgColor: #eee;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
   box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
+
+  .axis-x  {
+    margin-top: -55px;
+    z-index: 4;
+    background-color:rgba(238, 238, 238, 0.7);
+  }
 }
 
 .delegate {
@@ -1693,21 +1697,17 @@ svg {
 
 }
 
-.axis-x  {
-  margin-top: -55px;
-  z-index: 3
-}
-
 .axis-y  {
-  margin-left: -120px;
-  z-index: 3
+  margin-left: -105px;
+  z-index: 3;
 }
 
 .range-itemSize {
-  position: absolute;
-  margin-left: -120px;
-  margin-top: -40px;
+  position: fixed;
+  height: 100px;
   width: 100px;
+  left: 24px;
+  top: 100px;
 }
 
 
