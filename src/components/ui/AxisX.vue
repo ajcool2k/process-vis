@@ -2,7 +2,7 @@
   <div class="axis-x" @drop="drop" @dragover="allowDrop">
     <dialog-stakeholder ref="dialog-stakeholder" v-on:updateStakeholder="updateStakeholder"></dialog-stakeholder>
       <md-layout v-if="(process.mDelegates.length > 0)" :md-gutter="process.mDelegates.length">
-        <template v-for="(item, index) in process.mDelegates">
+        <template v-for="item in process.mDelegates">
           <md-layout :key="item" md-align="center">
             <md-button @click.native="onShowActorDialog" class="md-primary button-delegate" @dragstart.native="dragstart" @dragend.native="dragend" draggable="true" :data-id="item">{{ getStakeholder(item).name }}</md-button>
           </md-layout>
@@ -170,7 +170,6 @@ export default {
   width: 100%;
   display: flex;
   justify-content: right;
-  background: rgba(238, 238, 238, 0.7);
   transition: all 0.3s;
 
   .md-layout {
@@ -178,20 +177,30 @@ export default {
   }
 
   .md-button {
+    height: 50px;
     width: 100%;
     margin: 0;
+    padding: 0;
     min-width: 0;
     align-self: flex-end;
-    border: 2px solid #eee;
+    outline: 1px 1px 1px 0px solid #ccc;
+    border-radius: 5px;
+    color: #000 !important;
 
     &.dropzone {
-     background-color: rgba(153, 153, 153, 0.2);
-      color: #fff !important;
+      background: repeating-linear-gradient(
+        45deg,
+        #eee,
+        #eee 10px,
+        #fff 10px,
+        #fff 20px
+      );
+     border: 2px dashed #ccc;
     }
 
     &:hover {
-      font-weight: bold;
       color: #fff !important;
+      background-color: #e91e63;
     }
   }
 

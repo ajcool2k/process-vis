@@ -82,10 +82,8 @@ export default {
   width: 100px;
   display: flex;
   justify-content: flex-end;
-  // border: 1px solid #ccc;
   transform-origin: 0 0;
   background: rgba(238, 238, 238, 0.7);
-  // box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
   transition: all 0.3s;
 }
 
