@@ -70,7 +70,7 @@ export default {
 
   methods: {
     getProcess (id) {
-      return this.parent.children.find(elem => elem.id === id)
+      return this.parent.getChild(id)
     },
 
     selectedRows (v) {
