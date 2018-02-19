@@ -21,7 +21,7 @@
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
       <!-- child components -->
         <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
-        <axis-y class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
+        <axis-y ref="axis-y" class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
         <template v-for="(item, index) in processModel.mDelegates">
           <div :key="item" :class="'delegate delegate' + index" :data-id="item" :style="'width: ' + ( containerSize.x / processModel.mDelegates.length ) + 'px'"></div>
@@ -131,6 +131,7 @@ import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
 
 import { Process } from '@/classes/model/Process'
+import { Stakeholder } from '@/classes/model/Stakeholder'
 
 import VueSlider from 'vue-slider-component'
 
@@ -470,7 +471,10 @@ export default {
           let targetId = target.getAttribute('data-id')
 
           // add to model
-          this.addConnection(sourceId, targetId)
+          let processSource = this.processModel.getChild(sourceId)
+          let processTarget = this.processModel.getChild(targetId)
+          processSource.addConnectionTo(processTarget)
+
           this.actions.drawingMode = false
           this.tmpLine.removeAttribute('d')
           this.svgNode.classList.remove('tmpConnection-active')
@@ -542,7 +546,7 @@ export default {
           this.timeRuler.style.display = 'none'
 
           let processId = event.target.getAttribute('data-id')
-          let process = this.processModel.children.find(elem => elem.id === Helper.parse(processId))
+          let process = this.processModel.getChild(processId)
 
           // calculate new endDate
           let dy = event.pageY - event.y0
@@ -555,7 +559,6 @@ export default {
 
           // update height in view
           process._height += resizeDelta.y
-          this.$emit('updateProcess', process.id)
         }
       })
 
@@ -585,7 +588,6 @@ export default {
 
           let draggableElement = event.relatedTarget
           let dropzoneElement = event.target
-          console.log(dropzoneElement)
 
           let data = {
             processId: Helper.parse(draggableElement.getAttribute('data-id')),
@@ -596,8 +598,9 @@ export default {
           let dy = event.dragEvent.pageY - event.dragEvent.y0
           let diffItemSize = Math.round(dy / this.itemSize)
 
+          let process = this.processModel.getChild(data.processId)
+
           if (Math.abs(diffItemSize) > 0) {
-            let process = this.processModel.children.find(elem => elem.id === data.processId)
             const hasEndDate = process.hasEndDate()
             switch (this.timeFormat) {
               case 'days':
@@ -616,13 +619,11 @@ export default {
 
             process.mStart = Calc.roundDate(process.mStart, this.timeFormat)
             if (hasEndDate) process.mEnd = Calc.roundDate(process.mEnd, this.timeFormat)
-
-            this.$emit('updateProcess', process.id)
           }
 
           // move process
-          console.log(JSON.stringify(data))
-          this.$emit('moveProcess', data)
+          process.mInitiator = data.delegateId
+          this.redraw()
         }
       })
 
@@ -654,7 +655,7 @@ export default {
           } else {
             // open child
             this.actionId = event.target.getAttribute('data-id')
-            let child = this.processModel.children.find(elem => elem.id === Helper.parse(this.actionId))
+            let child = this.processModel.getChild(this.actionId)
             this.$refs['dialog-process'].open(child, 'update', true, 0, this.processModel)
           }
         }
@@ -669,13 +670,11 @@ export default {
       this.fsm.addEvent(showDialog, idle, {
         name: 'onCloseProcessDialog',
         action: (event) => {
-          console.log('EVENT', event)
           switch (event.response) {
             case 'update':
-              this.$emit('updateProcess', event.id)
               break
             case 'remove':
-              this.$emit('removeProcess', event.id)
+             this.removeProcess(event.id)
               break
             case 'changeProcess-child':
               this.$emit('changeProcess', event.id)
@@ -692,32 +691,32 @@ export default {
       this.fsm.start(idle)
     },
 
-    addConnection (sourceId, targetId) {
-      console.warn('addConnection')
+    removeProcess (processId) {
 
-      // accept strings as well
-      sourceId = Helper.parse(sourceId)
-      targetId = Helper.parse(targetId)
-
-      // avoid duplicate connections
-      let process = this.processModel.children.find(elem => elem.id === sourceId)
-      if (process && process.connection.to.indexOf(targetId) !== -1) {
-        console.warn('skipped new connection, it is already present')
+      // remove head
+      if (this.processModel.id === processId) {
+        this.$emit('removeHead')
         return
       }
 
-      // update model
-      let con = {
-        source: sourceId,
-        target: targetId
+      // remove child
+      let process = this.processModel.getChild(processId)
+
+      if (process instanceof Process === false) {
+        console.warn('Workspace.removeProcess() - Process cannot be removed')
+        return
       }
 
-      this.$emit('addConnection', con)
+      this.processModel.removeChild(processId)
     },
 
-    removeConnection (conId) {
-      console.log('remove Connection: ' + conId)
-      this.$emit('removeConnection', conId)
+    removeConnection (connectionId) {
+      console.log('remove Connection: ' + connectionId)
+      let con = Helper.connectionParse(connectionId)
+      let processFrom = this.datamodel.getChild(con.source)
+      let processTo = this.datamodel.getChild(con.target)
+
+      processFrom.removeConnectionTo(processTo)
     },
 
     redraw () {
@@ -736,6 +735,8 @@ export default {
         Animate.afterTransition(domNode, animationName, callback)
         Animate.start(domNode, animationName, 'transform', 'ease-in', 0.2)
       })
+
+      this.$refs['axis-y'].drawAxis() // redraw axis
     },
 
     redrawProcessPosition (process) {
@@ -762,7 +763,7 @@ export default {
     },
 
     redrawConnection (process) {
-      if (typeof process === 'string') process = this.processModel.children.find(elem => elem.id === Helper.parse(process))
+      if (typeof process === 'string') process = this.processModel.getChild(process)
 
       let conSources = process.connection.from
       let conTargets = process.connection.to
@@ -853,8 +854,6 @@ export default {
       this.fsm.run('onCircleClick')
 
       event.preventDefault()
-
-      console.log('onCircleClick:', event.type)
 
       let source = event.target
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
@@ -1014,7 +1013,8 @@ export default {
         return
       }
 
-      this.$emit('addDelegate', data.initiator)
+      this.processModel.addStakeholder(data.initiator)
+      this.processModel.addDelegate(data.initiator.id)
     },
 
     // Listener for horizontal-bar emits
@@ -1022,9 +1022,6 @@ export default {
       switch (data) {
         case 'add':
           this.$refs['dialog-delegate-select'].open()
-          return
-        case 'remove':
-          this.$emit('removeDelegate')
           return
         default:
           console.warn('data has unexpected information')
@@ -1092,7 +1089,19 @@ export default {
       }
 
       if (data.response !== 'add') return
-      this.$emit('addProcess', data.process)
+
+      let process = data.process
+
+      if (this.processModel.mDelegates.length === 0) {
+
+        let stakeholder = new Stakeholder('[untitled]')
+
+        this.processModel.addStakeholder(stakeholder)
+        this.processModel.addDelegate(stakeholder.id)
+        process.mInitiator = this.processModel.mDelegates[0]
+      }
+
+      this.processModel.addChild(process)
     },
 
     resetCuror () {
@@ -1128,8 +1137,6 @@ export default {
       if (!this.fsm.hasEvent('onCloseDialog')) return
       this.fsm.run('onCloseDialog')
 
-      console.log('Closed', type)
-
       if (type === 'cancel') return
       this.removeConnection(this.actionId)
     },
@@ -1140,7 +1147,7 @@ export default {
       this.fsm.run('onTransformationClick', event)
 
       let processId = event.target.parentNode.getAttribute('data-process')
-      let process = this.processModel.children.find(elem => elem.id === processId)
+      let process = this.processModel.getChild(processId)
 
       if (typeof process === 'undefined') {
         console.warn('Could not find process for id ' + processId)
@@ -1156,7 +1163,7 @@ export default {
       this.fsm.run('onParticipationClick', event)
 
       let processId = event.target.parentNode.getAttribute('data-process')
-      let process = this.processModel.children.find(elem => elem.id === processId)
+      let process = this.processModel.getChild(processId)
 
       if (typeof process === 'undefined') {
         console.warn('Could not find process for id ' + processId)
@@ -1196,10 +1203,9 @@ export default {
       console.log('onCloseDelegateDialog called')
       switch (data.response) {
         case 'update':
-          this.$emit('updateDelegate', data.id)
           break
         case 'remove':
-          this.$emit('removeDelegate', data.id)
+          this.removeDelegate(data.id)
           break
       }
     },
@@ -1247,6 +1253,39 @@ export default {
       group.setAttribute('transform', 'translate(' + groupX + ',' + groupY + ')')
       // Bugfix for Firefox (svg elem needs to have attribute and style prop)
       group.style.webkitTransform = group.style.transform = 'translate(' + groupX + 'px,' + groupY + 'px)'
+    },
+
+    removeDelegate (delegateId) {
+      console.log('remove Delegate', delegateId)
+
+      if (typeof delegateId !== 'string') {
+        console.warn('Could not remove delegate, id missing')
+        return
+      }
+
+      // check if id exists
+      let found = this.processModel.mDelegates.filter(elem => elem === delegateId)
+      if (found.length < 1) {
+        console.warn('Could not remove delegate, id not found')
+        return
+      }
+
+      // avoid if child processes are on this Delegate to keep them in container
+      let used = this.processModel.children.filter(elem => elem.initiator === delegateId)
+
+      if (used.length > 0) {
+        console.warn('Could not remove Delegate, there are still processes applied')
+        return
+      }
+
+      // avoid if only one Delegate is left
+      if (this.processModel.mDelegates.length < 1) {
+        console.warn('Could not remove more Delegates')
+        return
+      }
+
+      // remove id from model
+      this.processModel.removeDelegate(delegateId)
     },
 
     resizeElement (event) {
