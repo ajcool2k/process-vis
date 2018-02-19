@@ -8,6 +8,13 @@
       <md-dialog-title>Neuer Prozess</md-dialog-title>
       <md-dialog-content>
         <general-tab ref="general-tab" v-if="process"></general-tab>
+        <md-input-container v-if="stakeholder.length > 0">
+          <label for="stakeholder">Verantwortlichkeit</label>
+          <md-select name="stakeholder" id="stakeholder" v-model="delegateId">
+            <md-option value=""></md-option>
+            <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
+          </md-select>
+        </md-input-container>
       </md-dialog-content>
       <md-dialog-actions>
         <md-button @click="onCloseButton" class="md-raised">Abbrechen</md-button>
@@ -29,7 +36,9 @@ export default {
   data: function () {
     return {
       process: null,
-      response: ''
+      response: '',
+      stakeholder: [],
+      delegateId: ''
     }
   },
 
@@ -49,15 +58,16 @@ export default {
   },
 
   methods: {
-    open (p) {
+    open (p, st) {
       console.log('DialogSelectProcess open()')
       this.process = p
+      this.stakeholder = st
+      this.delegateId = this.stakeholder.indexOf(this.delegateId) === -1 ? '' : this.delegateId
       this.response = ''
       this.$refs['dialog'].open()
       this.$nextTick(() => {
         this.$refs['general-tab'].refresh(this.process)
         let nameField = this.$refs['general-tab'].$refs.focusable.$el
-        console.log(nameField)
         setTimeout(() => {
           nameField.focus()
         })
@@ -65,6 +75,7 @@ export default {
     },
 
     onAcceptButton () {
+      this.process.mInitiator = this.delegateId !== '' ? this.delegateId : this.process.mInitiator
       this.response = 'add'
       this.$refs['dialog'].close()
     },

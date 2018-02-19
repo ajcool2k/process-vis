@@ -54,7 +54,10 @@ export class Metadata {
     Metadata.locations.splice(index, 1)
   }
 
-  static getStakeholder () { return Metadata.stakeholder }
+  static getStakeholder () {
+    return Metadata.stakeholder.sort((a, b) => { return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0) })
+  }
+
   static setStakeholder (stakeholder) {
     if (stakeholder instanceof Array !== true) {
       console.warn('Metadata setStakeholder expects an Array')
