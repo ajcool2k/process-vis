@@ -72,7 +72,7 @@ export class Process {
     this.id = serializedProcess.id
     this.name = serializedProcess.name
     this.reference = serializedProcess.reference
-    this.initiator = serializedProcess.initiator
+    this.mInitiator = serializedProcess.initiator
     this.connection = serializedProcess.connection
     this.connection.to.forEach(con => {
       this._connections.push({ id: this.id + '->' + con, source: this.id, target: con })
@@ -381,6 +381,11 @@ export class Process {
       return false
     }
 
+    if (this === target) {
+      console.log('Process.addConnectionTo() - self connection not possible')
+      return
+    }
+
     this.connection.to.push(target.id)
     target.connection.from.push(this.id)
 
@@ -465,6 +470,15 @@ export class Process {
 
     this.location.push(location.id)
     Metadata.addLocation(location)
+  }
+
+  getChild (id) {
+    if (typeof id !== 'string') {
+      console.warn('Process.getChild() - expected process id as string')
+      return undefined
+    }
+
+    return this.children.find(elem => elem.id === id)
   }
 
   removeLocation (id) {

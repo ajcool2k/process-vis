@@ -9,18 +9,10 @@
         v-on:download="downloadModel"
         v-on:remove="removeModel"
 
-        v-on:addConnection="addConnection"
-        v-on:removeConnection="removeConnection"
-
-        v-on:addProcess="addProcess"
-        v-on:moveProcess="moveProcess"
-        v-on:removeProcess="removeProcess"
-        v-on:updateProcess="updateProcess"
+        v-on:removeHead="removeHead"
         v-on:changeProcess="changeProcess"
 
-        v-on:addDelegate="addDelegate"
-        v-on:removeDelegate="removeDelegate"
-
+        v-on:forceRedraw="forceRedraw"
     ></workspace>
 
   </div>
@@ -139,93 +131,19 @@ export default {
       console.log(generatedData)
     },
 
-    addProcess (process) {
-      console.log('addProcess', process)
-
-      if (this.datamodel.mDelegates.length === 0) {
-        this.addDelegate()
-        process.mInitiator = this.datamodel.mDelegates[0]
-      }
-
-      this.datamodel.addChild(process)
-    },
-
-    moveProcess (processData) {
-      console.log('moveProcess', processData)
-      let process = this.datamodel.children.find(elem => elem.id === processData.processId)
-      process.initiator = processData.delegateId
-      this.forceRedraw()
-    },
-
-    removeProcess (processId) {
-      console.log('Process (removeProcess): ' + processId)
-
-      let process = Helper.getElement(processId, this.model, 'children')
-
-      if (typeof process === 'undefined') {
-        console.warn('Could not find process')
-        return
-      }
-
-      let head = this.model
+    removeHead () {
+      console.log('Process.removeHead()')
 
       // Fall 1 (Head mit einem Kind, Kind soll neuer Head werden)
-      if (head.id === process.id) {
-        if (process.children.length !== 1) {
-          console.log('Process.removeProcess() - head can only get removed when it has 1 child')
-          return
-        }
+      if (this.datamodel.children.length !== 1) {
+        console.log('Process.removeHead() - head can only get removed when it has 1 child')
+        return
+      }
 
-        this.model = process.children[0]
+        this.model = this.datamodel.children[0]
         this.model.parent = ''
         this.datamodel = this.model
-        return
-      }
 
-      // Fall 2 (Prozess ohne Kinder, aber nicht Head)
-      if (process.children.length === 0) {
-        let parentProcess = Helper.getElement(process.parent, this.model, 'children')
-        parentProcess.removeChild(processId)
-        return
-      }
-
-      console.log('Process.removeProcess() - Process cannot be removed')
-    },
-
-    updateProcess (processId) {
-      this.datamodel.children = this.datamodel.children.map(elem => elem)
-    },
-
-    addConnection (connectionData) {
-      console.log('addConnection', connectionData)
-
-      let processSource = this.datamodel.children.find(elem => elem.id === connectionData.source)
-      let processTarget = this.datamodel.children.find(elem => elem.id === connectionData.target)
-
-      console.log('processSource', processSource)
-      console.log('processTarget', processTarget)
-
-      if (processSource === processTarget) {
-        console.log('Process.addConnection() - self connection not possible')
-        return
-      }
-
-      processSource.addConnectionTo(processTarget)
-    },
-
-    removeConnection (connectionId) {
-      console.log('removeConnection', connectionId)
-
-      if (typeof connectionId !== 'string') {
-        console.warn('Process.removeConnection - expected id as a string')
-        return
-      }
-
-      let con = Helper.connectionParse(connectionId)
-      let processFrom = this.datamodel.children.find(elem => elem.id === con.source)
-      let processTo = this.datamodel.children.find(elem => elem.id === con.target)
-
-      processFrom.removeConnectionTo(processTo)
     },
 
     changeProcess (event) {
@@ -280,7 +198,7 @@ export default {
       }
 
       // lower level requested
-      let process = this.datamodel.children.find(elem => elem.id === event)
+      let process = this.datamodel.getChild(event)
 
       if (typeof process === 'undefined') {
         console.log('Could not find childProcess')
@@ -290,46 +208,8 @@ export default {
       this.datamodel = process
     },
 
-    addDelegate (delegate) {
-      let stakeholder = delegate instanceof Stakeholder ? delegate : new Stakeholder('[untitled]')
-      this.datamodel.addStakeholder(stakeholder)
-      this.datamodel.addDelegate(stakeholder.id)
-    },
-
-    removeDelegate (delegateId) {
-      console.log('remove Delegate', delegateId)
-
-      if (typeof delegateId === 'undefined' || delegateId.length < 1) {
-        console.warn('Could not remove delegate, id missing')
-        return
-      }
-
-      // check if id exists
-      let found = this.datamodel.mDelegates.filter(elem => elem === delegateId)
-      if (found.length < 1) {
-        console.warn('Could not remove delegate, id not found')
-        return
-      }
-
-      // avoid if child processes are on this Delegate to keep them in container
-      let used = this.datamodel.children.filter(elem => elem.initiator === delegateId)
-
-      if (used.length > 0) {
-        console.warn('Could not remove Delegate, there are still processes applied')
-        return
-      }
-
-      // avoid if only one Delegate is left
-      if (this.datamodel.mDelegates.length < 2) {
-        console.warn('Could not remove more Delegates')
-        return
-      }
-
-      // remove id from model
-      this.datamodel.mDelegates = this.datamodel.mDelegates.filter(elem => elem !== delegateId)
-    },
-
     forceRedraw () {
+      console.warn('forceRedraw called')
       let change = {
         time: new Date()
       }
