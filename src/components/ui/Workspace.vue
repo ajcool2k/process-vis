@@ -132,6 +132,7 @@ import { Helper } from '@/classes/utils/Helper'
 
 import { Process } from '@/classes/model/Process'
 import { Stakeholder } from '@/classes/model/Stakeholder'
+import { Metadata } from '@/classes/model/Metadata'
 
 import VueSlider from 'vue-slider-component'
 
@@ -1079,7 +1080,8 @@ export default {
       }
 
       let process = new Process('', initiator, start, null)
-      this.$refs['dialog-process-select'].open(process)
+      let delegates = Metadata.getStakeholder().filter(st => this.processModel.mDelegates.indexOf(st.id) > -1)
+      this.$refs['dialog-process-select'].open(process, delegates)
     },
 
     onProcessSelect (data) {
