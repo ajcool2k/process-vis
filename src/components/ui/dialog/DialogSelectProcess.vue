@@ -12,7 +12,7 @@
           <label for="stakeholder">Verantwortlichkeit</label>
           <md-select name="stakeholder" id="stakeholder" v-model="delegateId">
             <md-option value=""></md-option>
-            <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
+            <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.mName}}</md-option>
           </md-select>
         </md-input-container>
       </md-dialog-content>
