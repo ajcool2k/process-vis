@@ -17,7 +17,10 @@ export class Stakeholder {
 
   // IMPL getter and setter
 
-  get mName () { return this.name }
+  get mName () {
+    return typeof this.name === 'undefined' || this.name === '' ? '[keine Bezeichnung]' : this.name
+  }
+
   set mName (name) {
     this.name = name
   }

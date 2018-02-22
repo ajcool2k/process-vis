@@ -71,7 +71,7 @@
           <template v-if="item._width" v-for="item in processModel.children">
             <g :key="item.id + '-process'" :class="'process draggable drag-drop event-' + item._increased + ''" :data-id="item.id" @click.stop="onProcessClick">
               <rect :class="'process-content has-child-' + (item.children.length > 0)" :data-id="item.id" :height="item._drawHeight" :width="item._width">
-                <title>Name: {{ item.name }} ({{ item.id }})</title>
+                <title>Name: {{ item.mName }} ({{ item.id }})</title>
               </rect>
               <circle class="process-anchor" :data-id="item.id" @click.stop="onCircleClick" :r="Math.min(item._drawHeight, 10)" :cy="Math.max(item._drawHeight - 15, 0)" :cx="(item._width / 2 )"></circle>
               <text class="process-text" :data-id="item.id" :x="(item._width / 2)" :y="getIconPosition(item._drawHeight, 60)">{{ shortName(item.name) }}</text>
@@ -1100,7 +1100,7 @@ export default {
 
       if (this.processModel.mDelegates.length === 0) {
 
-        let stakeholder = new Stakeholder('[untitled]')
+        let stakeholder = new Stakeholder()
 
         this.processModel.addStakeholder(stakeholder)
         this.processModel.addDelegate(stakeholder.id)

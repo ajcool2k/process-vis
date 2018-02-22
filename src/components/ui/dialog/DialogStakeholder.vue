@@ -10,12 +10,12 @@
         <label for="stakeholder">Auswahl</label>
         <md-select name="stakeholder" id="stakeholder" @change="onChange">
           <md-option disabled value="">Auswahl Stakeholder</md-option>
-          <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
+          <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.mName}}</md-option>
         </md-select>
       </md-input-container>
 
       <md-input-container>
-        <label>Akteur-Name</label>
+        <label>Bezeichnung</label>
         <md-input type="text" v-model="initiator.name"></md-input>
       </md-input-container>
 

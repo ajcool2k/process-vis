@@ -4,7 +4,7 @@
       <md-layout v-if="(process.mDelegates.length > 0)" :md-gutter="process.mDelegates.length">
         <template v-for="item in process.mDelegates">
           <md-layout :key="item" md-align="center">
-            <md-button @click.native="onShowActorDialog" class="md-primary button-delegate" @dragstart.native="dragstart" @dragend.native="dragend" draggable="true" :data-id="item">{{ getStakeholder(item).name }}</md-button>
+            <md-button @click.native="onShowActorDialog" class="md-primary button-delegate" @dragstart.native="dragstart" @dragend.native="dragend" draggable="true" :data-id="item">{{ getStakeholder(item).mName }}</md-button>
           </md-layout>
         </template>
     </md-layout>
