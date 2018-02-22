@@ -612,6 +612,10 @@ export default {
                 process.mStart.setMonth(process.mStart.getMonth() + diffItemSize)
                 if (hasEndDate) process.mEnd.setMonth(process.mEnd.getMonth() + diffItemSize)
                 break
+              case 'years':
+                process.mStart.setFullYear(process.mStart.getFullYear() + diffItemSize)
+                if (hasEndDate) process.mEnd.setFullYear(process.mEnd.getFullYear() + diffItemSize)
+                break
               case 'hours':
                 process.mStart.setHours(process.mStart.getHours() + diffItemSize)
                 if (hasEndDate) process.mEnd.setHours(process.mEnd.getHours() + diffItemSize)
