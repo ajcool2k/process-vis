@@ -12,7 +12,7 @@
         <md-input-container>
           <label for="stakeholder-type">Typ</label>
           <md-select name="stakeholder-type" id="stakeholder-type" v-model="stakeholder.type">
-            <md-option value="Person">Person</md-option>
+            <md-option v-for="elem in stakeholderEnumType" :value="elem.id" :key="elem.id + '--dialog-stakeholder-choice--input'">{{elem.value}}</md-option>
           </md-select>
         </md-input-container>
 
@@ -70,7 +70,8 @@ export default {
   data: function () {
     return {
       isParticipant: false,
-      stakeholder: new Stakeholder()
+      stakeholder: new Stakeholder(),
+      stakeholderEnumType: Stakeholder.EnumType
     }
   },
 

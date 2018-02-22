@@ -9,7 +9,7 @@ export class Data {
     console.warn('generateData')
 
     // stakeholder for the main-process
-    let initiator = new Stakeholder('Main-Stakeholder', 'person')
+    let initiator = new Stakeholder('Main-Stakeholder')
 
     // generate process
     let datamodel = new Process('process', initiator.id, new Date(2017, 0, 1), null)
@@ -64,7 +64,7 @@ export class Data {
     console.log('addRandomData')
 
     // stakeholder for the main-process
-    let initiator = new Stakeholder('Main-Stakeholder', 'person')
+    let initiator = new Stakeholder('Main-Stakeholder')
 
     // generate process
     let datamodel = new Process('generatedTest', initiator.id, new Date(2017, 0, 1), null)

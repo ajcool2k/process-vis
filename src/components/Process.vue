@@ -114,7 +114,7 @@ export default {
   methods: {
 
     create () {
-      let initiator = new Stakeholder('[untitled]', 'person')
+      let initiator = new Stakeholder('[untitled]')
       let process = new Process('[untitled]', initiator.id, new Date(), null)
       process.addStakeholder(initiator)
       this.model = process
