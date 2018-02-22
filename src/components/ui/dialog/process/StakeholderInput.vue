@@ -4,53 +4,71 @@
     <md-card md-with-hover>
       <md-card-content>
 
-        <md-layout md-gutter>
-          <md-layout md-flex="70" md-vertical-align="center" class="md-subheading">Ist Teilnehmer</md-layout>
-          <md-layout md-align="end" ><md-switch @change="onChangeType" v-model="isParticipant" id="isParticipant" name="isParticipant" class="md-primary"></md-switch></md-layout>
+        <md-layout>
+          <md-input-container>
+            <label>Name</label>
+            <md-input placeholder="Name" v-model="stakeholder.name"></md-input>
+          </md-input-container>
         </md-layout>
 
-        <md-input-container>
-          <label for="stakeholder-type">Typ</label>
-          <md-select name="stakeholder-type" id="stakeholder-type" v-model="stakeholder.type">
-            <md-option v-for="elem in stakeholderEnumType" :value="elem.id" :key="elem.id + '--dialog-stakeholder-choice--input'">{{elem.value}}</md-option>
-          </md-select>
-        </md-input-container>
+        <md-layout md-gutter>
+          <md-layout>
+            <md-input-container>
+              <label for="stakeholder-type">Typ</label>
+              <md-select name="stakeholder-type" id="stakeholder-type" v-model="stakeholder.type">
+                <md-option v-for="elem in stakeholderEnumType" :value="elem.id" :key="elem.id + '--dialog-stakeholder-choice--input'">{{elem.value}}</md-option>
+              </md-select>
+            </md-input-container>
+          </md-layout>
+          <md-layout md-flex-offset="5" md-vertical-align="center">
+            <md-switch @change="onChangeType" v-model="isParticipant" id="isParticipant" name="isParticipant" class="md-primary">Ist Teilnehmer</md-switch>
+          </md-layout>
+       </md-layout>
 
-        <md-input-container>
-          <label>Name</label>
-          <md-input placeholder="Name" v-model="stakeholder.name"></md-input>
-        </md-input-container>
+        <md-layout md-gutter>
+          <md-layout>
+            <md-input-container>
+              <label>Ansprechpartner</label>
+              <md-input placeholder="Ansprechpartner" v-model="stakeholder.contact.contactPerson"></md-input>
+            </md-input-container>
+          </md-layout>
+          <md-layout md-flex-offset="5">
+            <md-input-container>
+              <label>Adresse</label>
+              <md-input placeholder="Adresse" v-model="stakeholder.contact.postAddress"></md-input>
+            </md-input-container>
+          </md-layout>
+       </md-layout>
 
-        <md-input-container>
-          <label>Ansprechpartner</label>
-          <md-input placeholder="Ansprechpartner" v-model="stakeholder.contact.contactPerson"></md-input>
-        </md-input-container>
+        <md-layout md-gutter>
+          <md-layout>
+            <md-input-container>
+              <label>Telefon</label>
+              <md-input placeholder="Telefon" v-model="stakeholder.contact.phone"></md-input>
+            </md-input-container>
+          </md-layout>
+          <md-layout md-flex-offset="5">
+            <md-input-container>
+              <label>Fax</label>
+              <md-input placeholder="Fax" v-model="stakeholder.contact.telefax"></md-input>
+            </md-input-container>
+          </md-layout>
+       </md-layout>
 
-
-        <md-input-container>
-          <label>Adresse</label>
-          <md-input placeholder="Adresse" v-model="stakeholder.contact.postAddress"></md-input>
-        </md-input-container>
-
-        <md-input-container>
-          <label>Telefon</label>
-          <md-input placeholder="Telefon" v-model="stakeholder.contact.phone"></md-input>
-        </md-input-container>
-
-        <md-input-container>
-          <label>Fax</label>
-          <md-input placeholder="Fax" v-model="stakeholder.contact.telefax"></md-input>
-        </md-input-container>
-
-        <md-input-container>
-          <label>E-Mail</label>
-          <md-input placeholder="E-Mail" v-model="stakeholder.contact.email"></md-input>
-        </md-input-container>
-
-        <md-input-container>
-          <label>Webseite</label>
-          <md-input placeholder="Webseite" v-model="stakeholder.contact.website"></md-input>
-        </md-input-container>
+        <md-layout md-gutter>
+          <md-layout>
+            <md-input-container>
+              <label>E-Mail</label>
+              <md-input placeholder="E-Mail" v-model="stakeholder.contact.email"></md-input>
+            </md-input-container>
+          </md-layout>
+          <md-layout md-flex-offset="5">
+            <md-input-container>
+              <label>Webseite</label>
+              <md-input placeholder="Webseite" v-model="stakeholder.contact.website"></md-input>
+            </md-input-container>
+          </md-layout>
+        </md-layout>
 
       </md-card-content>
 
