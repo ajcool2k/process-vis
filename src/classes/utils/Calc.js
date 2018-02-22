@@ -122,6 +122,16 @@ export class Calc {
         tmp.setSeconds(0)
         tmp.setMilliseconds(0)
         break
+
+      case 'years':
+        tmp.setFullYear(tmp.getFullYear() + Math.round(tmp.getMonth() / 12))
+        tmp.setMonth(0)
+        tmp.setDate(0)
+        tmp.setHours(0)
+        tmp.setMinutes(0)
+        tmp.setSeconds(0)
+        tmp.setMilliseconds(0)
+        break
     }
 
     return tmp
@@ -130,6 +140,9 @@ export class Calc {
   static incrementDate (date, timeFormat) {
     let tmp = new Date(date.valueOf())
     switch (timeFormat) {
+      case 'years':
+        tmp.setFullYear(tmp.getFullYear() + 1)
+        break
       case 'months':
         tmp.setMonth(tmp.getMonth() + 1)
         break
@@ -171,6 +184,10 @@ export class Calc {
 
       case 'months':
         divider = Calc.timeFormats.months
+        break
+
+      case 'years':
+        divider = Calc.timeFormats.years
         break
     }
 
@@ -449,6 +466,9 @@ export class Calc {
       case 'months':
         defaultEndDate = defaultEndDate.setMonth(process.start.getMonth() + 1)
         break
+      case 'years':
+        defaultEndDate = defaultEndDate.setFullYear(process.start.getFullYear() + 1)
+        break
       default:
         console.warn('Calc.processPosition: incorrect timeFormat')
         defaultEndDate = defaultEndDate.setDate(process.start.getDate() + 1)
@@ -532,5 +552,6 @@ Calc.axisOffset = 40
 Calc.timeFormats = {
   'hours': 1000 * 60 * 60,
   'days': 1000 * 60 * 60 * 24,
-  'months': 1000 * 60 * 60 * 24 * 30
+  'months': 1000 * 60 * 60 * 24 * 30,
+  'years': 1000 * 60 * 60 * 24 * 365
 }

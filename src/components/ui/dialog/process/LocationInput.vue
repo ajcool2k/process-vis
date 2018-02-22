@@ -3,21 +3,25 @@
 
     <md-card md-with-hover>
       <md-card-content>
-
         <md-input-container>
           <label>Addresse</label>
           <md-input placeholder="Addresse" v-model="location.address"></md-input>
         </md-input-container>
 
-        <md-input-container>
-          <label>PLZ</label>
-          <md-input placeholder="PLZ" v-model="location.zip"></md-input>
-        </md-input-container>
-
-        <md-input-container>
-          <label>Stadt</label>
-          <md-input placeholder="Stadt" v-model="location.city"></md-input>
-        </md-input-container>
+        <md-layout md-gutter>
+          <md-layout>
+            <md-input-container>
+              <label>PLZ</label>
+              <md-input placeholder="PLZ" v-model="location.zip"></md-input>
+            </md-input-container>
+          </md-layout>
+          <md-layout md-flex-offset="5">
+            <md-input-container>
+              <label>Stadt</label>
+              <md-input placeholder="Stadt" v-model="location.city"></md-input>
+            </md-input-container>
+          </md-layout>
+       </md-layout>
 
         <md-input-container>
           <label>Raum</label>
@@ -25,13 +29,13 @@
         </md-input-container>
 
         <md-layout md-gutter>
-          <md-layout md-align="start">
+          <md-layout>
             <md-input-container>
               <label>Lat</label>
               <md-input placeholder="Lat" v-model="location.geoCoords.lat"></md-input>
             </md-input-container>
           </md-layout>
-          <md-layout md-align="end">
+          <md-layout md-flex-offset="5" >
             <md-input-container>
               <label>Lng</label>
               <md-input placeholder="Lng" v-model="location.geoCoords.lng"></md-input>
