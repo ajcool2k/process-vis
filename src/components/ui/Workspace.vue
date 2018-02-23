@@ -19,13 +19,8 @@
       <dialog-process-select ref="dialog-process-select" v-on:processSelect="onProcessSelect"></dialog-process-select>
 
       <div class="processContainer" @click="onContainerClick" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
-      <!-- child components -->
-        <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
-        <axis-y ref="axis-y" class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
-
-        <template v-for="(item, index) in processModel.mDelegates">
-          <div :key="item" :class="'delegate delegate' + index" :data-id="item" :style="'width: ' + ( containerSize.x / processModel.mDelegates.length ) + 'px'"></div>
-        </template>
+        <!-- child components -->
+        <timeline ref="timeline" :processModel="processModel" :timeFormat="timeFormat" :itemSize="itemSize" :containerSize="containerSize" :containerScale="containerScale"></timeline>
 
         <svg class="svgNode">
           <defs>
@@ -113,8 +108,8 @@
 import ToolBar from './ToolBar.vue'
 import ItemChooser from './ItemChooser.vue'
 import TimeChooser from './TimeChooser.vue'
-import AxisX from './AxisX.vue'
-import AxisY from './AxisY.vue'
+
+import Timeline from './Timeline.vue'
 
 import DialogProcess from './dialog/DialogProcess.vue'
 import DialogSelectDelegate from './dialog/DialogSelectDelegate.vue'
@@ -143,8 +138,7 @@ export default {
     'tool-bar': ToolBar,
     'item-chooser': ItemChooser,
     'time-chooser': TimeChooser,
-    'axis-x': AxisX,
-    'axis-y': AxisY,
+    'timeline': Timeline,
     'dialog-process': DialogProcess,
     'dialog-delegate-select': DialogSelectDelegate,
     'dialog-process-select': DialogSelectProcess
@@ -157,8 +151,6 @@ export default {
       workspaceNode: null,
       containerNode: null,
       containerSize: { x: Calc.minContainerWidth, y: Calc.minContainerHeight },
-      yAxisNode: null,
-      xAxisNode: null,
       scopeProp: '',
 
       containerOffset: null,
@@ -239,8 +231,7 @@ export default {
     this.tmpLine = this.svgNode.querySelector('.tmpConnection')
     this.timeRuler = this.svgNode.querySelector('.timeRuler')
 
-    this.xAxisNode = this.workspaceNode.querySelector('.axis-x')
-    this.yAxisNode = this.workspaceNode.querySelector('.axis-y')
+
 
     // Scope Prop
     this.scopeProp = Helper.getScopeProp(this.svgNode)
@@ -278,7 +269,7 @@ export default {
         this.fsm.run('onContainerDragend')
 
         console.warn('dragend container')
-        this.updateAxisPosition() // forces reflow
+        this.updateTimeline() // forces reflow
       })
       .resizable({
         preserveAspectRatio: false,
@@ -741,7 +732,7 @@ export default {
         Animate.start(domNode, animationName, 'transform', 'ease-in', 0.2)
       })
 
-      this.$refs['axis-y'].drawAxis() // redraw axis
+      this.$refs['timeline'].redraw() // redraw timeline
     },
 
     redrawProcessPosition (process) {
@@ -964,22 +955,8 @@ export default {
       this.timeRuler.style.webkitTransform = this.timeRuler.style.transform = 'translate(0px,' + y + 'px)'
     },
 
-    updateAxisPosition () {
-      let containerPos = this.containerNode.getBoundingClientRect()
-
-      if (containerPos.top < 80) {
-        let height = 170 - Math.round(containerPos.top / this.containerScale.y)
-        this.xAxisNode.style.height = height + 'px'
-      } else {
-        this.xAxisNode.style.height = '50px'
-      }
-
-      if (containerPos.left < 110) {
-        let width = 250 - Math.round(containerPos.left / this.containerScale.x)
-        this.yAxisNode.style.width = width + 'px'
-      } else {
-        this.yAxisNode.style.width = '100px'
-      }
+    updateTimeline () {
+      this.$refs['timeline'].updateTimeline()
     },
 
     applyTransform () {
@@ -1038,7 +1015,7 @@ export default {
       this.containerScale.x = scaleData.x
       this.containerScale.y = scaleData.y
       this.applyTransform()
-      this.updateAxisPosition()
+      this.updateTimeline()
     },
 
     exchange (data) {
@@ -1205,16 +1182,7 @@ export default {
       console.log('onCloseParticipationDialog run!')
     },
 
-    onCloseDelegateDialog (data) {
-      console.log('onCloseDelegateDialog called')
-      switch (data.response) {
-        case 'update':
-          break
-        case 'remove':
-          this.removeDelegate(data.id)
-          break
-      }
-    },
+
 
     onToolbarShowProcess () {
       console.warn('onToolbarShowProcess')
@@ -1259,39 +1227,6 @@ export default {
       group.setAttribute('transform', 'translate(' + groupX + ',' + groupY + ')')
       // Bugfix for Firefox (svg elem needs to have attribute and style prop)
       group.style.webkitTransform = group.style.transform = 'translate(' + groupX + 'px,' + groupY + 'px)'
-    },
-
-    removeDelegate (delegateId) {
-      console.log('remove Delegate', delegateId)
-
-      if (typeof delegateId !== 'string') {
-        console.warn('Could not remove delegate, id missing')
-        return
-      }
-
-      // check if id exists
-      let found = this.processModel.mDelegates.filter(elem => elem === delegateId)
-      if (found.length < 1) {
-        console.warn('Could not remove delegate, id not found')
-        return
-      }
-
-      // avoid if child processes are on this Delegate to keep them in container
-      let used = this.processModel.children.filter(elem => elem.initiator === delegateId)
-
-      if (used.length > 0) {
-        console.warn('Could not remove Delegate, there are still processes applied')
-        return
-      }
-
-      // avoid if only one Delegate is left
-      if (this.processModel.mDelegates.length < 1) {
-        console.warn('Could not remove more Delegates')
-        return
-      }
-
-      // remove id from model
-      this.processModel.removeDelegate(delegateId)
     },
 
     resizeElement (event) {
@@ -1423,7 +1358,7 @@ export default {
 
       setTimeout(() => {
         // action
-        this.updateAxisPosition() // forces reflow
+        this.updateTimeline() // forces reflow
 
         // re-add listener
         window.addEventListener('scroll', this.onScroll, true)
@@ -1473,42 +1408,17 @@ $bgColor: #eee;
   height: 48px;
 }
 
+.timeline {}
+
 .processContainer {
   position: relative;
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
   top: 140px;
   left: 200px;
   border: 1px solid #ccc;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
   box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
-
-  .axis-x  {
-    margin-top: -55px;
-    z-index: 4;
-    background-color:rgba(238, 238, 238, 0.7);
-  }
-}
-
-.delegate {
-  border-left: 2px dashed #ccc;
-  text-align: center;
-  transition: all 1s;
-
-  &.pariticipant-drop {
-    background-color: $secondayColor;
-    opacity: 0.3;
-  }
-
-  &.drop-active {
-    border-color: #aaa;
-  }
-
-  &.delegate0 {
-    border-left: 0
-  }
 }
 
 svg {
@@ -1742,10 +1652,7 @@ svg {
 
 }
 
-.axis-y  {
-  margin-left: -105px;
-  z-index: 3;
-}
+
 
 .range-itemSize {
   position: fixed;
