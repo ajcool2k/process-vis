@@ -5,7 +5,7 @@
       md-ok-text="OK"
       @close="emitEvent()"
       ref="dialog">
-      <md-dialog-title>Verbindung entfernen</md-dialog-title>
+      <md-dialog-title>Verbindung</md-dialog-title>
       <md-dialog-content v-if="processFrom && processTo">
         <md-list>
           <md-list-item>
