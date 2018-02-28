@@ -159,7 +159,7 @@ export default {
     this.domNode = document.querySelector('.timeline')
     this.xAxisNode = this.domNode.querySelector('.axis-x')
     this.yAxisNode = this.domNode.querySelector('.axis-y')
-    this.svgNode = this.domNode.querySelector('svg.svgNode')
+    this.svgNode = this.domNode.querySelector('.svgNode')
     this.tmpLine = this.svgNode.querySelector('.tmpConnection')
     this.timeRuler = this.svgNode.querySelector('.timeRuler')
 
@@ -176,7 +176,7 @@ export default {
         },
         inertia: true,
         restrict: {
-          restriction: this.domNode,
+          restriction: this.svgNode,
           elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
           endOnly: true
         }
@@ -288,7 +288,7 @@ export default {
     },
 
     redrawProcessPosition (process) {
-      let source = this.domNode.querySelector('.process[data-id="' + process.id + '"]')
+      let source = this.svgNode.querySelector('.process[data-id="' + process.id + '"]')
 
       let storedX = Helper.parse(source.getAttribute('data-x'))
       let storedY = Helper.parse(source.getAttribute('data-y'))
@@ -583,13 +583,13 @@ export default {
 
       // ----------------------------------------------
       // source könnte ausgelagert werden, aber nicht performance kritisch
-      let source = this.domNode.querySelector('.process-content[data-id="' + con.source + '"]')
-      let target = this.domNode.querySelector('.process-content[data-id="' + con.target + '"]')
+      let source = this.svgNode.querySelector('.process-content[data-id="' + con.source + '"]')
+      let target = this.svgNode.querySelector('.process-content[data-id="' + con.target + '"]')
 
       let sourceRect = Calc.absolutePosition(source, this.containerTranslation) // forces reflow
       let targetRect = Calc.absolutePosition(target, this.containerTranslation) // forces reflow
 
-      let processInput = this.domNode.querySelector('.input-triangle[data-id="' + con.target + '"]')
+      let processInput = this.svgNode.querySelector('.input-triangle[data-id="' + con.target + '"]')
       // ----------------------------------------------
 
       // hide connection when not enough connected elements are getting to small
