@@ -7,12 +7,6 @@
       ref="dialog">
       <md-dialog-title>Verbindung entfernen</md-dialog-title>
       <md-dialog-content v-if="processFrom && processTo">
-        <div class="dialog-info">
-          Soll die folgende Verbindung entfernt werden?
-        </div>
-
-        <hr>
-
         <md-list>
           <md-list-item>
             Ausgang <span>{{ processFrom.mName }}</span>
@@ -91,10 +85,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
- .dialog-info {
-   padding-bottom: 20px;
- }
-
  .md-list-item-container > span {
    padding-left: 20px;
  }

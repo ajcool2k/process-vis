@@ -61,7 +61,6 @@ export default {
       console.log('updateStakeholder', data)
 
       if (data.id === data.previousId) {
-        if (typeof this.$refs['dialog-stakeholder'] !== 'undefined') this.$refs['dialog-stakeholder'].close()
         this.$emit('closeDialog', data)
         return
       }
