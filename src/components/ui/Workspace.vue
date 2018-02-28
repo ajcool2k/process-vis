@@ -197,7 +197,9 @@ export default {
   methods: {
 
     redraw () {
-      this.$refs['timeline'].redraw() // redraw timeline
+      this.$nextTick(() => {
+        this.$refs['timeline'].redraw()
+      })
     },
 
     trackMousePosition (event) {
