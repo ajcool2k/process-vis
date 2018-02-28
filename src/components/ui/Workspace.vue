@@ -231,7 +231,8 @@ export default {
       this.containerNode.style.width = this.containerSize.x + 'px' // forces reflow
       this.containerNode.style.height = this.containerSize.y + 'px' // forces reflow
       this.containerOffset = Calc.absolutePosition(this.containerNode, this.containerTranslation) // forces reflow
-      this.$refs['timeline'].initRuler()
+
+      this.redraw()
     },
 
     updateTimeline () {

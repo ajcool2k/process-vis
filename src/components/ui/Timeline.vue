@@ -284,6 +284,7 @@ export default {
       })
 
       this.$refs['axis-y'].drawAxis() // redraw axis
+      this.initRuler()
     },
 
     redrawProcessPosition (process) {
@@ -389,7 +390,12 @@ export default {
       this.fsm.addEvent(idle, resizeProcess, {
         name: 'onProcessResizestart',
         action: (event) => {
-          this.timeRuler.setAttribute('data-y', this.mousePosition.y)
+          let processId = event.target.getAttribute('data-id')
+          let process = this.svgNode.querySelector('.process-content[data-id="' + processId + '"]')
+          let sourceRect = Calc.absolutePosition(process, this.containerTranslation)
+          let verticalPoint = sourceRect.top - this.containerOffset.top + sourceRect.height
+
+          this.timeRuler.setAttribute('data-y', verticalPoint)
           this.timeRuler.style.display = 'inline'
         }
       })
