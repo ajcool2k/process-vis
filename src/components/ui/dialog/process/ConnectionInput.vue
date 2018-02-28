@@ -8,7 +8,7 @@
           <md-layout >
             <md-input-container>
               <label>Dieser Prozess</label>
-              <md-input type="text" :value="getProcess(this.id).name" readonly></md-input>
+              <md-input type="text" :value="getProcess(this.id).mName" readonly></md-input>
             </md-input-container>
           </md-layout>
           <md-layout md-flex-offset="5">
@@ -25,7 +25,7 @@
             <md-input-container>
               <label>Verbindungsprozess</label>
               <md-select name="other" id="other" v-model="other">
-                <md-option v-for="elem in list" :key="elem.id + '--other'" :value="elem.id">{{elem.name}}</md-option>
+                <md-option v-for="elem in list" :key="elem.id + '--other'" :value="elem.id">{{elem.mName}}</md-option>
               </md-select>
             </md-input-container>
           </md-layout>

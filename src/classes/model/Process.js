@@ -140,7 +140,10 @@ export class Process {
     this.reference = reference
   }
 
-  get mName () { return this.name }
+  get mName () {
+    return typeof this.name === 'undefined' || this.name === '' ? '[keine Bezeichnung]' : this.name
+  }
+
   set mName (name) {
     if (typeof name !== 'string') {
       console.warn('Process.mName - expects string')

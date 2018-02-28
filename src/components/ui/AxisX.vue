@@ -4,7 +4,7 @@
       <md-layout v-if="(process.mDelegates.length > 0)" :md-gutter="process.mDelegates.length">
         <template v-for="item in process.mDelegates">
           <md-layout :key="item" md-align="center">
-            <md-button @click.native="onShowActorDialog" class="md-primary button-delegate" @dragstart.native="dragstart" @dragend.native="dragend" draggable="true" :data-id="item">{{ getStakeholder(item).name }}</md-button>
+            <md-button @click.native="onShowActorDialog" class="md-primary button-delegate" @dragstart.native="dragstart" @dragend.native="dragend" draggable="true" :data-id="item">{{ getStakeholder(item).mName }}</md-button>
           </md-layout>
         </template>
     </md-layout>
@@ -12,7 +12,6 @@
 </template>
 
 <script>
-import { Dialog } from '@/classes/ui/Dialog'
 import { Helper } from '@/classes/utils/Helper'
 import DialogStakeholder from './dialog/DialogStakeholder.vue'
 
@@ -28,11 +27,7 @@ export default {
   data: function () {
     return {
       elemMoved: null,
-      domNode: null,
-
-      // Dialogs
-      dialog: new Dialog()
-
+      domNode: null
     }
   },
 
@@ -66,7 +61,6 @@ export default {
       console.log('updateStakeholder', data)
 
       if (data.id === data.previousId) {
-        if (typeof this.$refs['dialog.stakeholder'] !== 'undefined') this.$refs['dialog-stakeholder'].close()
         this.$emit('closeDialog', data)
         return
       }

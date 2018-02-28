@@ -5,7 +5,7 @@
       <md-list-item v-for="item in processList" :key="item.id">
           <router-link :to="{ path: '/process/' + item.id }">
             <md-icon>insert_drive_file</md-icon>
-            <span>{{item.id}} - {{item.name}}</span><span>Letzte Aktualisierung: {{item.updated}}</span>
+            <span>{{item.id}} - {{showName(item.name)}}</span><span>Letzte Aktualisierung: {{item.updated}}</span>
             <md-button class="md-icon-button md-list-action">
               <md-icon class="md-primary">play_arrow</md-icon>
             </md-button>
@@ -47,6 +47,9 @@ export default {
   methods: {
     refreshProcessList () {
       this.processList = Storage.list()
+    },
+    showName (name) {
+      return typeof name === 'undefined' || name === '' ? '[Keine Bezeichnung]' : name
     }
   }
 }

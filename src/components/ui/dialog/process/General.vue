@@ -117,7 +117,7 @@ export default {
   methods: {
     refresh (process) {
       this.process = process
-      this.info.name = typeof this.process.mName === 'string' ? this.process.mName : ''
+      this.info.name = typeof this.process.name === 'string' ? this.process.name : ''
       this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
       this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
       this.info.event = this.process.isEvent()

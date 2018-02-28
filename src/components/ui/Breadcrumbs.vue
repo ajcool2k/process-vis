@@ -1,7 +1,7 @@
 <template>
   <div class="process-breadcrumbs">
 
-      <md-button class="md-dense" :title="getPrevId()" @click="onChangeProcess('parent')">{{ getPrev() }}</md-button>
+      <md-button class="md-dense" :title="getPrevId()" @click="onChangeProcess">{{ getPrev() }}</md-button>
       <md-icon>keyboard_arrow_right</md-icon>
       <md-button class="md-raised md-accent" :title="process.id" @click="onShowProcess">{{ getName() }}</md-button>
       <!--
@@ -36,8 +36,8 @@ export default {
   },
 
   methods: {
-    onChangeProcess (direction) {
-      this.$emit('changeProcess', direction)
+    onChangeProcess () {
+      this.$emit('changeProcess', 'parent')
     },
 
     onShowProcess () {
@@ -53,10 +53,13 @@ export default {
     },
 
     getName () {
+      // nName returns [keine Bezeichnung] if not available
+      if (typeof this.process.name === 'undefined' || this.process.name === '') return this.process.mName
+
       let maxLen = 20
-      let strLen = typeof this.process.mName === 'string' ? this.process.mName.length : 0
+      let strLen = this.process.mName.length
       let len = strLen > maxLen ? maxLen : strLen
-      return typeof this.process.mName !== 'undefined' && this.process.mName !== '' && this.process.mName !== '[untitled]' ? this.process.mName.substring(0, len) : '[keine Bezeichnung]'
+      return this.process.mName.substring(0, len)
     },
 
     onShowChildren () {

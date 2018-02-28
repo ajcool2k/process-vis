@@ -46,7 +46,9 @@ export default {
   props: [ 'containerScale', 'isSaved', 'process' ],
   data: function () {
     return {
-      scaleData: this.containerScale
+      scaleData: this.containerScale,
+      // Interval
+      zoomInt: 0
     }
   },
 
@@ -120,8 +122,8 @@ export default {
       this.$emit('process')
     },
 
-    onChangeProcess (direction) {
-      this.$emit('changeProcess', 'changeProcess-' + direction)
+    onChangeProcess (processId) {
+      this.$emit('changeProcess', processId)
     }
   }
 }
