@@ -122,8 +122,8 @@ export default {
       this.$emit('process')
     },
 
-    onChangeProcess (direction) {
-      this.$emit('changeProcess', 'changeProcess-' + direction)
+    onChangeProcess (processId) {
+      this.$emit('changeProcess', processId)
     }
   }
 }

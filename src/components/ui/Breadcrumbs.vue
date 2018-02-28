@@ -1,7 +1,7 @@
 <template>
   <div class="process-breadcrumbs">
 
-      <md-button class="md-dense" :title="getPrevId()" @click="onChangeProcess('parent')">{{ getPrev() }}</md-button>
+      <md-button class="md-dense" :title="getPrevId()" @click="onChangeProcess">{{ getPrev() }}</md-button>
       <md-icon>keyboard_arrow_right</md-icon>
       <md-button class="md-raised md-accent" :title="process.id" @click="onShowProcess">{{ getName() }}</md-button>
       <!--
@@ -36,8 +36,8 @@ export default {
   },
 
   methods: {
-    onChangeProcess (direction) {
-      this.$emit('changeProcess', direction)
+    onChangeProcess () {
+      this.$emit('changeProcess', 'parent')
     },
 
     onShowProcess () {

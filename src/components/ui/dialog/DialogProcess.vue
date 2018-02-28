@@ -56,7 +56,7 @@
       <md-layout md-gutter class="bottom-bar">
         <md-layout md-align="start"><md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button></md-layout>
         <md-layout v-if="isChildProcess" md-align="center" md-flex="60">
-          <md-button class="md-raised md-accent" @click="onChangeProcess('child')">Öffnen</md-button>
+          <md-button class="md-raised md-accent" @click="onChangeProcess">Öffnen</md-button>
         </md-layout>
         <md-layout md-align="end"><md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button></md-layout>
       </md-layout>
@@ -155,7 +155,7 @@ export default {
     },
 
     onChangeProcess (layer) {
-      this.response = 'changeProcess-' + layer
+      this.response = 'changeProcess'
       this.$refs['dialog'].close()
     },
 

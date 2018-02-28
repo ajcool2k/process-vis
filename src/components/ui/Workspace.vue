@@ -5,24 +5,26 @@
 
     <tool-bar :process="processModel" :isSaved="isSaved" :containerScale="containerScale" v-on:applyZoom="applyZoom" v-on:exchange="exchange" v-on:process="onToolbarShowProcess" v-on:changeProcess="onChangeProcess"></tool-bar>
 
-      <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
-      <dialog-delegate-select ref="dialog-delegate-select" v-on:delegateSelect="onDelegateSelect"></dialog-delegate-select>
-      <dialog-process-select ref="dialog-process-select" v-on:processSelect="onProcessSelect"></dialog-process-select>
+    <dialog-process ref="dialog-process" v-on:closeDialog="onCloseProcessDialog"></dialog-process>
+    <dialog-delegate-select ref="dialog-delegate-select" v-on:delegateSelect="onDelegateSelect"></dialog-delegate-select>
+    <dialog-process-select ref="dialog-process-select" v-on:processSelect="onProcessSelect"></dialog-process-select>
 
-      <div class="processContainer" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
-        <!-- child components -->
-        <timeline ref="timeline" v-on:openProcess="onProcessOpen"
-          :processModel="processModel"
-          :timeFormat="timeFormat"
-          :itemSize="itemSize"
-          :containerSize="containerSize"
-          :containerScale="containerScale"
-          :containerTranslation="containerTranslation"
-          :containerOffset="containerOffset"
-          :actionPosition="actionPosition"
-          :mousePosition="mousePosition"
-          ></timeline>
-      </div>
+    <div class="processContainer" @touchmove.passive="trackTouchPosition" @mousemove.passive="throttle(trackMousePosition, $event, 50)">
+      <!-- child components -->
+      <timeline ref="timeline"
+        v-on:openProcess="onProcessOpen"
+        v-on:changeProcess="onChangeProcess"
+        :processModel="processModel"
+        :timeFormat="timeFormat"
+        :itemSize="itemSize"
+        :containerSize="containerSize"
+        :containerScale="containerScale"
+        :containerTranslation="containerTranslation"
+        :containerOffset="containerOffset"
+        :actionPosition="actionPosition"
+        :mousePosition="mousePosition"
+        ></timeline>
+    </div>
 
     <vue-slider class="range-itemSize ignore-container-events" :value="itemSize" :width="100" :min="1" :max="100" @callback="onRangeChange" :processStyle="{ backgroundColor: '#3f51b5' }" :tooltipStyle="{ backgroundColor: '#3f51b5', borderColor: '#3f51b5' }"></vue-slider>
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
@@ -388,16 +390,17 @@ export default {
         case 'remove':
          this.removeProcess(data.id)
           break
-        case 'changeProcess-child':
+        case 'changeProcess':
           this.$emit('changeProcess', data.id)
           break
       }
       this.$refs['timeline'].stateEvent('onCloseDialog')
     },
 
-    onChangeProcess () {
+    onChangeProcess (id) {
       console.log('onChangeProcess called')
-      this.$emit('changeProcess', 'parent')
+
+      this.$emit('changeProcess', id)
     },
 
     onToolbarShowProcess () {

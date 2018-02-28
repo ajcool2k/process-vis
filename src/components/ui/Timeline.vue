@@ -131,10 +131,8 @@ export default {
       },
 
       actionId: null,
-      scopeProp: '',
       timeRuler: null,
       tmpLine: null,
-
 
       clickCounts: {
         process: 0
@@ -164,8 +162,6 @@ export default {
     this.svgNode = this.domNode.querySelector('svg.svgNode')
     this.tmpLine = this.svgNode.querySelector('.tmpConnection')
     this.timeRuler = this.svgNode.querySelector('.timeRuler')
-    // Scope Prop
-    this.scopeProp = Helper.getScopeProp(this.svgNode)
 
     interact('.delegate').unset()
     interact('.process rect.process-content').unset()
