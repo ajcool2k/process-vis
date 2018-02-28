@@ -534,7 +534,7 @@ export default {
       this.fsm.addEvent(idle, showDialog, {
         name: 'onProcessClick',
         action: (event) => {
-          this.$emit('openProcess', event)
+          this.$emit('openProcess', { id: event.target.getAttribute('data-id')})
         }
       })
 
@@ -911,7 +911,7 @@ export default {
         return
       }
 
-      this.$refs['dialog-process'].open(process, 'update', true, 0, this.processModel)
+      this.$emit('openProcess', { id: processId })
     },
 
     onCloseRemoveConnectionDialog (data) {
@@ -940,7 +940,7 @@ export default {
         return
       }
 
-      this.$refs['dialog-process'].open(process, 'update', true, 4, this.processModel)
+      this.$emit('openProcess', { id: processId, tab: 4 })
     },
 
     onCloseTransformationDialog (data) {

@@ -455,9 +455,9 @@ export default {
         this.$refs['dialog-process'].open(this.processModel, 'update', false, 0)
       } else {
         // open child
-        this.actionId = event.target.getAttribute('data-id')
-        let child = this.processModel.getChild(this.actionId)
-        this.$refs['dialog-process'].open(child, 'update', true, 0, this.processModel)
+        let child = this.processModel.getChild(event.id)
+        let tab = event.hasOwnProperty('tab') ? event.tab : 0
+        this.$refs['dialog-process'].open(child, 'update', true, tab, this.processModel)
       }
     },
 
