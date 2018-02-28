@@ -45,7 +45,6 @@ import DialogSelectProcess from './dialog/DialogSelectProcess.vue'
 
 import interact from 'interactjs'
 
-import { Dialog } from '@/classes/ui/Dialog'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
@@ -88,19 +87,12 @@ export default {
       mousePosition: {x: 0, y: 0},
 
       time: Date.now(),
-      fireCounter: 0,
 
       // Options
       options: {
         isContainerDraggable: true,
         isContainerResizeable: true
-      },
-
-      // Support
-      hasTouchSupport: false,
-
-      // Interval
-      zoomInt: 0
+      }
     }
   },
 
@@ -368,7 +360,6 @@ export default {
       this.processModel.addChild(process)
     },
 
-
     removeProcess (processId) {
 
       // remove head
@@ -415,8 +406,8 @@ export default {
       this.onProcessOpen()
     },
 
-    resizeElement (event) {
-      console.log('resizeElement', event.target)
+    resizeContainer (event) {
+      console.log('resizeContainer', event.target)
       let elem = event.target
 
       // read from model
@@ -486,7 +477,7 @@ export default {
       if (this.options.isContainerResizeable === false) return
 
       // update position in model
-      this.resizeElement(event)
+      this.resizeContainer(event)
 
       // update view by model
       let containerResize = () => {
@@ -551,8 +542,6 @@ $bgColor: #eee;
   z-index: 9;
   height: 48px;
 }
-
-.timeline {}
 
 .processContainer {
   position: relative;

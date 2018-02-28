@@ -1,15 +1,7 @@
 <template>
   <div class="timeline" @click="onTimelineClick">
 
-    <md-dialog-confirm
-      :md-title="dialog.removeConnectionDialog.title"
-      :md-content-html="dialog.removeConnectionDialog.contentHtml"
-      :md-ok-text="dialog.removeConnectionDialog.ok"
-      :md-cancel-text="dialog.removeConnectionDialog.cancel"
-      @close="onCloseRemoveConnectionDialog"
-      ref="removeConnectionDialog">
-    </md-dialog-confirm>
-
+    <dialog-connection ref="dialog-connection" v-on:updateConnection="onCloseRemoveConnectionDialog"></dialog-connection>
     <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
     <axis-y ref="axis-y" class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
@@ -98,19 +90,20 @@ import interact from 'interactjs'
 import AxisX from './AxisX.vue'
 import AxisY from './AxisY.vue'
 
-import { Dialog } from '@/classes/ui/Dialog'
 import { Path } from '@/classes/ui/Path'
 import { StateMachine } from '@/classes/utils/StateMachine'
 import { Animate } from '@/classes/utils/Animate'
 import { Events } from '@/classes/utils/Events'
 import { Calc } from '@/classes/utils/Calc'
 import { Helper } from '@/classes/utils/Helper'
+import DialogConnection from './dialog/DialogConnection.vue'
 
 export default {
   name: 'Timeline',
   components: {
     'axis-x': AxisX,
     'axis-y': AxisY,
+    'dialog-connection': DialogConnection
   },
   props: [
     'processModel',
@@ -145,10 +138,7 @@ export default {
 
       clickCounts: {
         process: 0
-      },
-
-      // Dialogs
-      dialog: new Dialog(),
+      }
     }
   },
 
@@ -795,8 +785,13 @@ export default {
       if (!this.fsm.hasEvent('onConnectionClick')) return
       this.fsm.run('onConnectionClick', event)
 
+      let connectionId = event.target.getAttribute('data-id')
       this.actionId = event.target.getAttribute('data-id')
-      this.$refs['removeConnectionDialog'].open()
+
+      let con = Helper.connectionParse(connectionId)
+      let processFrom = this.processModel.getChild(con.source)
+      let processTo = this.processModel.getChild(con.target)
+      this.$refs['dialog-connection'].open(con, processFrom, processTo)
     },
 
     onEscape () {
@@ -917,12 +912,17 @@ export default {
       this.$refs['dialog-process'].open(process, 'update', true, 0, this.processModel)
     },
 
-    onCloseRemoveConnectionDialog (type) {
+    onCloseRemoveConnectionDialog (data) {
       if (!this.fsm.hasEvent('onCloseDialog')) return
       this.fsm.run('onCloseDialog')
 
-      if (type === 'cancel') return
-      this.removeConnection(this.actionId)
+      switch (data.response) {
+        case 'update':
+          break
+        case 'remove':
+          this.removeConnection(data.id)
+          break
+      }
     },
 
     onTransformationClick (event) {

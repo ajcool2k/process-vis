@@ -46,7 +46,9 @@ export default {
   props: [ 'containerScale', 'isSaved', 'process' ],
   data: function () {
     return {
-      scaleData: this.containerScale
+      scaleData: this.containerScale,
+      // Interval
+      zoomInt: 0
     }
   },
 
