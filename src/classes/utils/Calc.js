@@ -512,7 +512,7 @@ export class Calc {
   }
 
   /**
-   * Methode berechnet die größe des benötigten Containers für Elemente.
+   * Methode berechnet die Größe des benötigten Containers für Elemente.
    * Zur Berechnung ist es notwendig, dass addElementPosition zuvor aufgerufen wurde.
    * @param {Array} processes  Kindprozesse
    * @param {Array} delegates  Akteure des Prozesses (Initiatoren der Kindprozesse)
@@ -535,8 +535,6 @@ export class Calc {
     containerY = Math.max(containerY, Calc.minContainerHeight)
     containerX = Math.max(containerX, Calc.minContainerWidth)
 
-    console.log('containerSize', { x: containerX, y: containerY })
-    // return containerSize
     return { x: containerX, y: containerY }
   }
 }
