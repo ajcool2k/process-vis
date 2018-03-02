@@ -23,11 +23,11 @@
           <md-icon>file_download</md-icon>
         </md-button>
 
-        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">
+        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @ @mousedown.native="zoomIn" @mouseup.native="zoomStop" @mouseout.native="zoomStop">
           <md-icon>zoom_in</md-icon>
         </md-button>
 
-        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">
+        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop" @mouseout.native="zoomStop">
           <md-icon>zoom_out</md-icon>
         </md-button>
       </span>
@@ -91,6 +91,7 @@ export default {
     zoomStop (event) {
       if (event) event.preventDefault()
       clearInterval(this.zoomInt)
+      this.zoomInt = 0
     },
 
     scale (multX, multY) {

@@ -97,7 +97,7 @@ export class StateMachine {
     })
 
     if (!stateEvent) {
-      console.log('FSM: unknown event ' + eventName + ' called for state ' + this.actualState)
+      console.log('FSM: unknown event ' + eventName + ' called for state ' + this.actualState.name)
       return
     }
 

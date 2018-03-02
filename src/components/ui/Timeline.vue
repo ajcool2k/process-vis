@@ -257,8 +257,6 @@ export default {
       })
   },
 
-  beforeUpdate: function () {},
-
   updated: function () {
     console.log('Timeline updated')
     Animate.clear()
@@ -461,19 +459,13 @@ export default {
         action: (event) => {
           Events.disableClicks(300)
 
-          console.log('dragEvent', event)
-
           let draggableElement = event.target
           let dropzoneElement = event.relatedTarget
-          console.log('draggableElement', draggableElement)
-          console.log('dropzoneElement', dropzoneElement)
 
           let data = {
             processId: Helper.parse(draggableElement.getAttribute('data-id')),
             delegateId: Helper.parse(dropzoneElement.getAttribute('data-id'))
           }
-
-          console.log('data', data)
 
           // change start date on y change
           let dy = event.pageY - event.y0
@@ -508,7 +500,6 @@ export default {
 
           // move process
           process.mInitiator = data.delegateId
-          this.redraw()
         }
       })
 
@@ -552,7 +543,7 @@ export default {
       this.fsm.start(idle)
     },
 
-    updateTimeline () {
+    updateTimeAxis () {
       this.updateAxisPosition()
     },
 
@@ -816,7 +807,6 @@ export default {
     },
 
     onTimelineClick (event) {
-      console.log('onTimelineClick!!!!')
       this.resetCuror()
 
       if (!this.fsm.hasEvent('onTimelineClick')) return
@@ -1086,6 +1076,7 @@ $bgColor: #eee;
       rect.process-content {
         transform-origin: center;
         transform: scale(0);
+        touch-action: none;
 
         &.animation-morph {
           animation-name: morphIn;
