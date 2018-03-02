@@ -174,19 +174,7 @@ export default {
 
   beforeUpdate: function () {
     console.warn('Workspace updating ...')
-    Calc.processPosition(this.processModel.children, this.processModel.mDelegates, this.containerSize, this.timeFormat)
-    let size = Calc.containerSize(this.processModel.children, this.processModel.mDelegates, true) // calc layout based on model
-
-    // diff between actual containerSize and Calculation
-    let delta = { x: size.x - this.containerSize.x, y: size.y - this.containerSize.y }
-
-    // increase containerSize when more space is needed (e.g. process added)
-    delta.x = delta.x < 0 ? 0 : delta.x
-    delta.y = delta.y < 0 ? 0 : delta.y
-
-    if (delta.x !== 0 || delta.y !== 0) {
-      this.updateContainerSize(delta)
-    }
+    this.calculateContainerSize()
   },
 
   updated: function () {
@@ -202,6 +190,22 @@ export default {
       })
     },
 
+    calculateContainerSize () {
+      Calc.processPosition(this.processModel.children, this.processModel.mDelegates, this.containerSize, this.timeFormat)
+      let size = Calc.containerSize(this.processModel.children, this.processModel.mDelegates, true) // calc layout based on model
+
+      // diff between actual containerSize and Calculation
+      let delta = { x: size.x - this.containerSize.x, y: size.y - this.containerSize.y }
+
+      // increase containerSize when more space is needed (e.g. process added)
+      delta.x = delta.x < 0 ? 0 : delta.x
+      delta.y = delta.y < 0 ? 0 : delta.y
+
+      if (delta.x !== 0 || delta.y !== 0) {
+        this.updateContainerSize(delta)
+      }
+    },
+
     trackMousePosition (event) {
       // console.log('trackMousePosition')
 
@@ -212,7 +216,6 @@ export default {
 
     trackTouchPosition (event) {
       // console.log('trackTouchPosition')
-      event.preventDefault()
 
       let touch = event.touches[0]
 
@@ -508,6 +511,7 @@ export default {
 
     onResize (event) {
       console.log('onResize')
+      this.calculateContainerSize()
       this.redraw()
     }
   }
@@ -558,6 +562,7 @@ $bgColor: #eee;
   transform-origin: 0 0;
   background-color:rgba(255, 255, 255, 0.8);
   box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
+  touch-action: none;
 }
 
 .range-itemSize {
