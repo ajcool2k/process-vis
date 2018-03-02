@@ -104,22 +104,20 @@ export default {
     window.addEventListener('scroll', this.onScroll, true)
     window.addEventListener('resize', this.onResize, true)
 
-    // detect resolution
-    Calc.minContainerHeight = window.innerHeight - 200
-    Calc.minContainerWidth = window.innerWidth - 400
-
+    this.calculateContainerSpace()
     // set axis params
     Calc.itemSize = this.itemSize
   },
 
   destroyed: function () {
     console.log('destroyed')
+
     window.removeEventListener('scroll', this.onScroll)
     window.removeEventListener('resize', this.onResize)
   },
 
   mounted: function () {
-    console.log('Workspace mounted', document.querySelectorAll('.process').length)
+    console.log('Workspace mounted')
 
     // cache DOM
     this.htmlNode = document.querySelector('html')
@@ -127,13 +125,13 @@ export default {
     this.containerNode = this.workspaceNode.querySelector('.processContainer')
 
     // prepare Container and Workspace
-    Calc.processPosition(this.processModel.children, this.processModel.mDelegates, this.containerSize, this.timeFormat) // set position on the model
+    this.calculateModel()
+    let delta = this.calculateContainerSize(true)
     this.containerSize = Calc.containerSize(this.processModel.children, this.processModel.mDelegates) // calc layout based on model
-    this.updateContainerSize() // apply model - forces reflow
+    this.initContainerSize() // apply model - forces reflow
 
     // remove existing event handlers
     interact('.processContainer').unset()
-
 
     // add new event handlers
     interact('.processContainer')
@@ -149,7 +147,7 @@ export default {
       })
       .on('dragend', event => {
         console.warn('dragend container')
-        this.updateTimeline() // forces reflow
+        this.updateTimeAxis() // forces reflow
       })
       .resizable({
         preserveAspectRatio: false,
@@ -169,12 +167,15 @@ export default {
         let dragDelta = { x: event.pageX - this.actionPosition.x, y: event.pageY - this.actionPosition.y }
         let scaledDragDelta = { x: Math.floor(dragDelta.x / this.containerScale.x), y: Math.floor(dragDelta.y / this.containerScale.y) }
         this.updateContainerSize(scaledDragDelta) // forces reflow
+        this.redraw()
       })
   },
 
   beforeUpdate: function () {
     console.warn('Workspace updating ...')
+    this.calculateModel()
     this.calculateContainerSize()
+    this.updateContainerSize()
   },
 
   updated: function () {
@@ -185,25 +186,32 @@ export default {
   methods: {
 
     redraw () {
-      this.$nextTick(() => {
-        this.$refs['timeline'].redraw()
-      })
+      this.$refs['timeline'].redraw()
     },
 
-    calculateContainerSize () {
+    calculateModel () {
       Calc.processPosition(this.processModel.children, this.processModel.mDelegates, this.containerSize, this.timeFormat)
+    },
+
+    calculateContainerSpace () {
+      // let toolbarRect = Calc.absolutePosition(this.toolbarNode, this.containerTranslation)
+      Calc.minContainerHeight = window.innerHeight - 200 // 2 * this.containerOffset.top - toolbarRect.top - toolbarRect.height
+      Calc.minContainerWidth = window.innerWidth - 400
+    },
+
+    calculateContainerSize (force) {
       let size = Calc.containerSize(this.processModel.children, this.processModel.mDelegates, true) // calc layout based on model
 
       // diff between actual containerSize and Calculation
       let delta = { x: size.x - this.containerSize.x, y: size.y - this.containerSize.y }
 
       // increase containerSize when more space is needed (e.g. process added)
+      if (force === true) return delta
+
       delta.x = delta.x < 0 ? 0 : delta.x
       delta.y = delta.y < 0 ? 0 : delta.y
 
-      if (delta.x !== 0 || delta.y !== 0) {
-        this.updateContainerSize(delta)
-      }
+      return delta
     },
 
     trackMousePosition (event) {
@@ -229,19 +237,25 @@ export default {
       this.time = Events.throttle(fn, fnEvent, wait, this.time)
     },
 
-    updateContainerSize (dragDelta) {
-      let delta = typeof dragDelta === 'object' ? dragDelta : { x: 0, y: 0 }
-
-      this.containerSize = { x: this.containerSize.x + delta.x, y: this.containerSize.y + delta.y }
+    initContainerSize () {
       this.containerNode.style.width = this.containerSize.x + 'px' // forces reflow
       this.containerNode.style.height = this.containerSize.y + 'px' // forces reflow
       this.containerOffset = Calc.absolutePosition(this.containerNode, this.containerTranslation) // forces reflow
-
-      this.redraw()
     },
 
-    updateTimeline () {
-      this.$refs['timeline'].updateTimeline()
+    updateContainerSize (dragDelta) {
+      let delta = typeof dragDelta === 'object' ? dragDelta : { x: 0, y: 0 }
+
+      if (delta.x === 0 && delta.y === 0) return
+
+      this.containerSize.x = this.containerSize.x + delta.x
+      this.containerSize.y = this.containerSize.y + delta.y
+
+      this.initContainerSize()
+    },
+
+    updateTimeAxis () {
+      this.$refs['timeline'].updateTimeAxis()
     },
 
     applyTransform () {
@@ -254,7 +268,8 @@ export default {
     },
 
     translate (dx, dy) {
-      this.containerTranslation = {x: this.containerTranslation.x + dx, y: this.containerTranslation.y + dy}
+      this.containerTranslation.x = this.containerTranslation.x + dx
+      this.containerTranslation.y = this.containerTranslation.y + dy
     },
 
     scale (multX, multY) {
@@ -263,7 +278,8 @@ export default {
         return
       }
 
-      this.containerScale = {x: this.containerScale.x * multX, y: this.containerScale.y * multY}
+      this.containerScale.x = this.containerScale.x * multX
+      this.containerScale.y = this.containerScale.y * multY
     },
 
     onDelegateSelect (data) {
@@ -296,7 +312,7 @@ export default {
       this.containerScale.x = scaleData.x
       this.containerScale.y = scaleData.y
       this.applyTransform()
-      this.updateTimeline()
+      this.updateTimeAxis()
     },
 
     exchange (data) {
@@ -400,7 +416,8 @@ export default {
           this.$emit('changeProcess', data.id)
           break
       }
-      this.$refs['timeline'].stateEvent('onCloseDialog')
+
+      if (data.id !== this.processModel.id) this.$refs['timeline'].stateEvent('onCloseDialog')
     },
 
     onChangeProcess (id) {
@@ -416,7 +433,6 @@ export default {
     },
 
     resizeContainer (event) {
-      console.log('resizeContainer', event.target)
       let elem = event.target
 
       // read from model
@@ -502,7 +518,7 @@ export default {
 
       setTimeout(() => {
         // action
-        this.updateTimeline() // forces reflow
+        this.updateTimeAxis() // forces reflow
 
         // re-add listener
         window.addEventListener('scroll', this.onScroll, true)
@@ -511,8 +527,15 @@ export default {
 
     onResize (event) {
       console.log('onResize')
-      this.calculateContainerSize()
-      this.redraw()
+
+      let recalculateFn = () => {
+        this.calculateContainerSpace()
+        let delta = this.calculateContainerSize(true)
+        this.updateContainerSize(delta)
+        this.redraw()
+        Events.scheduledAnimationFrame['recalculateFn'] = false
+      }
+      Events.debounce(recalculateFn, 'recalculateFn')
     }
   }
 }
