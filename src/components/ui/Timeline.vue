@@ -1086,6 +1086,7 @@ $bgColor: #eee;
       rect.process-content {
         transform-origin: center;
         transform: scale(0);
+        touch-action: none;
 
         &.animation-morph {
           animation-name: morphIn;
