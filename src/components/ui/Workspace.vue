@@ -30,6 +30,7 @@
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
     <item-chooser v-on:onProcessCreate="processCreate" v-on:delegateChange="applyDelegateChange"></item-chooser>
 
+    <canvas class='minimap'></canvas>
   </div>
 </template>
 
@@ -89,6 +90,7 @@ export default {
       mousePosition: {x: 0, y: 0},
 
       time: Date.now(),
+      minimap: null,
 
       // Options
       options: {
@@ -126,7 +128,7 @@ export default {
 
     // prepare Container and Workspace
     this.calculateModel()
-    let delta = this.calculateContainerSize(true)
+    this.calculateContainerSize(true)
     this.containerSize = Calc.containerSize(this.processModel.children, this.processModel.mDelegates) // calc layout based on model
     this.initContainerSize() // apply model - forces reflow
 
@@ -169,6 +171,18 @@ export default {
         this.updateContainerSize(scaledDragDelta) // forces reflow
         this.redraw()
       })
+
+    // init minimap
+    const pagemap = require('pagemap/src/pagemap.js')
+    this.minimap = pagemap(this.workspaceNode.querySelector('.minimap'), {
+      styles: {
+        '.process-content': 'rgba(142, 142, 142, 1)'
+      },
+      back: 'rgba(0,0,0,0.02)',
+      view: 'rgba(63, 81, 181, 0.2)',
+      drag: 'rgba(63, 81, 181, 0.5)',
+      interval: null
+    })
   },
 
   beforeUpdate: function () {
@@ -187,6 +201,7 @@ export default {
 
     redraw () {
       this.$refs['timeline'].redraw()
+      this.minimap.redraw()
     },
 
     calculateModel () {
@@ -265,6 +280,7 @@ export default {
       let transformScale = 'scale(' + this.containerScale.x + ',' + this.containerScale.y + ')'
       this.containerNode.style.webkitTransform =
       this.containerNode.style.transform = transformTranslate + ' ' + transformScale
+      this.minimap.redraw()
     },
 
     translate (dx, dy) {
@@ -373,7 +389,6 @@ export default {
       let process = data.process
 
       if (this.processModel.mDelegates.length === 0) {
-
         let stakeholder = new Stakeholder()
 
         this.processModel.addStakeholder(stakeholder)
@@ -385,7 +400,6 @@ export default {
     },
 
     removeProcess (processId) {
-
       // remove head
       if (this.processModel.id === processId) {
         this.$emit('removeHead')
@@ -410,7 +424,7 @@ export default {
         case 'update':
           break
         case 'remove':
-         this.removeProcess(data.id)
+          this.removeProcess(data.id)
           break
         case 'changeProcess':
           this.$emit('changeProcess', data.id)
@@ -594,5 +608,14 @@ $bgColor: #eee;
   width: 100px;
   left: 24px;
   top: 100px;
+}
+
+.minimap {
+    position: fixed;
+    top: 40px;
+    right: 0;
+    width: 200px;
+    height: 100%;
+    z-index: 8;
 }
 </style>
