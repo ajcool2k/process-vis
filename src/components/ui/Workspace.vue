@@ -200,8 +200,15 @@ export default {
   methods: {
 
     redraw () {
-      if (this.$refs.timeline) this.$refs['timeline'].redraw()
-      if (this.minimap) this.minimap.redraw()
+      if (!this.$refs.timeline) return
+
+      this.$refs['timeline'].redraw()
+
+      if (!this.minimap) return
+
+      setTimeout(() => { // wait for timeline to be drawn
+        this.minimap.redraw()
+      }, 100)
     },
 
     calculateModel () {
