@@ -30,6 +30,7 @@
     <time-chooser :timeFormat="timeFormat" v-on:onTimeFormatChange="applyTimeFormat"></time-chooser>
     <item-chooser v-on:onProcessCreate="processCreate" v-on:delegateChange="applyDelegateChange"></item-chooser>
 
+    <canvas class='minimap'></canvas>
   </div>
 </template>
 
@@ -89,6 +90,7 @@ export default {
       mousePosition: {x: 0, y: 0},
 
       time: Date.now(),
+      minimap: null,
 
       // Options
       options: {
@@ -126,7 +128,7 @@ export default {
 
     // prepare Container and Workspace
     this.calculateModel()
-    let delta = this.calculateContainerSize(true)
+    this.calculateContainerSize(true)
     this.containerSize = Calc.containerSize(this.processModel.children, this.processModel.mDelegates) // calc layout based on model
     this.initContainerSize() // apply model - forces reflow
 
@@ -169,13 +171,25 @@ export default {
         this.updateContainerSize(scaledDragDelta) // forces reflow
         this.redraw()
       })
+
+    // init minimap
+    const pagemap = require('pagemap/src/pagemap.js')
+    this.minimap = pagemap(this.workspaceNode.querySelector('.minimap'), {
+      styles: {
+        '.process-content': 'rgba(142, 142, 142, 1)'
+      },
+      back: 'rgba(0,0,0,0.02)',
+      view: 'rgba(63, 81, 181, 0.2)',
+      drag: 'rgba(63, 81, 181, 0.5)',
+      interval: null
+    })
   },
 
   beforeUpdate: function () {
     console.warn('Workspace updating ...')
     this.calculateModel()
-    this.calculateContainerSize()
-    this.updateContainerSize()
+    let delta = this.calculateContainerSize()
+    this.updateContainerSize(delta)
   },
 
   updated: function () {
@@ -186,7 +200,15 @@ export default {
   methods: {
 
     redraw () {
+      if (!this.$refs.timeline) return
+
       this.$refs['timeline'].redraw()
+
+      if (!this.minimap) return
+
+      setTimeout(() => { // wait for timeline to be drawn
+        this.minimap.redraw()
+      }, 100)
     },
 
     calculateModel () {
@@ -219,7 +241,7 @@ export default {
 
       this.mousePosition.x = Math.round((event.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x)
       this.mousePosition.y = Math.round((event.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y)
-      this.$refs['timeline'].trackMousePosition(event)
+      if (this.$refs.timeline) this.$refs['timeline'].trackMousePosition(event)
     },
 
     trackTouchPosition (event) {
@@ -230,7 +252,7 @@ export default {
       this.mousePosition.x = Math.round((touch.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x)
       this.mousePosition.y = Math.round((touch.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y)
       // console.log(this.mousePosition.x + ':' + this.mousePosition.y)
-      this.$refs['timeline'].trackMousePosition(event)
+      if (this.$refs.timeline) this.$refs['timeline'].trackMousePosition(event)
     },
 
     throttle (fn, fnEvent, wait) {
@@ -255,7 +277,7 @@ export default {
     },
 
     updateTimeAxis () {
-      this.$refs['timeline'].updateTimeAxis()
+      if (this.$refs.timeline) this.$refs['timeline'].updateTimeAxis()
     },
 
     applyTransform () {
@@ -265,6 +287,7 @@ export default {
       let transformScale = 'scale(' + this.containerScale.x + ',' + this.containerScale.y + ')'
       this.containerNode.style.webkitTransform =
       this.containerNode.style.transform = transformTranslate + ' ' + transformScale
+      this.minimap.redraw()
     },
 
     translate (dx, dy) {
@@ -373,7 +396,6 @@ export default {
       let process = data.process
 
       if (this.processModel.mDelegates.length === 0) {
-
         let stakeholder = new Stakeholder()
 
         this.processModel.addStakeholder(stakeholder)
@@ -385,7 +407,6 @@ export default {
     },
 
     removeProcess (processId) {
-
       // remove head
       if (this.processModel.id === processId) {
         this.$emit('removeHead')
@@ -410,7 +431,7 @@ export default {
         case 'update':
           break
         case 'remove':
-         this.removeProcess(data.id)
+          this.removeProcess(data.id)
           break
         case 'changeProcess':
           this.$emit('changeProcess', data.id)
@@ -594,5 +615,14 @@ $bgColor: #eee;
   width: 100px;
   left: 24px;
   top: 100px;
+}
+
+.minimap {
+    position: fixed;
+    top: 40px;
+    right: 0;
+    width: 200px;
+    height: 100%;
+    z-index: 8;
 }
 </style>
