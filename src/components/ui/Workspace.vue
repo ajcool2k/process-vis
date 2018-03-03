@@ -186,7 +186,7 @@ export default {
   methods: {
 
     redraw () {
-      this.$refs['timeline'].redraw()
+      if (this.$refs.timeline) this.$refs['timeline'].redraw()
     },
 
     calculateModel () {
@@ -219,7 +219,7 @@ export default {
 
       this.mousePosition.x = Math.round((event.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x)
       this.mousePosition.y = Math.round((event.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y)
-      this.$refs['timeline'].trackMousePosition(event)
+      if (this.$refs.timeline) this.$refs['timeline'].trackMousePosition(event)
     },
 
     trackTouchPosition (event) {
@@ -230,7 +230,7 @@ export default {
       this.mousePosition.x = Math.round((touch.pageX - this.containerTranslation.x - this.containerOffset.left) / this.containerScale.x)
       this.mousePosition.y = Math.round((touch.pageY - this.containerTranslation.y - this.containerOffset.top) / this.containerScale.y)
       // console.log(this.mousePosition.x + ':' + this.mousePosition.y)
-      this.$refs['timeline'].trackMousePosition(event)
+      if (this.$refs.timeline) this.$refs['timeline'].trackMousePosition(event)
     },
 
     throttle (fn, fnEvent, wait) {
@@ -255,7 +255,7 @@ export default {
     },
 
     updateTimeAxis () {
-      this.$refs['timeline'].updateTimeAxis()
+      if (this.$refs.timeline) this.$refs['timeline'].updateTimeAxis()
     },
 
     applyTransform () {
