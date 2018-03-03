@@ -174,8 +174,8 @@ export default {
   beforeUpdate: function () {
     console.warn('Workspace updating ...')
     this.calculateModel()
-    this.calculateContainerSize()
-    this.updateContainerSize()
+    let delta = this.calculateContainerSize()
+    this.updateContainerSize(delta)
   },
 
   updated: function () {
