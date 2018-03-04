@@ -2,7 +2,7 @@
   <div class="timeline" @click="onTimelineClick">
 
     <dialog-connection ref="dialog-connection" v-on:updateConnection="onCloseRemoveConnectionDialog"></dialog-connection>
-    <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
+    <axis-x class="ignore-container-events" :process="processModel" :scale="containerScale" :width="(containerSize.x / processModel.mDelegates.length)" v-on:closeDialog="onCloseDelegateDialog"></axis-x>
     <axis-y ref="axis-y" class="ignore-container-events" :delegates="processModel.mDelegates" :processes="processModel.children" :timeFormat="timeFormat" :itemSize="itemSize" :scale="containerScale" :containerSize="containerSize"></axis-y>
 
     <template v-for="(item, index) in processModel.mDelegates">

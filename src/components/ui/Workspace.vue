@@ -125,12 +125,12 @@ export default {
     this.htmlNode = document.querySelector('html')
     this.workspaceNode = document.querySelector('#vue-workspace')
     this.containerNode = this.workspaceNode.querySelector('.processContainer')
+    this.minimapNode = this.workspaceNode.querySelector('.minimap')
 
     // prepare Container and Workspace
     this.calculateModel()
-    this.calculateContainerSize(true)
-    this.containerSize = Calc.containerSize(this.processModel.children, this.processModel.mDelegates) // calc layout based on model
     this.initContainerSize() // apply model - forces reflow
+    this.onResize()
 
     // remove existing event handlers
     interact('.processContainer').unset()
@@ -173,16 +173,7 @@ export default {
       })
 
     // init minimap
-    const pagemap = require('pagemap/src/pagemap.js')
-    this.minimap = pagemap(this.workspaceNode.querySelector('.minimap'), {
-      styles: {
-        '.process-content': 'rgba(142, 142, 142, 1)'
-      },
-      back: 'rgba(0,0,0,0.02)',
-      view: 'rgba(63, 81, 181, 0.2)',
-      drag: 'rgba(63, 81, 181, 0.5)',
-      interval: null
-    })
+    this.initMinimap()
   },
 
   beforeUpdate: function () {
@@ -208,7 +199,7 @@ export default {
 
       setTimeout(() => { // wait for timeline to be drawn
         this.minimap.redraw()
-      }, 100)
+      }, 500)
     },
 
     calculateModel () {
@@ -216,8 +207,7 @@ export default {
     },
 
     calculateContainerSpace () {
-      // let toolbarRect = Calc.absolutePosition(this.toolbarNode, this.containerTranslation)
-      Calc.minContainerHeight = window.innerHeight - 200 // 2 * this.containerOffset.top - toolbarRect.top - toolbarRect.height
+      Calc.minContainerHeight = window.innerHeight - 200
       Calc.minContainerWidth = window.innerWidth - 400
     },
 
@@ -361,6 +351,8 @@ export default {
     applyTimeFormat (format) {
       this.timeFormat = format
       console.log('Workspace: timeFormat updated to: ' + this.timeFormat)
+      window.scrollTo(0, 0)
+      this.onResize()
     },
 
     processCreate () {
@@ -487,6 +479,7 @@ export default {
       console.log('onRangeChange')
       this.itemSize = Helper.parse(event)
       Calc.itemSize = this.itemSize
+      this.onResize()
     },
 
     onProcessOpen (event) {
@@ -557,6 +550,22 @@ export default {
         Events.scheduledAnimationFrame['recalculateFn'] = false
       }
       Events.debounce(recalculateFn, 'recalculateFn')
+    },
+
+    initMinimap () {
+      const pagemap = require('pagemap/src/pagemap.js')
+      let minimapRect = this.minimapNode.getBoundingClientRect()
+      this.minimapNode.style.height = minimapRect.height - minimapRect.top + 'px'
+
+      this.minimap = pagemap(this.minimapNode, {
+        styles: {
+          '.process-content': 'rgba(142, 142, 142, 1)'
+        },
+        back: 'rgba(0,0,0,0.02)',
+        view: 'rgba(233, 30, 99, 0.2)',
+        drag: 'rgba(233, 30, 99, 0.5)',
+        interval: null
+      })
     }
   }
 }
@@ -621,8 +630,9 @@ $bgColor: #eee;
     position: fixed;
     top: 40px;
     right: 0;
-    width: 200px;
+    width: 110px !important;
     height: 100%;
     z-index: 8;
+    background: rgba(104, 102, 117, 0.199)
 }
 </style>
