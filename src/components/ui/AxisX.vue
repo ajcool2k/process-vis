@@ -1,7 +1,7 @@
 <template>
   <div class="axis-x" @drop="drop" @dragover="allowDrop">
     <dialog-stakeholder ref="dialog-stakeholder" v-on:updateStakeholder="updateStakeholder"></dialog-stakeholder>
-      <md-layout v-if="(process.mDelegates.length > 0)" :md-gutter="process.mDelegates.length">
+      <md-layout v-if="(process.mDelegates.length > 0)" :style="'flex 0 0 ' + width + 'px'">
         <template v-for="item in process.mDelegates">
           <md-layout :key="item" md-align="center">
             <md-button @click.native="onShowActorDialog" class="md-primary button-delegate" @dragstart.native="dragstart" @dragend.native="dragend" draggable="true" :data-id="item">{{ getStakeholder(item).mName }}</md-button>
@@ -23,7 +23,7 @@ export default {
   components: {
     'dialog-stakeholder': DialogStakeholder
   },
-  props: ['process', 'scale'],
+  props: ['process', 'scale', 'width'],
   data: function () {
     return {
       elemMoved: null,
@@ -167,7 +167,8 @@ export default {
   transition: all 0.3s;
 
   .md-layout {
-    flex-wrap: nowrap
+    flex-wrap: nowrap;
+    overflow: hidden;
   }
 
   .md-button {
