@@ -1024,6 +1024,7 @@ $bgColor: #eee;
 
       z-index: 2;
       opacity: 0.7;
+      cursor: pointer;
 
       &.event-true {
         .process-content {
