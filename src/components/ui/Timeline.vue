@@ -930,7 +930,7 @@ export default {
         return
       }
 
-      this.$emit('openProcess', { id: processId, tab: 4 })
+      this.$emit('openProcess', { id: processId, tab: 5 })
     },
 
     onCloseTransformationDialog (data) {
@@ -1024,6 +1024,7 @@ $bgColor: #eee;
 
       z-index: 2;
       opacity: 0.7;
+      cursor: pointer;
 
       &.event-true {
         .process-content {
