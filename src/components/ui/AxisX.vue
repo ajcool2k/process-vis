@@ -171,7 +171,7 @@ export default {
     overflow: hidden;
   }
 
-  .md-button {
+  .button-delegate {
     height: 50px;
     width: 100%;
     margin: 0;
@@ -195,12 +195,12 @@ export default {
 
     &:hover {
       color: #fff !important;
-      background-color: #e91e63;
+      background-color: #e91e63 !important;
     }
   }
 
-  .md-button /deep/ .md-ink-ripple {
-    display: none;
+  .button-delegate /deep/ .md-ink-ripple {
+    display: none !important;
   }
 }
 
