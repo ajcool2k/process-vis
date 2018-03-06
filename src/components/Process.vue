@@ -114,8 +114,8 @@ export default {
   methods: {
 
     create () {
-      let initiator = new Stakeholder('[untitled]', 'person')
-      let process = new Process('[untitled]', initiator.id, new Date(), null)
+      let initiator = new Stakeholder()
+      let process = new Process('', initiator.id, new Date(), null)
       process.addStakeholder(initiator)
       this.model = process
       this.datamodel = this.model
@@ -161,7 +161,7 @@ export default {
           let head = new Process('head')
 
           // set initiator
-          let headStakeholder = new Stakeholder('[untitled-initator-for-' + head.id + ']')
+          let headStakeholder = new Stakeholder()
           head.addStakeholder(headStakeholder)
           head.mInitiator = headStakeholder.id
 

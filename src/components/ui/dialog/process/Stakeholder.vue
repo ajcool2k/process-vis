@@ -15,7 +15,7 @@
 
         <md-table-body>
           <md-table-row v-for="(elem, index) in matrix" :key="index+'--matrix'">
-            <md-table-cell class="person"><md-icon>person</md-icon>{{elem.name}}</md-table-cell>
+            <md-table-cell class="person"><md-icon>person</md-icon>{{elem.mName}}</md-table-cell>
             <!-- <md-table-cell>{{elem.type}}</md-table-cell> -->
             <md-table-cell class="center matrix-cell" v-html="elem.initiator"></md-table-cell>
             <md-table-cell class="center matrix-cell" v-html="elem.delegate"></md-table-cell>
@@ -85,7 +85,7 @@ export default {
     refresh (p) {
       console.warn('Stakeholder.refresh()')
       this.process = p
-      this.initiator = this.getStakeholder(this.process.initiator).name
+      this.initiator = this.getStakeholder(this.process.initiator).mName
       const symbol = '&#x2713;'
 
       let isParticipant = (id) => {
@@ -93,13 +93,13 @@ export default {
       }
 
       // add initaitor
-      let mapA = [ { id: this.process.initiator, name: this.getStakeholder(this.process.initiator).name, type: this.getStakeholder(this.process.initiator).type, initiator: symbol, delegate: '', participant: '', other: '' } ]
+      let mapA = [ { id: this.process.initiator, name: this.getStakeholder(this.process.initiator).mName, type: this.getStakeholder(this.process.initiator).type, initiator: symbol, delegate: '', participant: '', other: '' } ]
       // add delegates
-      let mapB = this.process.mDelegates.map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: symbol, participant: isParticipant(id), other: '' } })
+      let mapB = this.process.mDelegates.map(id => { return { id: id, name: this.getStakeholder(id).mName, type: this.getStakeholder(id).type, initaitor: '', delegate: symbol, participant: isParticipant(id), other: '' } })
       // add participants
-      let mapC = this.process.participants.filter(id => this.process.mDelegates.indexOf(id) === -1).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', participant: symbol, other: '' } })
+      let mapC = this.process.participants.filter(id => this.process.mDelegates.indexOf(id) === -1).map(id => { return { id: id, name: this.getStakeholder(id).mName, type: this.getStakeholder(id).type, initaitor: '', delegate: '', participant: symbol, other: '' } })
       // add others
-      let mapD = this.process.stakeholder.filter(id => this.process.participants.indexOf(id) === -1 && id && this.process.mDelegates.indexOf(id) === -1 && id !== this.process.initiator).map(id => { return { id: id, name: this.getStakeholder(id).name, type: this.getStakeholder(id).type, initaitor: '', delegate: '', other: symbol } })
+      let mapD = this.process.stakeholder.filter(id => this.process.participants.indexOf(id) === -1 && id && this.process.mDelegates.indexOf(id) === -1 && id !== this.process.initiator).map(id => { return { id: id, name: this.getStakeholder(id).mName, type: this.getStakeholder(id).type, initaitor: '', delegate: '', other: symbol } })
 
       this.matrix = mapA.concat(mapB.concat(mapC.concat(mapD)))
     },

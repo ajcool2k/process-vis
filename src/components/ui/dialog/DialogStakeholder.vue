@@ -6,19 +6,16 @@
     ref="dialog">
     <md-dialog-title>Zuständigkeitsbereich</md-dialog-title>
     <md-dialog-content>
-
-    <form novalidate @submit.stop.prevent="onCloseButton">
-
       <md-input-container>
         <label for="stakeholder">Auswahl</label>
         <md-select name="stakeholder" id="stakeholder" @change="onChange">
           <md-option disabled value="">Auswahl Stakeholder</md-option>
-          <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.name}}</md-option>
+          <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-choice'">{{item.mName}}</md-option>
         </md-select>
       </md-input-container>
 
       <md-input-container>
-        <label>Akteur-Name</label>
+        <label>Bezeichnung</label>
         <md-input type="text" v-model="initiator.name"></md-input>
       </md-input-container>
 
@@ -29,12 +26,12 @@
           <md-option value="group">Gruppe</md-option>
         </md-select>
       </md-input-container>
-
-      <md-button @click="onRemoveButton" class="md-raised md-primary">Entfernen</md-button>
-      <md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button>
-
-    </form>
     </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button @click="onRemoveButton" class="md-raised">Entfernen</md-button>
+      <md-button @click="onCloseButton" class="md-raised md-primary">Schließen</md-button>
+    </md-dialog-actions>
   </md-dialog>
 </template>
 

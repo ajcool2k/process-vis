@@ -14,20 +14,19 @@
             <label for="stakeholder">Auswahl</label>
             <md-select name="stakeholder" id="stakeholder" @change="onChange">
               <md-option disabled value="">Auswahl Stakeholder</md-option>
-              <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-add-choice'">{{item.name}}</md-option>
+              <md-option v-for="item in stakeholder" :value="item.id" :key="item.id + '--dialog-stakeholder-add-choice'">{{item.mName}}</md-option>
             </md-select>
           </md-input-container>
 
           <md-input-container v-if="useExisting === false">
-            <label>Akteur-Name</label>
+            <label>Bezeichnung</label>
             <md-input type="text" v-model="initiator.name" placeholder="Bezeichnung"></md-input>
           </md-input-container>
 
           <md-input-container v-if="useExisting === false">
             <label for="stakeholder-type">Typ</label>
             <md-select name="stakeholder-type" id="stakeholder-type" v-model="initiator.type">
-              <md-option value="person">Person</md-option>
-              <md-option value="group">Gruppe</md-option>
+              <md-option v-for="elem in stakeholderEnumType" :value="elem.id" :key="elem.id + '--dialog-select-delegate-choice--input'">{{elem.value}}</md-option>
             </md-select>
           </md-input-container>
         </div>
@@ -50,6 +49,7 @@ export default {
   data: function () {
     return {
       stakeholder: Metadata.getStakeholder(),
+      stakeholderEnumType: Stakeholder.EnumType,
       selectedStakeholder: null,
       initiator: null,
       useExisting: false,
@@ -75,7 +75,7 @@ export default {
   methods: {
     open () {
       console.log('DialogSelectDelegate open()')
-      this.initiator = new Stakeholder('', 'person')
+      this.initiator = new Stakeholder()
       this.selectedStakeholder = null
       this.response = ''
       this.$refs['dialog'].open()
@@ -99,7 +99,6 @@ export default {
       if (this.response === '') return
 
       let initiator = this.useExisting && this.selectedStakeholder ? this.selectedStakeholder : this.initiator
-      if (initiator.name === '') initiator.name = '[untitled]'
       this.$emit('delegateSelect', { initiator: initiator, response: this.response })
     }
   }

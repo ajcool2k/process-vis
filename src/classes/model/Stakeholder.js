@@ -4,7 +4,7 @@ export class Stakeholder {
     const uniqid = require('uniqid')
     this.id = uniqid()
     this.name = typeof name === 'string' ? name : ''
-    this.type = typeof type === 'string' ? type : 'person'
+    this.type = typeof type === 'string' ? type : Stakeholder.EnumType.O1.id
     this.contact = {
       contactPerson: '',
       postAddress: '',
@@ -17,7 +17,10 @@ export class Stakeholder {
 
   // IMPL getter and setter
 
-  get mName () { return this.name }
+  get mName () {
+    return typeof this.name === 'undefined' || this.name === '' ? '[keine Bezeichnung]' : this.name
+  }
+
   set mName (name) {
     this.name = name
   }
@@ -49,4 +52,13 @@ export class Stakeholder {
     this.type = serializedStakeholder.type
     this.contact = serializedStakeholder.contact
   }
+}
+
+/**
+ * An enum with two options.
+ * @enum {Object}
+ */
+Stakeholder.EnumType = {
+  O1: { id: 'person', value: 'Person' },
+  O2: { id: 'group', value: 'Gruppe' }
 }

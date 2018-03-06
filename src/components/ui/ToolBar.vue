@@ -23,11 +23,11 @@
           <md-icon>file_download</md-icon>
         </md-button>
 
-        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @mousedown.native="zoomIn" @mouseup.native="zoomStop">
+        <md-button @touchstart.native="zoomIn" @touchend.native="zoomStop" @ @mousedown.native="zoomIn" @mouseup.native="zoomStop" @mouseout.native="zoomStop">
           <md-icon>zoom_in</md-icon>
         </md-button>
 
-        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop">
+        <md-button @touchstart.native="zoomOut" @touchend.native="zoomStop" @mousedown.native="zoomOut" @mouseup.native="zoomStop" @mouseout.native="zoomStop">
           <md-icon>zoom_out</md-icon>
         </md-button>
       </span>
@@ -46,7 +46,9 @@ export default {
   props: [ 'containerScale', 'isSaved', 'process' ],
   data: function () {
     return {
-      scaleData: this.containerScale
+      scaleData: this.containerScale,
+      // Interval
+      zoomInt: 0
     }
   },
 
@@ -89,6 +91,7 @@ export default {
     zoomStop (event) {
       if (event) event.preventDefault()
       clearInterval(this.zoomInt)
+      this.zoomInt = 0
     },
 
     scale (multX, multY) {
@@ -120,8 +123,8 @@ export default {
       this.$emit('process')
     },
 
-    onChangeProcess (direction) {
-      this.$emit('changeProcess', 'changeProcess-' + direction)
+    onChangeProcess (processId) {
+      this.$emit('changeProcess', processId)
     }
   }
 }

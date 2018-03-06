@@ -1,6 +1,6 @@
 <template>
   <div class="connection">
-    <md-table>
+    <md-table v-once>
       <md-table-header>
         <md-table-row>
           <md-table-head>Prozess</md-table-head>
@@ -10,8 +10,8 @@
         </md-table-row>
       </md-table-header>
       <md-table-body>
-        <md-table-row v-for="(id, rowIndex) in process.connection.from" :key="rowIndex + '--from'" :md-item="{ process: id }" md-auto-select md-selection>
-          <md-table-cell>{{ getProcess(id).name }}</md-table-cell>
+        <md-table-row v-for="(id, rowIndex) in process.connection.from" :key="rowIndex + '--from'" :md-item="{ process: id }">
+          <md-table-cell>{{ getProcess(id).mName }}</md-table-cell>
           <md-table-cell>&#x2713;</md-table-cell>
           <md-table-cell></md-table-cell>
           <md-table-cell>
@@ -20,8 +20,8 @@
             </md-button>
           </md-table-cell>
         </md-table-row>
-        <md-table-row v-for="(id, rowIndex) in process.connection.to" :key="rowIndex + '--to'" :md-item="{ process: id }" md-auto-select md-selection>
-          <md-table-cell>{{ getProcess(id).name }}</md-table-cell>
+        <md-table-row v-for="(id, rowIndex) in process.connection.to" :key="rowIndex + '--to'" :md-item="{ process: id }">
+          <md-table-cell>{{ getProcess(id).mName }}</md-table-cell>
           <md-table-cell></md-table-cell>
           <md-table-cell>&#x2713;</md-table-cell>
           <md-table-cell>

@@ -1,10 +1,10 @@
 <template>
   <div class="axis-x" @drop="drop" @dragover="allowDrop">
     <dialog-stakeholder ref="dialog-stakeholder" v-on:updateStakeholder="updateStakeholder"></dialog-stakeholder>
-      <md-layout v-if="(process.mDelegates.length > 0)" :md-gutter="process.mDelegates.length">
+      <md-layout v-if="(process.mDelegates.length > 0)" :style="'flex 0 0 ' + width + 'px'">
         <template v-for="item in process.mDelegates">
           <md-layout :key="item" md-align="center">
-            <md-button @click.native="onShowActorDialog" class="md-primary button-delegate" @dragstart.native="dragstart" @dragend.native="dragend" draggable="true" :data-id="item">{{ getStakeholder(item).name }}</md-button>
+            <md-button @click.native="onShowActorDialog" class="md-primary button-delegate" @dragstart.native="dragstart" @dragend.native="dragend" draggable="true" :data-id="item">{{ getStakeholder(item).mName }}</md-button>
           </md-layout>
         </template>
     </md-layout>
@@ -12,7 +12,6 @@
 </template>
 
 <script>
-import { Dialog } from '@/classes/ui/Dialog'
 import { Helper } from '@/classes/utils/Helper'
 import DialogStakeholder from './dialog/DialogStakeholder.vue'
 
@@ -24,15 +23,11 @@ export default {
   components: {
     'dialog-stakeholder': DialogStakeholder
   },
-  props: ['process', 'scale'],
+  props: ['process', 'scale', 'width'],
   data: function () {
     return {
       elemMoved: null,
-      domNode: null,
-
-      // Dialogs
-      dialog: new Dialog()
-
+      domNode: null
     }
   },
 
@@ -66,7 +61,6 @@ export default {
       console.log('updateStakeholder', data)
 
       if (data.id === data.previousId) {
-        if (typeof this.$refs['dialog.stakeholder'] !== 'undefined') this.$refs['dialog-stakeholder'].close()
         this.$emit('closeDialog', data)
         return
       }
@@ -173,7 +167,8 @@ export default {
   transition: all 0.3s;
 
   .md-layout {
-    flex-wrap: nowrap
+    flex-wrap: nowrap;
+    overflow: hidden;
   }
 
   .md-button {

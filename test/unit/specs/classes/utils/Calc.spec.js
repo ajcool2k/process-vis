@@ -14,7 +14,7 @@ describe('Calc.js (getDefaultEndDate)', () => {
 
   it('should calc missing enddate correctly', () => {
     let process = new Process('head', 1, new Date(2017, 0, 1), null)
-    let timeFormats = [ 'hours', 'days', 'months' ]
+    let timeFormats = [ 'hours', 'days', 'months', 'years' ]
 
     let retA = Calc.getDefaultEndDate(process, timeFormats[0])
     expect(retA instanceof Date).to.equal(true)
@@ -27,6 +27,10 @@ describe('Calc.js (getDefaultEndDate)', () => {
     let retC = Calc.getDefaultEndDate(process, timeFormats[2])
     expect(retC instanceof Date).to.equal(true)
     expect(retC.getTime()).to.equal(new Date(2017, 1, 1).getTime())
+
+    let retD = Calc.getDefaultEndDate(process, timeFormats[3])
+    expect(retD instanceof Date).to.equal(true)
+    expect(retD.getTime()).to.equal(new Date(2018, 0, 1).getTime())
   })
 })
 
@@ -240,7 +244,7 @@ describe('Calc.js (getDivider)', () => {
   })
 
   it('should return correct divider', () => {
-    expect(Object.keys(Calc.timeFormats).length).to.equal(3)
+    expect(Object.keys(Calc.timeFormats).length).to.equal(4)
     const formats = Object.keys(Calc.timeFormats)
     formats.forEach(format => {
       let divider = Calc.getDivider(format)
