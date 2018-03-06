@@ -930,7 +930,7 @@ export default {
         return
       }
 
-      this.$emit('openProcess', { id: processId, tab: 4 })
+      this.$emit('openProcess', { id: processId, tab: 5 })
     },
 
     onCloseTransformationDialog (data) {
