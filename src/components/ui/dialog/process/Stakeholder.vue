@@ -15,7 +15,7 @@
 
         <md-table-body>
           <md-table-row v-for="(elem, index) in matrix" :key="index+'--matrix'">
-            <md-table-cell class="person"><md-icon>person</md-icon>{{elem.mName}}</md-table-cell>
+            <md-table-cell class="person"><md-icon>person</md-icon>{{elem.name}}</md-table-cell>
             <!-- <md-table-cell>{{elem.type}}</md-table-cell> -->
             <md-table-cell class="center matrix-cell" v-html="elem.initiator"></md-table-cell>
             <md-table-cell class="center matrix-cell" v-html="elem.delegate"></md-table-cell>
