@@ -1,7 +1,7 @@
 <template>
   <div class="general">
-    <datetime class="datetime--hidden" v-model="info.start" ref="datetimeStart" type="datetime" input-format="YYYY-MM-DD HH:mm" moment-locale="de" monday-first :i18n="{ok:'OK', cancel:'Abbrechen'}"></datetime>
-    <datetime class="datetime--hidden" v-model="info.end" ref="datetimeEnd" type="datetime" input-format="YYYY-MM-DD HH:mm" moment-locale="de" :min-date="info.start" monday-first :i18n="{ok:'OK', cancel:'Abbrechen'}"></datetime>
+    <datetime class="datetime--hidden" v-model="info.start" ref="datetimeStart" type="datetime" :phrases="{ok:'OK', cancel:'Abbrechen'}"></datetime>
+    <datetime class="datetime--hidden" v-model="info.end" ref="datetimeEnd" type="datetime" :phrases="{ok:'OK', cancel:'Abbrechen'}"></datetime>
 
     <md-input-container>
     <label>Bezeichnung</label>
@@ -40,8 +40,11 @@
 
 <script>
 import { Process } from '@/classes/model/Process'
-import { Datetime }  from 'vue-datetime-2'
+import { Datetime }  from 'vue-datetime'
+import 'vue-datetime/dist/vue-datetime.css'
+
 import dateFormat from 'dateformat'
+import { Settings } from 'luxon'
 
 export default {
   name: 'General',
@@ -65,20 +68,26 @@ export default {
   watch: {
     'info.start': function (dateStringStart) {
       this.process.mStart = new Date(dateStringStart)
-      this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
+      // this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
       this.info.event = this.process.isEvent()
     },
     'info.end': function (dateStringEnd) {
+      console.log('watcher', dateStringEnd)
+      /*
       if (dateStringEnd === '') {
+        console.log('reset!!')
         this.process.resetEndDate()
         return
       }
+      */
 
       this.process.mEnd = new Date(dateStringEnd)
-      this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
+      console.log('this.process.mEnd', this.process.mEnd)
+      // this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
       this.info.event = this.process.isEvent()
     },
     'info.event': function (eventValue) {
+      console.log('info.event', eventValue)
       if (eventValue === true) {
         this.process.mEnd = new Date(this.process.mStart)
       } else {
@@ -90,6 +99,7 @@ export default {
   },
   created: function () {
     console.log('General created')
+    Settings.defaultLocale = 'de'
   },
 
   destroyed: function () {
@@ -118,8 +128,8 @@ export default {
     refresh (process) {
       this.process = process
       this.info.name = typeof this.process.name === 'string' ? this.process.name : ''
-      this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
-      this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
+      this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? this.process.start.toISOString() : ''
+      this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? this.process.end.toISOString() : ''
       this.info.event = this.process.isEvent()
       this.info.participation = typeof this.process.mParticipation !== 'undefined' ? this.process.mParticipation : ''
     },
@@ -133,23 +143,15 @@ export default {
     },
 
     openDateTimeStart (ev) {
-      this.$refs['datetimeStart'].open()
+      this.$refs['datetimeStart'].open(ev)
     },
 
     openDateTimeEnd (ev) {
-      this.$refs['datetimeEnd'].open()
+      this.$refs['datetimeEnd'].open(ev)
 
-      if (this.info.end instanceof Date) return
+      if (typeof this.info.end === 'string' && this.info.end !== '') return
 
-      // parse date from process.start
-      let startDate = this.$refs['datetimeStart'].getNewDate()
-      let sdate = new Date(startDate._i)
-
-      this.$refs['datetimeEnd'].selectYear(sdate.getFullYear())
-      this.$refs['datetimeEnd'].selectMonth(sdate.getMonth())
-      this.$refs['datetimeEnd'].selectDay(sdate.getDate())
-      this.$refs['datetimeEnd'].selectHour(sdate.getHours())
-      this.$refs['datetimeEnd'].selectMinute(sdate.getMinutes())
+      this.info.end = this.info.start.valueOf()
     }
   }
 }
