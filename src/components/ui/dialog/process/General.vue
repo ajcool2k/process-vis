@@ -1,52 +1,60 @@
 <template>
   <div class="general">
-    <datetime class="datetime--hidden" v-model="info.start" ref="datetimeStart" type="datetime" input-format="YYYY-MM-DD HH:mm" moment-locale="de" monday-first :i18n="{ok:'OK', cancel:'Abbrechen'}"></datetime>
-    <datetime class="datetime--hidden" v-model="info.end" ref="datetimeEnd" type="datetime" input-format="YYYY-MM-DD HH:mm" moment-locale="de" :min-date="info.start" monday-first :i18n="{ok:'OK', cancel:'Abbrechen'}"></datetime>
+    <md-layout>
 
-    <md-input-container>
-    <label>Bezeichnung</label>
-    <md-input type="text" v-model="info.name" ref="focusable" @change="onChangeName"></md-input>
-    </md-input-container>
+      <md-layout :md-gutter="8">
+        <md-input-container>
+          <label>Bezeichnung</label>
+          <md-input type="text" v-model="info.name" ref="focusable" @change="onChangeName" md-clearable></md-input>
+        </md-input-container>
 
-    <md-layout md-gutter>
-      <md-layout md-align="start">
-          <md-input-container>
-          <label>{{ info.event === true ? 'Zeitpunkt' : 'Start'}}</label>
-          <md-input type="text" readonly v-model="info.start" @click.native="openDateTimeStart"></md-input>
-          </md-input-container>
+        <md-layout md-align="start">
+            <md-input-container :class="(startTime.time  !== '' ? 'md-has-value' : '')">
+            <label>{{ info.event === true ? 'Zeitpunkt' : 'Start'}}</label>
+            <date-picker ref="datepicker-start" :date="startTime" format="YYYY-MM-DD HH:mm" :option="option" :limit="limit" v-on:click="showOnly('datepicker-start')"></date-picker>
+            </md-input-container>
+        </md-layout>
+        <md-layout md-align="center" md-flex-offset="5">
+            <md-input-container :class="(endTime.time !== '' ? 'md-has-value' : '')" v-if="info.event === false" md-clearable>
+            <label>Ende</label>
+            <date-picker ref="datepicker-end" :date="endTime" :option="option" :limit="limit" v-on:click="showOnly('datepicker-end')"></date-picker>
+            <button v-if="endTime.time !== ''" type="button" class="md-button md-icon-button md-input-action md-button-clear-time" @click="onRemoveEndTime">
+              <md-icon>clear</md-icon>
+            </button>
+            </md-input-container>
+        </md-layout>
+        <md-layout md-align="end" md-flex-offset="5">
+            <md-layout md-align="center">
+                <md-switch v-model="info.event" class="md-primary">Zeitpunkt</md-switch>
+            </md-layout>
+        </md-layout>
+
+        <md-input-container>
+          <label for="participation">Partizipation</label>
+          <md-select name="participation" id="participation" v-model="info.participation" @change="onChangeParticipation">
+              <md-option value="closed">nicht möglich</md-option>
+              <md-option value="open">möglich</md-option>
+          </md-select>
+        </md-input-container>
+
       </md-layout>
-      <md-layout md-align="center" md-flex-offset="5">
-          <md-input-container class="input-container-end-date" v-if="info.event === false" md-clearable>
-          <label>Ende</label>
-          <md-input type="text" readonly v-model="info.end" @click.native="openDateTimeEnd"></md-input>
-          </md-input-container>
-      </md-layout>
-      <md-layout md-align="end" md-flex-offset="5">
-          <md-layout md-align="center">
-              <md-switch v-model="info.event" class="md-primary">Zeitpunkt</md-switch>
-          </md-layout>
+      <md-layout :md-gutter="8">
+        <md-layout class="md-layout-action">
+        </md-layout>
       </md-layout>
     </md-layout>
-
-    <md-input-container>
-    <label for="participation">Partizipation</label>
-    <md-select name="participation" id="participation" v-model="info.participation" @change="onChangeParticipation">
-        <md-option value="closed">nicht möglich</md-option>
-        <md-option value="open">möglich</md-option>
-    </md-select>
-    </md-input-container>
   </div>
 </template>
 
 <script>
 import { Process } from '@/classes/model/Process'
-import { Datetime }  from 'vue-datetime-2'
-import dateFormat from 'dateformat'
+import datePicker from 'vue-datepicker/vue-datepicker-es6.vue'
+import moment from 'moment'
 
 export default {
   name: 'General',
   components: {
-    'datetime': Datetime
+    'date-picker': datePicker
   },
   props: [],
   data: function () {
@@ -58,35 +66,60 @@ export default {
         end: '',
         event: false,
         participation: ''
-      }
+      },
+      placeholder: 'Start',
+      startTime: {
+        time: ''
+      },
+      endTime: {
+        time: ''
+      },
+      option: {
+        type: 'min',
+        week: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+        month: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+        format: 'YYYY-MM-DD HH:mm',
+        placeholder: '',
+        parentClass: 'md-layout-action',
+        inputClass: 'md-input',
+        inputStyle: {
+          'line-height': '22px',
+          'font-size': '16px'
+        },
+        buttons: {
+          ok: 'Ok',
+          cancel: 'Abbrechen'
+        },
+        overlayOpacity: 0.5, // 0.5 as default
+        dismissible: true // as true as default
+      },
+      limit: []
     }
   },
 
   watch: {
-    'info.start': function (dateStringStart) {
-      this.process.mStart = new Date(dateStringStart)
-      this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
+    'startTime.time': function (date) {
+      console.log('startTime.time', date)
+      this.process.mStart = moment(date).toDate()
       this.info.event = this.process.isEvent()
     },
-    'info.end': function (dateStringEnd) {
-      if (dateStringEnd === '') {
+    'endTime.time': function (date) {
+      console.log('endTime.time', date)
+      this.process.mEnd = moment(date).toDate()
+
+      if (typeof date === 'undefined' || date === '') {
         this.process.resetEndDate()
         return
       }
-
-      this.process.mEnd = new Date(dateStringEnd)
-      this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
       this.info.event = this.process.isEvent()
     },
     'info.event': function (eventValue) {
       if (eventValue === true) {
         this.process.mEnd = new Date(this.process.mStart)
       } else {
-        this.process.resetEndDate()
-        this.info.end = ''
+        this.onRemoveEndTime()
       }
     }
-
   },
   created: function () {
     console.log('General created')
@@ -98,16 +131,14 @@ export default {
   mounted: function () {
     console.log('General mounted')
 
-    // move datetime outside when in dialog
-    let rootDom = document.querySelector('#app')
-    let nodeList = document.querySelectorAll('.md-dialog .datetime--hidden')
-    let nodeArray = Array.from(nodeList)
+    this.$nextTick(() => {
+      let nodeList = document.querySelectorAll('.cov-datepicker')
+      let nodeArray = Array.from(nodeList)
 
-    nodeArray.forEach(element => {
-      element.parentNode.removeChild(element)
-      rootDom.appendChild(element)
-    });
-
+      nodeArray.forEach(element => {
+        element.classList.add('md-input')
+      })
+    })
   },
 
   updated: function () {
@@ -115,17 +146,36 @@ export default {
   },
 
   methods: {
+    clear () {
+      console.log('clear')
+      this.$refs['datepicker-start'].visible(false)
+      this.$refs['datepicker-end'].visible(false)
+    },
+
     refresh (process) {
       this.process = process
       this.info.name = typeof this.process.name === 'string' ? this.process.name : ''
-      this.info.start = typeof this.process.start !== 'undefined' && this.process.start !== null ? dateFormat(this.process.start, 'yyyy-mm-dd HH:MM') : ''
-      this.info.end = typeof this.process.end !== 'undefined' && this.process.end !== null ? dateFormat(this.process.end, 'yyyy-mm-dd HH:MM') : ''
+
+      this.startTime.time = typeof this.process.start !== 'undefined' && this.process.start !== null ? moment(this.process.start).format('YYYY-MM-DD HH:mm') : ''
+      this.endTime.time = typeof this.process.end !== 'undefined' && this.process.end !== null ? moment(this.process.end).format('YYYY-MM-DD HH:mm') : ''
+
       this.info.event = this.process.isEvent()
       this.info.participation = typeof this.process.mParticipation !== 'undefined' ? this.process.mParticipation : ''
     },
 
+    showOnly (ref) {
+      console.log('showOnly', ref)
+      this.clear()
+      this.$refs[ref].visible(true)
+    },
+
     onChangeName (name) {
       this.process.mName = name
+    },
+
+    onRemoveEndTime () {
+      this.process.resetEndDate()
+      this.endTime.time = ''
     },
 
     onChangeParticipation (string) {
@@ -138,18 +188,6 @@ export default {
 
     openDateTimeEnd (ev) {
       this.$refs['datetimeEnd'].open()
-
-      if (this.info.end instanceof Date) return
-
-      // parse date from process.start
-      let startDate = this.$refs['datetimeStart'].getNewDate()
-      let sdate = new Date(startDate._i)
-
-      this.$refs['datetimeEnd'].selectYear(sdate.getFullYear())
-      this.$refs['datetimeEnd'].selectMonth(sdate.getMonth())
-      this.$refs['datetimeEnd'].selectDay(sdate.getDate())
-      this.$refs['datetimeEnd'].selectHour(sdate.getHours())
-      this.$refs['datetimeEnd'].selectMinute(sdate.getMinutes())
     }
   }
 }
@@ -158,29 +196,24 @@ export default {
 <style lang="scss">
   $primaryColor: #3f51b5;
   $accepntColor: #e91e63;
+  #general {
 
-  .datetime--hidden {
-    .vdatetime-fade-enter-active,
-    .vdatetime-fade-leave-active {
-        transition: none !important;
-    }
+    .cov-vue-date {
+      width: 100%;
 
-    .vdatetime-slot__available, .vdatetime-slot__not-available {
-      display: none;
-    }
-
-    .vdatetime-popup__month-selector__next, .vdatetime-popup__month-selector__previous {
-      padding: 0;
-    }
-
-    .vdatetime-popup__header,
-    .vdatetime-popup__date-picker__item--selected > span > span,
-    .vdatetime-popup__date-picker__item--selected:hover > span > span {
-        background: $primaryColor;
-    }
-
-    > input[type=text] {
-      display: none
+      .md-button-clear-time {
+        padding: 0;
+        margin: 0;
+        min-height: 32px;
+        height: 32px;
+      }
+      .datepickbox {
+        input.cov-datepicker {
+          cursor: pointer;
+          height: 100%;
+          height: 32px;
+        }
+      }
     }
   }
 </style>

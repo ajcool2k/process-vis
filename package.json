@@ -21,10 +21,11 @@
     "file-saver": "^1.3.3",
     "interactjs": "^1.3.3",
     "lodash": "^4.17.4",
+    "moment": "^2.21.0",
     "pagemap": "git+https://github.com/janroudaut/pagemap.git",
     "uniqid": "^4.1.1",
     "vue": "^2.5.2",
-    "vue-datetime-2": "^0.6.1",
+    "vue-datepicker": "git+https://github.com/ajcool2k/vue-datepicker.git",
     "vue-material": "^0.8.1",
     "vue-router": "^3.0.1",
     "vue-slider-component": "^2.4.4"

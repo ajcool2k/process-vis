@@ -160,6 +160,7 @@ export default {
     },
 
     onCloseDialog () {
+      this.$refs['general-tab'].clear()
       this.$emit('closeDialog', { id: this.process.id, response: this.response })
     },
 
